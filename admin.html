@@ -1,1 +1,56 @@
-
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Friends Squad 2.0 — Admin</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#0b1020;color:#f5f7ff}.wrap{max-width:1000px;margin:auto;padding:24px}.card{background:#151d35;border:1px solid #ffffff18;border-radius:18px;padding:20px;margin:16px 0}h1,h2{color:#20d9c4}input,textarea,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ffffff25;background:#0d1428;color:white;margin:7px 0 12px}button{padding:11px 16px;border:0;border-radius:10px;background:#7c5cff;color:white;font-weight:bold;margin:5px;cursor:pointer}.danger{background:#c0392b}.muted{color:#aeb8d3}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.member-row,.media-row{display:flex;gap:12px;align-items:center;border-top:1px solid #ffffff18;padding:12px 0}.member-row img,.media-row img{width:70px;height:70px;object-fit:cover;border-radius:10px}@media(max-width:700px){.grid{grid-template-columns:1fr}.member-row{align-items:flex-start;flex-wrap:wrap}}
+#app{display:none}.status{padding:10px;border-radius:10px;background:#10182d;margin:10px 0}.small{font-size:13px}
+</style></head><body><div class="wrap">
+<h1>Friends Squad 2.0 — Admin Panel</h1>
+<div id="login" class="card"><h2>Admin Login</h2><p class="muted">Only your Firebase account should be allowed here.</p>
+<input id="email" type="email" placeholder="Admin email"><input id="password" type="password" placeholder="Password"><button id="loginBtn">Login</button><div id="loginMsg" class="status"></div></div>
+<div id="app">
+<div class="status">Logged in. <button id="logoutBtn">Logout</button></div>
+<div class="card"><h2>Members</h2><p class="muted">Add members, edit details, replace photos, or delete members.</p>
+<div class="grid"><div><input id="mId" placeholder="Member ID (for existing: member1, member2...)"><input id="mName" placeholder="Name"><input id="mRole" placeholder="Role"><textarea id="mBio" rows="5" placeholder="Member details / bio"></textarea><input id="mPhoto" type="file" accept="image/*"><button id="saveMember">Save Member</button><button id="clearMember">Clear</button></div><div><div id="memberList"></div></div></div></div>
+<div class="card"><h2>Notices</h2><input id="nId" placeholder="Notice ID (leave blank for new)"><input id="nTitle" placeholder="Notice title"><textarea id="nBody" rows="5" placeholder="Notice text"></textarea><button id="saveNotice">Save Notice</button><div id="noticeList"></div></div>
+<div class="card"><h2>Photos & Videos</h2><input id="mediaTitle" placeholder="Title"><select id="mediaType"><option value="photo">Photo</option><option value="video">Video</option></select><input id="mediaFile" type="file" accept="image/*,video/*"><button id="uploadMedia">Upload</button><div id="mediaList"></div></div>
+<div class="card"><h2>Website Text & Design</h2><div class="grid"><div><input id="sTitle" placeholder="Website title"><input id="sTag" placeholder="Hero tag"><textarea id="sHeroTitle" rows="3" placeholder="Hero title"></textarea><textarea id="sHeroText" rows="4" placeholder="Hero text"></textarea></div><div><textarea id="sStory" rows="4" placeholder="Our Story"></textarea><textarea id="sVibe" rows="4" placeholder="Our Vibe"></textarea><input id="sPhone" placeholder="Contact phone"><input id="sPrimary" type="text" placeholder="Primary color e.g. #7c5cff"><input id="sAccent" placeholder="Accent color e.g. #20d9c4"><input id="sBg1" placeholder="Background color 1 e.g. #090d1a"><input id="sBg2" placeholder="Background color 2 e.g. #17254a"><input id="sText" placeholder="Text color e.g. #f5f7ff"><input id="sCard" placeholder="Card background e.g. #ffffff12"><input id="sRadius" type="number" placeholder="Card radius (px)"><input id="sFont" placeholder="Font family e.g. Arial, sans-serif"><textarea id="sCustomCss" rows="7" placeholder="Advanced: custom CSS (optional)"></textarea></div></div><button id="saveSettings">Save Website Settings</button></div>
+<p class="muted small">Security is enforced by Firebase Authentication plus Firestore/Storage rules. Hiding the admin URL is not the security mechanism.</p>
+</div></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script><script src="seed-members.js"></script>
+<script>
+const cfg=window.FIREBASE_CONFIG||{};const configured=cfg.apiKey&&!String(cfg.apiKey).startsWith("PASTE_")&&cfg.projectId&&!String(cfg.projectId).startsWith("PASTE_");
+let auth,db,storage;if(configured){firebase.initializeApp(cfg);auth=firebase.auth();db=firebase.firestore();storage=firebase.storage();}
+const $=id=>document.getElementById(id);const msg=t=>{$("loginMsg").textContent=t};
+function clearForm(){$("mId").value="";$("mName").value="";$("mRole").value="";$("mBio").value="";$("mPhoto").value=""}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+if(!configured){msg("First put your Firebase Web App config into firebase-config.js.");$("loginBtn").disabled=true}
+$("loginBtn").onclick=async()=>{try{await auth.signInWithEmailAndPassword($("email").value.trim(),$("password").value);msg("")}catch(e){msg(e.message)}};
+$("logoutBtn").onclick=()=>auth.signOut();
+const ADMIN_UID="gGs0iwpHP0W3Al37lFHqV6DZg0J2";
+if(auth)auth.onAuthStateChanged(async u=>{
+  if(u && u.uid===ADMIN_UID){
+    $("login").style.display="none";
+    $("app").style.display="block";
+    await loadAll();
+  }else if(u){
+    await auth.signOut();
+    $("login").style.display="block";
+    $("app").style.display="none";
+    msg("This account is not authorized as the website admin.");
+  }else{
+    $("login").style.display="block";
+    $("app").style.display="none";
+  }
+});
+async function upload(file,path){if(!file)return null;const ref=storage.ref().child(path);await ref.put(file);return await ref.getDownloadURL()}
+async function loadMembers(){const list=$("memberList");list.innerHTML="";const snap=await db.collection("members").get();const cloud={};snap.forEach(d=>cloud[d.id]=d.data());const all=(window.DEFAULT_MEMBERS||[]).map(m=>Object.assign({},m,cloud[m.id]||{})).filter(m=>!m.deleted).concat(Object.keys(cloud).filter(id=>!(window.DEFAULT_MEMBERS||[]).some(m=>m.id===id)).map(id=>Object.assign({id},cloud[id])).filter(m=>!m.deleted));all.forEach(m=>{const el=document.createElement("div");el.className="member-row";el.innerHTML='<img src="'+esc(m.image)+'"><div style="flex:1"><b>'+esc(m.name)+'</b><div class="muted">'+esc(m.role||"")+'</div></div><button data-edit="'+esc(m.id)+'">Edit</button><button class="danger" data-del="'+esc(m.id)+'">Delete</button>';list.appendChild(el);el.querySelector("[data-edit]").onclick=()=>{ $("mId").value=m.id;$("mName").value=m.name||"";$("mRole").value=m.role||"";$("mBio").value=m.bio||""};el.querySelector("[data-del]").onclick=async()=>{if(confirm("Delete this member?")){if((window.DEFAULT_MEMBERS||[]).some(x=>x.id===m.id)){await db.collection("members").doc(m.id).set({deleted:true},{merge:true})}else{await db.collection("members").doc(m.id).set({deleted:true},{merge:true})}await loadMembers()}}})}
+$("saveMember").onclick=async()=>{try{let id=$("mId").value.trim()||("member-"+Date.now());const old=await db.collection("members").doc(id).get();let data=old.exists?old.data():((window.DEFAULT_MEMBERS||[]).find(x=>x.id===id)||{});data={...data,id,name:$("mName").value.trim(),role:$("mRole").value.trim(),bio:$("mBio").value};const f=$("mPhoto").files[0];if(f)data.image=await upload(f,"members/"+id+"-"+Date.now()+"-"+f.name);await db.collection("members").doc(id).set(data,{merge:true});clearForm();await loadMembers();alert("Member saved.")}catch(e){alert(e.message)}};
+$("clearMember").onclick=clearForm;
+$("saveNotice").onclick=async()=>{try{let id=$("nId").value.trim()||("notice-"+Date.now());await db.collection("notices").doc(id).set({title:$("nTitle").value,body:$("nBody").value,createdAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});$("nId").value="";$("nTitle").value="";$("nBody").value="";await loadNotices()}catch(e){alert(e.message)}};
+async function loadNotices(){const list=$("noticeList");list.innerHTML="";const snap=await db.collection("notices").get();snap.forEach(d=>{const n=d.data();const el=document.createElement("div");el.className="member-row";el.innerHTML='<div style="flex:1"><b>'+esc(n.title)+'</b><div class="muted">'+esc(n.body)+'</div></div><button data-edit>Delete</button>';el.querySelector("button").onclick=async()=>{await db.collection("notices").doc(d.id).delete();loadNotices()};list.appendChild(el)})}
+$("uploadMedia").onclick=async()=>{try{const f=$("mediaFile").files[0];if(!f)return alert("Choose a file.");const type=$("mediaType").value;const url=await upload(f,"media/"+Date.now()+"-"+f.name);await db.collection("media").add({title:$("mediaTitle").value,type,url,createdAt:firebase.firestore.FieldValue.serverTimestamp()});$("mediaFile").value="";$("mediaTitle").value="";await loadMedia();alert("Uploaded.")}catch(e){alert(e.message)}};
+async function loadMedia(){const list=$("mediaList");list.innerHTML="";const snap=await db.collection("media").get();snap.forEach(d=>{const x=d.data();const el=document.createElement("div");el.className="media-row";el.innerHTML='<div style="flex:1"><b>'+esc(x.title||"")+'</b><div class="muted">'+esc(x.type||"")+'</div></div><button class="danger">Delete</button>';el.querySelector("button").onclick=async()=>{await db.collection("media").doc(d.id).delete();loadMedia()};list.appendChild(el)})}
+$("saveSettings").onclick=async()=>{try{await db.collection("siteSettings").doc("main").set({title:$("sTitle").value,tag:$("sTag").value,heroTitle:$("sHeroTitle").value,heroText:$("sHeroText").value,aboutStory:$("sStory").value,aboutVibe:$("sVibe").value,phone:$("sPhone").value,primaryColor:$("sPrimary").value,accentColor:$("sAccent").value,backgroundStart:$("sBg1").value,backgroundEnd:$("sBg2").value,textColor:$("sText").value,cardColor:$("sCard").value,cardRadius:$("sRadius").value,fontFamily:$("sFont").value,customCss:$("sCustomCss").value},{merge:true});alert("Website settings saved.")}catch(e){alert(e.message)}};
+async function loadSettings(){const s=await db.collection("siteSettings").doc("main").get();if(s.exists){const x=s.data();$("sTitle").value=x.title||"";$("sTag").value=x.tag||"";$("sHeroTitle").value=x.heroTitle||"";$("sHeroText").value=x.heroText||"";$("sStory").value=x.aboutStory||"";$("sVibe").value=x.aboutVibe||"";$("sPhone").value=x.phone||"";$("sPrimary").value=x.primaryColor||"";$("sAccent").value=x.accentColor||"";$("sBg1").value=x.backgroundStart||"";$("sBg2").value=x.backgroundEnd||"";$("sText").value=x.textColor||"";$("sCard").value=x.cardColor||"";$("sRadius").value=x.cardRadius||"";$("sFont").value=x.fontFamily||"";$("sCustomCss").value=x.customCss||""}}
+async function loadAll(){await Promise.all([loadMembers(),loadNotices(),loadMedia(),loadSettings()])}
+</script></body></html>
