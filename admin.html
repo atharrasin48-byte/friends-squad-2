@@ -16,7 +16,7 @@
 <p class="muted small">Security is enforced by Firebase Authentication plus Firestore/Storage rules. Hiding the admin URL is not the security mechanism.</p>
 </div></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
-<script src="firebase-config.js"></script><script src="seed-members.js"></script>
+<script src="firebase-config.js"></script><script src="seed-members.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script>
 const cfg=window.FIREBASE_CONFIG||{};const configured=cfg.apiKey&&!String(cfg.apiKey).startsWith("PASTE_")&&cfg.projectId&&!String(cfg.projectId).startsWith("PASTE_");
 let auth,db,storage;if(configured){firebase.initializeApp(cfg);auth=firebase.auth();db=firebase.firestore();storage=firebase.storage();}
