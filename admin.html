@@ -42,7 +42,19 @@ if(auth)auth.onAuthStateChanged(async u=>{
     $("app").style.display="none";
   }
 });
-async function upload(file,path){if(!file)return null;const ref=storage.ref().child(path);await ref.put(file);return await ref.getDownloadURL()}
+async function upload(file,path){
+  if(!file)return null;
+  const formData=new FormData();
+  formData.append("file",file);
+  formData.append("upload_preset","aneigyz6");
+  const response=await fetch("https://api.cloudinary.com/v1_1/r4qeis1r/auto/upload",{
+    method:"POST",
+    body:formData
+  });
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.error?.message||"Upload failed");
+  return result.secure_url;
+  }
 async function loadMembers(){const list=$("memberList");list.innerHTML="";const snap=await db.collection("members").get();const cloud={};snap.forEach(d=>cloud[d.id]=d.data());const all=(window.DEFAULT_MEMBERS||[]).map(m=>Object.assign({},m,cloud[m.id]||{})).filter(m=>!m.deleted).concat(Object.keys(cloud).filter(id=>!(window.DEFAULT_MEMBERS||[]).some(m=>m.id===id)).map(id=>Object.assign({id},cloud[id])).filter(m=>!m.deleted));all.forEach(m=>{const el=document.createElement("div");el.className="member-row";el.innerHTML='<img src="'+esc(m.image)+'"><div style="flex:1"><b>'+esc(m.name)+'</b><div class="muted">'+esc(m.role||"")+'</div></div><button data-edit="'+esc(m.id)+'">Edit</button><button class="danger" data-del="'+esc(m.id)+'">Delete</button>';list.appendChild(el);el.querySelector("[data-edit]").onclick=()=>{ $("mId").value=m.id;$("mName").value=m.name||"";$("mRole").value=m.role||"";$("mBio").value=m.bio||""};el.querySelector("[data-del]").onclick=async()=>{if(confirm("Delete this member?")){if((window.DEFAULT_MEMBERS||[]).some(x=>x.id===m.id)){await db.collection("members").doc(m.id).set({deleted:true},{merge:true})}else{await db.collection("members").doc(m.id).set({deleted:true},{merge:true})}await loadMembers()}}})}
 $("saveMember").onclick=async()=>{try{let id=$("mId").value.trim()||("member-"+Date.now());const old=await db.collection("members").doc(id).get();let data=old.exists?old.data():((window.DEFAULT_MEMBERS||[]).find(x=>x.id===id)||{});data={...data,id,name:$("mName").value.trim(),role:$("mRole").value.trim(),bio:$("mBio").value};const f=$("mPhoto").files[0];if(f)data.image=await upload(f,"members/"+id+"-"+Date.now()+"-"+f.name);await db.collection("members").doc(id).set(data,{merge:true});clearForm();await loadMembers();alert("Member saved.")}catch(e){alert(e.message)}};
 $("clearMember").onclick=clearForm;
