@@ -1,0 +1,101 @@
+
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registration — Friends Squad 2.0</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#090d1a,#17254a);color:#f5f7ff;line-height:1.6}
+nav{padding:16px 6%;background:#090d1add;border-bottom:1px solid #ffffff22}
+nav a{color:#20d9c4;text-decoration:none}
+main{max-width:760px;margin:32px auto;padding:0 16px}
+.panel{background:#ffffff12;border:1px solid #ffffff25;border-radius:20px;padding:22px;margin:18px 0}
+h1,h2{color:#20d9c4;text-align:center}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+button{border:0;border-radius:12px;padding:13px 16px;background:#7c5cff;color:white;font-weight:bold;cursor:pointer}
+.choice[aria-pressed=true]{outline:2px solid #20d9c4}
+label{display:block;margin:12px 0 5px}
+input,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #ffffff35;background:#0d1428;color:white}
+.form{display:none}.form.active{display:block}
+button[type=submit]{width:100%;margin-top:18px}
+.hint,.note{color:#bdc7df;font-size:14px}
+.status{display:none;padding:12px;border-radius:10px;background:#0d1428;margin-top:12px}
+.error{color:#ff9b9b}.success{color:#8df0bd}
+.note{text-align:center;margin:24px 0}
+@media(max-width:520px){.choices{grid-template-columns:1fr}.panel{padding:16px}}
+</style>
+</head>
+<body>
+<nav><a href="./index.html">← Friends Squad 2.0</a></nav>
+<main>
+<h1>Registration</h1>
+<section class="panel">
+<h2>রেজিস্ট্রেশনের ধরন নির্বাচন করুন</h2>
+<div class="choices">
+<button class="choice" type="button" data-form="member" aria-pressed="false">সদস্য রেজিস্ট্রেশন</button>
+<button class="choice" type="button" data-form="tender" aria-pressed="false">দরপত্র রেজিস্ট্রেশন</button>
+</div>
+<p class="hint" id="tenderLockHint">দরপত্র রেজিস্ট্রেশন বর্তমানে অ্যাডমিনের অনুমতির অপেক্ষায়।</p>
+</section>
+<section class="panel form" id="memberForm">
+<h2>সদস্য রেজিস্ট্রেশন</h2>
+<form id="memberEntry">
+<label>নাম</label><input name="name" required>
+<label>বয়স</label><input name="age" type="number" min="1" required>
+<label>শ্রেণী</label><input name="className" required>
+<label>জন্ম তারিখ</label><input name="birthDate" type="date" required>
+<label>ঠিকানা</label><textarea name="address" rows="2" required></textarea>
+<label>দলের নাম</label><input name="teamName" required>
+<label>ফোন নাম্বার</label><input name="phone" type="tel" required>
+<label>Please Submit Your Image</label><input name="image" type="file" accept="image/*" required>
+<label>কোড</label><input name="code" inputmode="numeric" autocomplete="off" placeholder="কোড লিখুন" required>
+<button type="submit">Submit</button>
+<div class="status" role="status"></div>
+</form>
+</section>
+<section class="panel form" id="tenderForm">
+<h2>দরপত্র রেজিস্ট্রেশন</h2>
+<form id="tenderEntry">
+<label>দরপত্রের ক্রমিক নং</label><input name="serial" required>
+<label>গ্রাহকের নাম</label><input name="name" required>
+<label>ঠিকানা</label><textarea name="address" rows="2" required></textarea>
+<label>পত্র সংগ্রহের তারিখ</label><input name="collectionDate" type="date" required>
+<label>পত্র জমার তারিখ</label><input name="submissionDate" type="date" required>
+<label>আমি কোন স্থানটি নিতে ইচ্ছুক</label><input name="place" required>
+<label>দরপত্রের নাম</label><input name="tenderName" required>
+<label>মোবাইল</label><input name="phone" type="tel" required>
+<label>তারিখ</label><input name="date" type="date" required>
+<label>Add Your Image</label><input name="image" type="file" accept="image/*" required>
+<label>কোড</label><input name="code" inputmode="numeric" autocomplete="off" placeholder="কোড লিখুন" required>
+<button type="submit">Submit</button>
+<div class="status" role="status"></div>
+</form>
+</section>
+<p class="note">বিদ্রঃ দ্য প্রো বয়েজ সাইকেলিং গ্যাং এর আদর্শ তত্ত্বাবধানে</p>
+</main>
+<script>
+const choices=[...document.querySelectorAll('.choice')];
+choices.forEach(btn=>btn.addEventListener('click',()=>{
+  choices.forEach(x=>x.setAttribute('aria-pressed',String(x===btn)));
+  document.querySelectorAll('.form').forEach(x=>x.classList.toggle('active',x.id===btn.dataset.form+'Form'));
+}));
+['memberEntry','tenderEntry'].forEach(id=>{
+  document.getElementById(id).addEventListener('submit',e=>{
+    e.preventDefault();
+    const form=e.currentTarget, status=form.querySelector('.status');
+    status.style.display='block';
+    status.className='status';
+    if(form.elements.code.value.trim()!=='2627'){
+      status.classList.add('error');
+      status.textContent='Error! Please Correct Code.';
+      return;
+    }
+    status.classList.add('success');
+    status.textContent='কোড সঠিক। এটি শুধু ডিজাইন নমুনা—আবেদন এখনো Firebase বা Admin Login-এ জমা হচ্ছে না।';
+  });
+});
+</script>
+</body>
+</html>
