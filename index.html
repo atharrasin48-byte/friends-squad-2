@@ -7,11 +7,11 @@
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Arial,sans-serif;color:var(--text,#f5f7ff);background:linear-gradient(135deg,var(--bg1,#090d1a),var(--bg2,#17254a),var(--bg1,#090d1a));line-height:1.6}
 nav{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:18px 7%;background:#090d1add;backdrop-filter:blur(12px);border-bottom:1px solid #ffffff22}
-.logo{font-weight:800;font-size:20px}.logo span,h1 span{color:var(--accent,#20d9c4)}nav a{display:inline-block;color:#fff;text-decoration:none;margin-left:10px;margin-top:4px;margin-bottom:4px;padding:8px 15px;font-size:14px;font-weight:700;letter-spacing:.2px;border-radius:999px;background:linear-gradient(135deg,#dbeafe,#60a5fa);color:#123b70;border:1px solid #93c5fd;box-shadow:0 3px 12px #0003;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}nav a:hover{transform:translateY(-2px);filter:brightness(1.04);box-shadow:0 5px 16px #60a5fa77}nav a:focus-visible{outline:2px solid #20d9c4;outline-offset:3px}
+.logo{font-weight:800;font-size:20px}.logo span,h1 span{color:var(--accent,#20d9c4)}nav a{display:inline-block;color:#fff;text-decoration:none;margin-left:10px;margin-top:4px;margin-bottom:4px;padding:8px 15px;font-size:14px;font-weight:700;letter-spacing:.2px;border-radius:999px;background:var(--nav-button,#60a5fa);color:var(--button-text,#123b70);border:1px solid var(--nav-button,#93c5fd);box-shadow:0 3px 12px #0003;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}nav a:hover{transform:translateY(-2px);filter:brightness(1.04);box-shadow:0 5px 16px #60a5fa77}nav a:focus-visible{outline:2px solid #20d9c4;outline-offset:3px}
 .hero{min-height:70vh;display:grid;place-items:center;text-align:center;padding:70px 7%}.tag{display:inline-block;border:1px solid #ffffff33;border-radius:30px;padding:6px 14px;color:var(--accent,#20d9c4)}
 h1{font-size:clamp(40px,8vw,90px);line-height:1.05;margin:22px 0}.hero p{max-width:620px;color:#b9c2dd;margin:auto}
 .buttons{margin-top:28px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}.btn,.phone{display:inline-block;padding:12px 22px;border-radius:30px;text-decoration:none;font-weight:bold}
-.primary,.phone{background:var(--primary,#7c5cff);color:white}.secondary{border:1px solid #ffffff44;color:white}
+.primary,.phone{background:var(--primary,#7c5cff);color:var(--button-text,#ffffff)}.secondary{border:1px solid #ffffff44;color:white}
 section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:center;margin-bottom:30px}.section-title p,.member p,.card p{color:#b9c2dd}
 .about{display:grid;grid-template-columns:1fr 1fr;gap:20px}.card,.member{background:var(--card,#ffffff12);border:1px solid #ffffff1c;border-radius:var(--radius,22px);padding:25px}
 .card h3{color:var(--accent,#20d9c4)}.members{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
@@ -149,25 +149,41 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
       if(snap.size) document.getElementById("mediaSection").style.display="";
     }catch(e){}
   }
+  let activeSiteSettings={};
   function applySettings(s){
-    if(s.title){document.title=s.title; document.querySelector(".logo").innerHTML=esc(s.title);}
-    if(s.tag) document.querySelector(".tag").textContent=s.tag;
-    if(s.heroTitle){document.querySelector("h1").innerHTML=esc(s.heroTitle).replace(/\n/g,"<br>");}
-    if(s.heroText) document.querySelector(".hero p").textContent=s.heroText;
-    if(s.aboutStory) document.querySelector(".card h3").nextElementSibling.textContent=s.aboutStory;
-    if(s.aboutVibe) document.querySelectorAll(".card h3")[1].nextElementSibling.textContent=s.aboutVibe;
-    if(s.phone){const a=document.querySelector(".phone");a.href="tel:"+s.phone;a.textContent=translations[currentLanguage].call+s.phone;}
+    activeSiteSettings=s||{};
     const root=document.documentElement;
-    if(s.primaryColor) root.style.setProperty("--primary",s.primaryColor);
-    if(s.accentColor) root.style.setProperty("--accent",s.accentColor);
-    if(s.backgroundStart) root.style.setProperty("--bg1",s.backgroundStart);
-    if(s.backgroundEnd) root.style.setProperty("--bg2",s.backgroundEnd);
-    if(s.textColor) root.style.setProperty("--text",s.textColor);
-    if(s.cardColor) root.style.setProperty("--card",s.cardColor);
-    if(s.cardRadius) root.style.setProperty("--radius",s.cardRadius+"px");
-    if(s.fontFamily) document.body.style.fontFamily=s.fontFamily;
-    let custom=document.getElementById("adminCustomCss");
-    if(s.customCss){if(!custom){custom=document.createElement("style");custom.id="adminCustomCss";document.head.appendChild(custom)}custom.textContent=s.customCss;}
+    const setVar=(name,value)=>root.style.setProperty(name,value);
+    setVar("--primary",s.primaryColor||"#7c5cff");
+    setVar("--nav-button",s.navButtonColor||"#60a5fa");
+    setVar("--button-text",s.buttonTextColor||"#ffffff");
+    setVar("--accent",s.accentColor||"#20d9c4");
+    setVar("--bg1",s.backgroundStart||"#090d1a");
+    setVar("--bg2",s.backgroundEnd||"#17254a");
+    setVar("--text",s.textColor||"#f5f7ff");
+    setVar("--card",s.cardColor||"#ffffff12");
+    setVar("--radius",(Number(s.cardRadius)||22)+"px");
+    document.body.style.fontFamily=s.fontFamily||"Arial, sans-serif";
+    document.title=s.title||"Friends Squad 2.0";
+    const custom=document.getElementById("adminCustomCss");
+    if(s.customCss){const style=custom||document.createElement("style");style.id="adminCustomCss";style.textContent=s.customCss;if(!custom)document.head.appendChild(style)}
+    else if(custom)custom.remove();
+    applyCustomTextSettings();
+  }
+  function applyCustomTextSettings(){
+    const s=activeSiteSettings,t=translations[currentLanguage];
+    const put=(selector,value)=>{const el=document.querySelector(selector);if(el&&value!==undefined&&value!==null&&value!=="")el.textContent=value};
+    put(".logo span",s.title);
+    put("#about .section-title h2",s.aboutTitle);
+    put("#about .section-title p",s.aboutSubtitle);
+    put("#about .about .card:first-child p",s.aboutStory);
+    put("#about .about .card:last-child p",s.aboutVibe);
+    put("#members .section-title h2",s.membersTitle);
+    put("#members .section-title p",s.membersSubtitle);
+    put("#contact .section-title h2",s.contactTitle);
+    put("#contact .section-title p",s.contactSubtitle);
+    put("footer",s.footerText);
+    if(s.phone){const phone=document.querySelector(".phone");if(phone){phone.href="tel:"+s.phone;phone.textContent=(t.call||"Call: ")+s.phone}}
   }
   async function trackVisitors(){
     if(!db) return;
@@ -214,6 +230,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     document.getElementById("langBn").setAttribute("aria-pressed",String(currentLanguage==="bn"));
     document.getElementById("langEn").setAttribute("aria-pressed",String(currentLanguage==="en"));
     updateLiveDateTime();
+    applyCustomTextSettings();
     const total=document.getElementById("totalVisitorCount"),daily=document.getElementById("todayVisitorCount");
     if(total.dataset.raw)total.textContent=Number(total.dataset.raw).toLocaleString(currentLanguage==="bn"?"bn-BD":"en-US");
     if(daily.dataset.raw)daily.textContent=Number(daily.dataset.raw).toLocaleString(currentLanguage==="bn"?"bn-BD":"en-US");
