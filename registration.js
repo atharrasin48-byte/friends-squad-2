@@ -55,36 +55,42 @@ function addMemberReceiptDownload(form, data) {
 <html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Member Registration Receipt</title>
 <style>
-*{box-sizing:border-box}body{margin:0;padding:28px;background:#edf3f5;color:#142c3a;font-family:Arial,sans-serif}
-.sheet{max-width:720px;margin:20px auto;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 12px 36px #18384920}
-.top{padding:30px;background:linear-gradient(135deg,#102b3b,#176b69);color:#fff;text-align:center}
-.mark{width:66px;height:66px;margin:0 auto 12px;border:2px solid #9ce5d4;border-radius:50%;display:grid;place-items:center;font-size:25px;font-weight:bold}
-.top h1{margin:0;font-size:25px;letter-spacing:.4px}.top p{margin:8px 0 0;color:#c9e9e2}
-.body{padding:30px}.tag{display:inline-block;background:#e2f5ef;color:#176b58;padding:8px 14px;border-radius:30px;font-weight:bold;font-size:13px}
-h2{margin:18px 0 6px;font-size:23px}.sub{color:#647783;margin:0 0 24px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{padding:14px;background:#f3f8f7;border:1px solid #e0eeea;border-radius:12px}
-.label{display:block;color:#698079;font-size:12px;margin-bottom:6px}.value{font-weight:bold;font-size:16px;overflow-wrap:anywhere}
-.reference{margin-top:18px;padding:16px;border:1px dashed #4b9e8c;border-radius:12px;text-align:center;background:#f6fbf9}
-.reference strong{display:block;font-family:monospace;font-size:14px;overflow-wrap:anywhere;margin-top:8px}
-.note{margin-top:22px;color:#526a70;font-size:14px;line-height:1.6}
-.foot{padding:16px 30px;background:#f3f8f7;color:#668078;text-align:center;font-size:12px}
-button{display:block;margin:22px auto 0;padding:12px 22px;border:0;border-radius:9px;background:#176b69;color:white;font-weight:bold}
-@media(max-width:520px){body{padding:10px}.body{padding:20px}.grid{grid-template-columns:1fr 1fr}}
-@media print{body{padding:0;background:white}.sheet{box-shadow:none;margin:0;max-width:none}button{display:none}}
-</style></head><body><main class="sheet">
-<header class="top"><div class="mark">FS</div><h1>FRIENDS SQUAD 2.0</h1><p>THE PRO BOYS CYCLING GANG</p></header>
-<section class="body"><span class="tag">MEMBER APPLICATION RECEIPT</span>
-<h2>সদস্য রেজিস্ট্রেশন রসিদ</h2><p class="sub">আপনার সদস্য হওয়ার আবেদনটি গ্রহণ করা হয়েছে।</p>
-<div class="grid">
-<div class="field"><span class="label">আবেদনকারীর নাম</span><span class="value">${e(data.name)}</span></div>
-<div class="field"><span class="label">বয়স</span><span class="value">${e(data.age)}</span></div>
-<div class="field"><span class="label">শ্রেণি</span><span class="value">${e(data.className)}</span></div>
-<div class="field"><span class="label">দলের নাম</span><span class="value">${e(data.teamName)}</span></div>
-</div>
-<div class="reference"><span class="label">APPLICATION REFERENCE ID</span><strong>${e(data.reference)}</strong></div>
-<p class="note"><b>আবেদনের অবস্থা:</b> Admin-এর অনুমোদনের অপেক্ষায়। এই রসিদটি সংরক্ষণ করুন। অনুমোদন না পাওয়া পর্যন্ত সদস্যপদ চূড়ান্ত বলে গণ্য হবে না।</p>
-</section><footer class="foot">Friends Squad 2.0 · Member Registration</footer>
-</main><button onclick="window.print()">Print / Save as PDF</button></body></html>`;
+*{box-sizing:border-box}body{margin:0;padding:22px;background:#fff;color:#111;font-family:Arial,"Noto Sans Bengali",sans-serif}
+.paper{max-width:760px;margin:0 auto;padding:28px;border:1px solid #999;background:#fff}
+.heading{text-align:center;border-bottom:1px solid #222;padding-bottom:14px}
+.heading h1{font-size:21px;margin:0 0 5px;font-weight:700;letter-spacing:.3px}
+.heading p{font-size:14px;margin:0}
+.heading h2{font-size:18px;margin:12px 0 0;font-weight:600}
+.intro{font-size:13px;margin:16px 0}
+.details{display:grid;grid-template-columns:minmax(0,1fr) 130px;gap:18px;align-items:start}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{border:1px solid #777;padding:9px 10px;vertical-align:top;overflow-wrap:anywhere}
+td:first-child{width:38%;font-weight:600}
+.photo{width:130px;height:155px;border:1px solid #777;display:flex;align-items:center;justify-content:center;color:#555;font-size:12px;text-align:center;overflow:hidden}
+.photo img{width:100%;height:100%;object-fit:cover}
+.reference{margin-top:16px;font-size:13px}
+.reference strong{font-family:monospace;overflow-wrap:anywhere}
+.note{font-size:12px;margin-top:16px;line-height:1.5}
+.footer{border-top:1px solid #777;margin-top:20px;padding-top:9px;text-align:center;font-size:11px}
+button{display:block;margin:18px auto 0;padding:10px 18px;border:1px solid #333;background:#fff;color:#111;font-weight:600}
+@media(max-width:520px){body{padding:8px}.paper{padding:12px}.details{grid-template-columns:minmax(0,1fr) 95px;gap:8px}.photo{width:95px;height:120px}td{padding:7px 6px;font-size:12px}.heading h1{font-size:18px}}
+@media print{body{padding:0}.paper{max-width:none;border:0;padding:12mm}button{display:none}}
+</style></head><body><main class="paper">
+<header class="heading"><h1>FRIENDS SQUAD 2.0</h1><p>THE PRO BOYS CYCLING GANG</p><h2>সদস্য রেজিস্ট্রেশন রসিদ</h2></header>
+<p class="intro">সদস্য রেজিস্ট্রেশনের জন্য আপনার জমা দেওয়া তথ্যসমূহ নিচে উল্লেখ করা হলো।</p>
+<section class="details"><table>
+<tr><td>আবেদনকারীর নাম</td><td>${e(data.name)}</td></tr>
+<tr><td>বয়স</td><td>${e(data.age)}</td></tr>
+<tr><td>শ্রেণি</td><td>${e(data.className)}</td></tr>
+<tr><td>জন্মতারিখ</td><td>${e(data.birthDate)}</td></tr>
+<tr><td>ঠিকানা</td><td>${e(data.address)}</td></tr>
+<tr><td>দলের নাম</td><td>${e(data.teamName)}</td></tr>
+<tr><td>মোবাইল নম্বর</td><td>${e(data.phone)}</td></tr>
+</table><div class="photo">${data.imageUrl ? `<img src="${e(data.imageUrl)}" alt="আবেদনকারীর ছবি">` : "আবেদনকারীর ছবি"}</div></section>
+<div class="reference">রেজিস্ট্রেশন রেফারেন্স নম্বর: <strong>${e(data.reference)}</strong></div>
+<p class="note">আবেদনের অবস্থা: Admin-এর অনুমোদনের অপেক্ষায়। এই রসিদটি সংরক্ষণ করুন। অনুমোদন না পাওয়া পর্যন্ত সদস্যপদ চূড়ান্ত বলে গণ্য হবে না।</p>
+<footer class="footer">Friends Squad 2.0 · Member Registration</footer>
+</main><button onclick="window.print()">প্রিন্ট / PDF হিসেবে সংরক্ষণ</button></body></html>`;
   downloadReceipt(html, "friends-squad-member-receipt.html", form, "সদস্য রসিদ ডাউনলোড করুন");
 }
 
@@ -262,7 +268,11 @@ $("memberEntry").addEventListener("submit", async event => {
       name,
       age: values.get("age"),
       className: values.get("className"),
+      birthDate,
+      address: values.get("address"),
       teamName: values.get("teamName"),
+      phone: values.get("phone"),
+      imageUrl,
       reference: key
     });
     form.reset();
