@@ -11,6 +11,272 @@ service cloud.firestore {
         || get(/databases/$(database)/documents/registrationSettings/main).data.tenderLocked != true;
     }
 
+    // Anonymous, non-personal visitor counters. Visitors can create their own
+    // one-time browser record and one daily record; records cannot be edited/deleted.
+    match /visitorStats/{visitorId} {
+      allow read: if true;
+      allow create: if visitorId.matches('^[a-zA-Z0-9]{1,40}
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /notices/{noticeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /media/{mediaId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /siteSettings/{settingsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Private member applications: public may submit, only admin may view/manage.
+    match /memberApplications/{memberKey} {
+      allow create: if memberKey.matches('^[a-f0-9]{64}$')
+        && !exists(/databases/$(database)/documents/approvedMemberKeys/$(memberKey))
+        && request.resource.data.keys().hasAll([
+          'name', 'age', 'className', 'birthDate', 'address',
+          'teamName', 'phone', 'imageUrl', 'status', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'name', 'age', 'className', 'birthDate', 'address',
+          'teamName', 'phone', 'imageUrl', 'status', 'createdAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.age is int
+        && request.resource.data.age >= 5
+        && request.resource.data.age <= 100
+        && request.resource.data.className is string
+        && request.resource.data.birthDate is string
+        && request.resource.data.address is string
+        && request.resource.data.teamName is string
+        && request.resource.data.phone is string
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.matches('https://res\\.cloudinary\\.com/.*')
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time;
+      allow get, list, update, delete: if isAdmin();
+    }
+
+    // Approved hashes are never readable or writable by visitors.
+    match /approvedMemberKeys/{memberKey} {
+      allow read, write: if isAdmin();
+    }
+
+    // Tender applications contain private contact and address information.
+    match /tenderApplications/{applicationId} {
+      allow create: if tenderIsOpen()
+        && request.resource.data.keys().hasAll([
+          'serial', 'name', 'address', 'collectionDate', 'submissionDate',
+          'place', 'tenderName', 'phone', 'date', 'imageUrl', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'serial', 'name', 'address', 'collectionDate', 'submissionDate',
+          'place', 'tenderName', 'phone', 'date', 'imageUrl', 'createdAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.address is string
+        && request.resource.data.phone is string
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.matches('https://res\\.cloudinary\\.com/.*')
+        && request.resource.data.createdAt == request.time;
+      allow get, list, update, delete: if isAdmin();
+    }
+
+    // Visitors can check whether tender registration is open; only admin can change it.
+    match /registrationSettings/{settingsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
+)
+        && request.resource.data.keys().hasOnly(['createdAt'])
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+
+    match /visitorDaily/{visitId} {
+      allow read: if true;
+      allow create: if visitId.matches('^[a-zA-Z0-9]{1,40}_[0-9]{8}
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /notices/{noticeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /media/{mediaId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /siteSettings/{settingsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Private member applications: public may submit, only admin may view/manage.
+    match /memberApplications/{memberKey} {
+      allow create: if memberKey.matches('^[a-f0-9]{64}$')
+        && !exists(/databases/$(database)/documents/approvedMemberKeys/$(memberKey))
+        && request.resource.data.keys().hasAll([
+          'name', 'age', 'className', 'birthDate', 'address',
+          'teamName', 'phone', 'imageUrl', 'status', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'name', 'age', 'className', 'birthDate', 'address',
+          'teamName', 'phone', 'imageUrl', 'status', 'createdAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.age is int
+        && request.resource.data.age >= 5
+        && request.resource.data.age <= 100
+        && request.resource.data.className is string
+        && request.resource.data.birthDate is string
+        && request.resource.data.address is string
+        && request.resource.data.teamName is string
+        && request.resource.data.phone is string
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.matches('https://res\\.cloudinary\\.com/.*')
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time;
+      allow get, list, update, delete: if isAdmin();
+    }
+
+    // Approved hashes are never readable or writable by visitors.
+    match /approvedMemberKeys/{memberKey} {
+      allow read, write: if isAdmin();
+    }
+
+    // Tender applications contain private contact and address information.
+    match /tenderApplications/{applicationId} {
+      allow create: if tenderIsOpen()
+        && request.resource.data.keys().hasAll([
+          'serial', 'name', 'address', 'collectionDate', 'submissionDate',
+          'place', 'tenderName', 'phone', 'date', 'imageUrl', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'serial', 'name', 'address', 'collectionDate', 'submissionDate',
+          'place', 'tenderName', 'phone', 'date', 'imageUrl', 'createdAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.address is string
+        && request.resource.data.phone is string
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.matches('https://res\\.cloudinary\\.com/.*')
+        && request.resource.data.createdAt == request.time;
+      allow get, list, update, delete: if isAdmin();
+    }
+
+    // Visitors can check whether tender registration is open; only admin can change it.
+    match /registrationSettings/{settingsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
+)
+        && request.resource.data.keys().hasOnly(['date', 'createdAt'])
+        && request.resource.data.date is string
+        && request.resource.data.date.matches('^[0-9]{8}
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /notices/{noticeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /media/{mediaId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /siteSettings/{settingsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Private member applications: public may submit, only admin may view/manage.
+    match /memberApplications/{memberKey} {
+      allow create: if memberKey.matches('^[a-f0-9]{64}$')
+        && !exists(/databases/$(database)/documents/approvedMemberKeys/$(memberKey))
+        && request.resource.data.keys().hasAll([
+          'name', 'age', 'className', 'birthDate', 'address',
+          'teamName', 'phone', 'imageUrl', 'status', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'name', 'age', 'className', 'birthDate', 'address',
+          'teamName', 'phone', 'imageUrl', 'status', 'createdAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.age is int
+        && request.resource.data.age >= 5
+        && request.resource.data.age <= 100
+        && request.resource.data.className is string
+        && request.resource.data.birthDate is string
+        && request.resource.data.address is string
+        && request.resource.data.teamName is string
+        && request.resource.data.phone is string
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.matches('https://res\\.cloudinary\\.com/.*')
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time;
+      allow get, list, update, delete: if isAdmin();
+    }
+
+    // Approved hashes are never readable or writable by visitors.
+    match /approvedMemberKeys/{memberKey} {
+      allow read, write: if isAdmin();
+    }
+
+    // Tender applications contain private contact and address information.
+    match /tenderApplications/{applicationId} {
+      allow create: if tenderIsOpen()
+        && request.resource.data.keys().hasAll([
+          'serial', 'name', 'address', 'collectionDate', 'submissionDate',
+          'place', 'tenderName', 'phone', 'date', 'imageUrl', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'serial', 'name', 'address', 'collectionDate', 'submissionDate',
+          'place', 'tenderName', 'phone', 'date', 'imageUrl', 'createdAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.address is string
+        && request.resource.data.phone is string
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.matches('https://res\\.cloudinary\\.com/.*')
+        && request.resource.data.createdAt == request.time;
+      allow get, list, update, delete: if isAdmin();
+    }
+
+    // Visitors can check whether tender registration is open; only admin can change it.
+    match /registrationSettings/{settingsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
+)
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+
     match /members/{memberId} {
       allow read: if true;
       allow write: if isAdmin();
