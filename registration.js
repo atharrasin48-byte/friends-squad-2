@@ -1,3 +1,11 @@
+// Initialize Firebase before using Firestore.
+const firebaseConfig = window.FIREBASE_CONFIG;
+if (!firebaseConfig || !firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  throw new Error("Firebase configuration is missing. Check firebase-config.js.");
+}
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 const db = firebase.firestore();
 
 const ADMIN_CODE = "2627";
@@ -83,6 +91,7 @@ document.querySelectorAll(".choice").forEach(button => {
 // Tender lock status
 async function loadTenderStatus() {
   const hint = $("tenderLockHint");
+  if (!hint) return;
   try {
     const setting = await db
       .collection("registrationSettings")
