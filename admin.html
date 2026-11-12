@@ -8,6 +8,8 @@
 <input id="email" type="email" placeholder="Admin email"><input id="password" type="password" placeholder="Password"><button id="loginBtn">Login</button><div id="loginMsg" class="status"></div></div>
 <div id="app">
 <div class="status">Logged in. <button id="logoutBtn">Logout</button></div>
+<div class="card"><h2>Member Registration Applications</h2><p class="muted">ব্যক্তিগত তথ্য শুধু Admin Panel-এ দেখা যাবে। Approve করলে শুধু নাম, ছবি ও role public Members-এ যোগ হবে।</p><div id="applicationList">Loading...</div></div>
+<div class="card"><h2>Tender Registration</h2><p id="tenderAdminStatus" class="status">অবস্থা যাচাই হচ্ছে…</p><button id="toggleTenderLock">লোড হচ্ছে…</button><div id="tenderApplicationList"></div></div>
 <div class="card"><h2>Members</h2><p class="muted">Add members, edit details, replace photos, or delete members.</p>
 <div class="grid"><div><input id="mId" placeholder="Member ID (for existing: member1, member2...)"><input id="mName" placeholder="Name"><input id="mRole" placeholder="Role"><textarea id="mBio" rows="5" placeholder="Member details / bio"></textarea><input id="mPhoto" type="file" accept="image/*"><button id="saveMember">Save Member</button><button id="clearMember">Clear</button></div><div><div id="memberList"></div></div></div></div>
 <div class="card"><h2>Notices</h2><input id="nId" placeholder="Notice ID (leave blank for new)"><input id="nTitle" placeholder="Notice title"><textarea id="nBody" rows="5" placeholder="Notice text"></textarea><button id="saveNotice">Save Notice</button><div id="noticeList"></div></div>
@@ -64,5 +66,45 @@ $("uploadMedia").onclick=async()=>{try{const f=$("mediaFile").files[0];if(!f)ret
 async function loadMedia(){const list=$("mediaList");list.innerHTML="";const snap=await db.collection("media").get();snap.forEach(d=>{const x=d.data();const el=document.createElement("div");el.className="media-row";el.innerHTML='<div style="flex:1"><b>'+esc(x.title||"")+'</b><div class="muted">'+esc(x.type||"")+'</div></div><button class="danger">Delete</button>';el.querySelector("button").onclick=async()=>{await db.collection("media").doc(d.id).delete();loadMedia()};list.appendChild(el)})}
 $("saveSettings").onclick=async()=>{try{await db.collection("siteSettings").doc("main").set({title:$("sTitle").value,tag:$("sTag").value,heroTitle:$("sHeroTitle").value,heroText:$("sHeroText").value,aboutStory:$("sStory").value,aboutVibe:$("sVibe").value,phone:$("sPhone").value,primaryColor:$("sPrimary").value,accentColor:$("sAccent").value,backgroundStart:$("sBg1").value,backgroundEnd:$("sBg2").value,textColor:$("sText").value,cardColor:$("sCard").value,cardRadius:$("sRadius").value,fontFamily:$("sFont").value,customCss:$("sCustomCss").value},{merge:true});alert("Website settings saved.")}catch(e){alert(e.message)}};
 async function loadSettings(){const s=await db.collection("siteSettings").doc("main").get();if(s.exists){const x=s.data();$("sTitle").value=x.title||"";$("sTag").value=x.tag||"";$("sHeroTitle").value=x.heroTitle||"";$("sHeroText").value=x.heroText||"";$("sStory").value=x.aboutStory||"";$("sVibe").value=x.aboutVibe||"";$("sPhone").value=x.phone||"";$("sPrimary").value=x.primaryColor||"";$("sAccent").value=x.accentColor||"";$("sBg1").value=x.backgroundStart||"";$("sBg2").value=x.backgroundEnd||"";$("sText").value=x.textColor||"";$("sCard").value=x.cardColor||"";$("sRadius").value=x.cardRadius||"";$("sFont").value=x.fontFamily||"";$("sCustomCss").value=x.customCss||""}}
-async function loadAll(){await Promise.all([loadMembers(),loadNotices(),loadMedia(),loadSettings()])}
+
+async function loadMemberApplications(){
+ const list=$("applicationList");list.innerHTML="";
+ const snap=await db.collection("memberApplications").get();
+ if(snap.empty){list.textContent="কোনো নতুন আবেদন নেই।";return}
+ snap.forEach(d=>{
+  const a=d.data();const el=document.createElement("div");el.className="member-row";
+  el.innerHTML='<img src="'+esc(a.imageUrl||"")+'" alt=""><div style="flex:1;min-width:180px"><b>'+esc(a.name)+'</b><div class="muted">বয়স: '+esc(a.age)+' | শ্রেণী: '+esc(a.className)+'</div><div class="muted">জন্ম: '+esc(a.birthDate)+' | ফোন: '+esc(a.phone)+'</div><div class="muted">ঠিকানা: '+esc(a.address)+'</div><div class="muted">দল: '+esc(a.teamName)+'</div></div><button data-approve>Approve</button><button class="danger" data-remove>Remove</button>';
+  el.querySelector("[data-approve]").onclick=async()=>{
+   if(!confirm("এই আবেদন Approve করে Public Members-এ যোগ করবেন?"))return;
+   const memberId="member-"+d.id.slice(0,16);
+   await db.collection("members").doc(memberId).set({id:memberId,name:a.name,role:"Member",bio:"",image:a.imageUrl,approvedAt:firebase.firestore.FieldValue.serverTimestamp()});
+   await db.collection("approvedMemberKeys").doc(d.id).set({approved:true,memberId,approvedAt:firebase.firestore.FieldValue.serverTimestamp()});
+   await db.collection("memberApplications").doc(d.id).delete();
+   await loadMembers();await loadMemberApplications();alert("সদস্য অনুমোদিত হয়েছে।");
+  };
+  el.querySelector("[data-remove]").onclick=async()=>{
+   if(!confirm("আবেদনটি স্থায়ীভাবে মুছে ফেলবেন?"))return;
+   await db.collection("memberApplications").doc(d.id).delete();
+   await loadMemberApplications();alert("আবেদন মুছে ফেলা হয়েছে।");
+  };
+  list.appendChild(el);
+ });
+}
+async function loadTenderAdmin(){
+ const setting=await db.collection("registrationSettings").doc("main").get();
+ const locked=setting.exists&&setting.data().tenderLocked===true;
+ $("tenderAdminStatus").textContent=locked?"দরপত্র রেজিস্ট্রেশন বন্ধ আছে।":"দরপত্র রেজিস্ট্রেশন চালু আছে।";
+ $("toggleTenderLock").textContent=locked?"🔓 Unlock Tender Registration":"🔒 Lock Tender Registration";
+ $("toggleTenderLock").onclick=async()=>{
+  const next=!locked;
+  await db.collection("registrationSettings").doc("main").set({tenderLocked:next,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+  await loadTenderAdmin();
+ };
+ const list=$("tenderApplicationList");list.innerHTML="<h3>দরপত্রের আবেদনসমূহ</h3>";
+ const snap=await db.collection("tenderApplications").orderBy("createdAt","desc").get();
+ if(snap.empty){list.append("এখনো কোনো দরপত্র আবেদন জমা হয়নি।");return}
+ snap.forEach(d=>{const a=d.data();const el=document.createElement("div");el.className="member-row";el.innerHTML='<img src="'+esc(a.imageUrl||"")+'" alt=""><div style="flex:1"><b>'+esc(a.name)+'</b><div class="muted">ক্রমিক: '+esc(a.serial)+' | দরপত্র: '+esc(a.tenderName)+'</div><div class="muted">ঠিকানা: '+esc(a.address)+' | মোবাইল: '+esc(a.phone)+'</div><div class="muted">স্থান: '+esc(a.place)+' | সংগ্রহ: '+esc(a.collectionDate)+' | জমা: '+esc(a.submissionDate)+'</div></div><button class="danger">Delete</button>';el.querySelector("button").onclick=async()=>{if(confirm("এই দরপত্র আবেদন মুছে ফেলবেন?")){await db.collection("tenderApplications").doc(d.id).delete();await loadTenderAdmin()}};list.appendChild(el)});
+}
+
+async function loadAll(){await Promise.all([loadMembers(),loadNotices(),loadMedia(),loadSettings(),loadMemberApplications(),loadTenderAdmin()])}
 </script></body></html>
