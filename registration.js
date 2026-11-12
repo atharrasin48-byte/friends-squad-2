@@ -153,15 +153,9 @@ $("memberEntry").addEventListener("submit", async event => {
       throw new Error("Error! Please Correct Code.");
     }
 
+    // The document ID is a private hash of name + date of birth.
+    // Firestore rules enforce create-only and block already-approved keys.
     const key = await makeKey(name, birthDate);
-    const approved = await db.collection("approvedMemberKeys").doc(key).get();
-    if (approved.exists) {
-      throw new Error("এই নামে ও জন্মতারিখে সদস্য ইতিমধ্যে নিবন্ধিত।");
-    }
-    const pending = await db.collection("memberApplications").doc(key).get();
-    if (pending.exists) {
-      throw new Error("এই আবেদনটি ইতিমধ্যে জমা হয়েছে। Admin-এর সিদ্ধান্তের অপেক্ষা করুন।");
-    }
 
     const imageUrl = await uploadImage(values.get("image"));
 
