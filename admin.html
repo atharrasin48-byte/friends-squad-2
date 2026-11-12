@@ -2,6 +2,28 @@
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#0b1020;color:#f5f7ff}.wrap{max-width:1000px;margin:auto;padding:24px}.card{background:#151d35;border:1px solid #ffffff18;border-radius:18px;padding:20px;margin:16px 0}h1,h2{color:#20d9c4}input,textarea,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ffffff25;background:#0d1428;color:white;margin:7px 0 12px}button{padding:11px 16px;border:0;border-radius:10px;background:#7c5cff;color:white;font-weight:bold;margin:5px;cursor:pointer}.danger{background:#c0392b}.muted{color:#aeb8d3}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.member-row,.media-row{display:flex;gap:12px;align-items:center;border-top:1px solid #ffffff18;padding:12px 0}.member-row img,.media-row img{width:70px;height:70px;object-fit:cover;border-radius:10px}@media(max-width:700px){.grid{grid-template-columns:1fr}.member-row{align-items:flex-start;flex-wrap:wrap}}
 #app{display:none}.status{padding:10px;border-radius:10px;background:#10182d;margin:10px 0}.small{font-size:13px}
+
+.editor-card{border:1px solid #20bfae55;background:linear-gradient(145deg,#14243b,#101a30)}
+.editor-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0;border-bottom:1px solid #ffffff20;padding-bottom:12px}
+.editor-tabs .editor-tab{background:#163d48;color:#bff9ee;border:1px solid #267e7b;padding:9px 13px}
+.editor-tabs .editor-tab.active{background:#20bfae;color:#062d31}
+.editor-panel{display:none;padding:12px 0}.editor-panel.active{display:block}
+.editor-fields,.color-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.editor-fields label,.editor-panel>label,.color-grid label{display:block;font-size:14px;font-weight:700;color:#dce8f7}
+.editor-fields input,.editor-fields textarea,.editor-panel select,.editor-panel textarea{margin-top:7px}
+.color-grid label{background:#0d172b;border:1px solid #ffffff18;border-radius:12px;padding:12px}
+.color-grid input[type=color]{height:48px;padding:4px;cursor:pointer}
+.color-grid small{display:block;color:#aeb8d3;font-weight:400}
+.editor-panel input[type=range]{accent-color:#20d9c4}
+.preview-box{margin-top:22px}.preview-screen{border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#090d1a,#17254a);padding:0 0 22px;color:#f5f7ff;border:1px solid #ffffff2b}
+.preview-nav{padding:13px;background:#090d1add;font-weight:bold;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.preview-nav span{padding:5px 9px;border-radius:18px;background:#60a5fa;color:#123b70;font-size:12px}
+.preview-content{text-align:center;padding:22px 14px}.preview-content>span{color:#20d9c4;font-size:11px;font-weight:bold;letter-spacing:1px}
+.preview-content h2{font-size:clamp(20px,4vw,30px);margin:12px 0}.preview-content p{color:#c6d1e7}
+.preview-content button{background:#7c5cff;color:#fff}.preview-card{margin:16px auto 0;max-width:300px;padding:18px;border-radius:22px;background:#18243d;border:1px solid #ffffff25}
+.editor-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid #ffffff20}
+.editor-actions button{margin:0}.save-editor{background:#0d9488}.reset-editor{background:#45536c}
+@media(max-width:600px){.editor-fields,.color-grid{grid-template-columns:1fr}.editor-tabs .editor-tab{flex:1 1 40%}.editor-actions button{width:100%}}
 </style></head><body><div class="wrap">
 <h1>Friends Squad 2.0 — Admin Panel</h1>
 <div id="login" class="card"><h2>Admin Login</h2><p class="muted">Only your Firebase account should be allowed here.</p>
@@ -14,7 +36,43 @@
 <div class="grid"><div><input id="mId" placeholder="Member ID (for existing: member1, member2...)"><input id="mName" placeholder="Name"><input id="mRole" placeholder="Role"><textarea id="mBio" rows="5" placeholder="Member details / bio"></textarea><input id="mPhoto" type="file" accept="image/*"><button id="saveMember">Save Member</button><button id="clearMember">Clear</button></div><div><div id="memberList"></div></div></div></div>
 <div class="card"><h2>Notices</h2><input id="nId" placeholder="Notice ID (leave blank for new)"><input id="nTitle" placeholder="Notice title"><textarea id="nBody" rows="5" placeholder="Notice text"></textarea><button id="saveNotice">Save Notice</button><div id="noticeList"></div></div>
 <div class="card"><h2>Photos & Videos</h2><input id="mediaTitle" placeholder="Title"><select id="mediaType"><option value="photo">Photo</option><option value="video">Video</option></select><input id="mediaFile" type="file" accept="image/*,video/*"><button id="uploadMedia">Upload</button><div id="mediaList"></div></div>
-<div class="card"><h2>Website Text & Design</h2><div class="grid"><div><input id="sTitle" placeholder="Website title"><input id="sTag" placeholder="Hero tag"><textarea id="sHeroTitle" rows="3" placeholder="Hero title"></textarea><textarea id="sHeroText" rows="4" placeholder="Hero text"></textarea></div><div><textarea id="sStory" rows="4" placeholder="Our Story"></textarea><textarea id="sVibe" rows="4" placeholder="Our Vibe"></textarea><input id="sPhone" placeholder="Contact phone"><input id="sPrimary" type="text" placeholder="Primary color e.g. #7c5cff"><input id="sAccent" placeholder="Accent color e.g. #20d9c4"><input id="sBg1" placeholder="Background color 1 e.g. #090d1a"><input id="sBg2" placeholder="Background color 2 e.g. #17254a"><input id="sText" placeholder="Text color e.g. #f5f7ff"><input id="sCard" placeholder="Card background e.g. #ffffff12"><input id="sRadius" type="number" placeholder="Card radius (px)"><input id="sFont" placeholder="Font family e.g. Arial, sans-serif"><textarea id="sCustomCss" rows="7" placeholder="Advanced: custom CSS (optional)"></textarea></div></div><button id="saveSettings">Save Website Settings</button></div>
+<div class="card editor-card">
+<h2>Website Text & Design</h2>
+<p class="muted">এই এডিটর থেকে হোমপেজের লেখা, বাটন, স্ক্রিন ও অন্যান্য ডিজাইন বদলাতে পারবে। পরিবর্তন সেভ করলে মূল ওয়েবসাইটে দেখা যাবে।</p>
+<div class="editor-tabs"><button type="button" class="editor-tab active" data-editor-tab="text">✍️ Text</button><button type="button" class="editor-tab" data-editor-tab="colors">🎨 Colors</button><button type="button" class="editor-tab" data-editor-tab="design">🖥️ Design</button><button type="button" class="editor-tab" data-editor-tab="advanced">⚙️ Advanced</button></div>
+<section class="editor-panel active" data-editor-panel="text"><h3>লেখা পরিবর্তন</h3><p class="muted small">যে লেখাটি বদলাতে চাও, তার ঘরে নতুন লেখা লিখবে। কোনো ঘর ফাঁকা রাখলে সেই অংশে ওয়েবসাইটের স্বাভাবিক লেখা থাকবে।</p>
+<div class="editor-fields">
+<label>ওয়েবসাইটের নাম<input id="sTitle" placeholder="Friends Squad 2.0"></label>
+<label>আমাদের সম্পর্কে — শিরোনাম<input id="sAboutTitle" placeholder="About Us"></label>
+<label>আমাদের সম্পর্কে — ছোট পরিচিতি<textarea id="sAboutSubtitle" rows="2" placeholder="More than friends — we are a squad."></textarea></label>
+<label>Our Story<textarea id="sStory" rows="3" placeholder="আমাদের গল্প লিখো"></textarea></label>
+<label>Our Vibe<textarea id="sVibe" rows="3" placeholder="আমাদের বন্ধন সম্পর্কে লিখো"></textarea></label>
+<label>Members সেকশনের শিরোনাম<input id="sMembersTitle" placeholder="Meet the Squad"></label>
+<label>Members সেকশনের ছোট লেখা<textarea id="sMembersSubtitle" rows="2" placeholder="Click a member to view details."></textarea></label>
+<label>Contact সেকশনের শিরোনাম<input id="sContactTitle" placeholder="Contact Us"></label>
+<label>Contact সেকশনের লেখা<textarea id="sContactSubtitle" rows="2" placeholder="Want to connect with us?"></textarea></label>
+<label>যোগাযোগের ফোন নম্বর<input id="sPhone" placeholder="017XXXXXXXX" inputmode="tel"></label>
+<label>Footer-এর লেখা<input id="sFooter" placeholder="© 2026 Friends Squad 2.0"></label>
+</div></section>
+<section class="editor-panel" data-editor-panel="colors"><h3>কালার পরিবর্তন</h3><p class="muted small">রঙের বক্সে চাপ দিলে পছন্দের রং বেছে নিতে পারবে—কোনো কালার কোড লিখতে হবে না।</p>
+<div class="color-grid">
+<label>প্রধান বাটনের রং<input id="sPrimary" type="color" value="#7c5cff"><small>Call / Primary বাটন</small></label>
+<label>নেভিগেশন বাটনের রং<input id="sNavButton" type="color" value="#60a5fa"><small>About, Friends, Contact ইত্যাদি</small></label>
+<label>বাটনের লেখার রং<input id="sButtonText" type="color" value="#ffffff"><small>বাটনের ভেতরের লেখা</small></label>
+<label>টেক্সটের রং<input id="sText" type="color" value="#f5f7ff"><small>ওয়েবসাইটের মূল লেখা</small></label>
+<label>স্ক্রিনের ব্যাকগ্রাউন্ড — রং ১<input id="sBg1" type="color" value="#090d1a"></label>
+<label>স্ক্রিনের ব্যাকগ্রাউন্ড — রং ২<input id="sBg2" type="color" value="#17254a"></label>
+<label>কার্ডের ব্যাকগ্রাউন্ড<input id="sCard" type="color" value="#18243d"></label>
+<label>Highlight / Accent রং<input id="sAccent" type="color" value="#20d9c4"></label>
+</div></section>
+<section class="editor-panel" data-editor-panel="design"><h3>ডিজাইন সেটিংস</h3>
+<label>কার্ডের কোণা গোলাকার করার মাত্রা: <b id="radiusValue">22 px</b><input id="sRadius" type="range" min="8" max="36" value="22"></label>
+<label>ওয়েবসাইটের ফন্ট<select id="sFont"><option value="Arial, sans-serif">Arial — পরিষ্কার ও সাধারণ</option><option value="system-ui, sans-serif">System — আধুনিক</option><option value="Trebuchet MS, sans-serif">Trebuchet MS</option><option value="Georgia, serif">Georgia — ক্লাসিক</option></select></label>
+<div class="preview-box"><h3>Live Preview</h3><div id="editorPreview" class="preview-screen"><div class="preview-nav" id="previewNav">Friends Squad 2.0 <span id="previewNavButton">About　 Friends　 Contact</span></div><div class="preview-content"><span>FRIENDS SQUAD 2.0</span><h2 id="previewTitle">আমাদের বন্ধুত্ব, আমাদের গল্প</h2><p id="previewText">তোমার ওয়েবসাইটের ডিজাইন এখানে দেখা যাবে।</p><button id="previewAction" type="button">একসাথে পথচলা</button><div class="preview-card" id="previewCard">Our Story — Friends Squad 2.0</div></div></div><p class="muted small">এটি ডিজাইনের নমুনা; আসল ওয়েবসাইটে সেভ করার পর সম্পূর্ণ পরিবর্তন দেখা যাবে।</p></div>
+</section>
+<section class="editor-panel" data-editor-panel="advanced"><h3>Advanced Settings</h3><p class="muted small">এই অংশটি কোড জানা ব্যবহারকারীদের জন্য। না বুঝলে এখানে কিছু পরিবর্তন করার দরকার নেই।</p><label>Custom CSS<textarea id="sCustomCss" rows="8" placeholder="/* Advanced CSS only */"></textarea></label></section>
+<div class="editor-actions"><button id="saveSettings" class="save-editor">💾 Save & Publish Website</button><button id="resetSettings" type="button" class="reset-editor">↺ Reset to Default</button><span id="settingsStatus" class="muted small" aria-live="polite"></span></div>
+</div>
 <p class="muted small">Security is enforced by Firebase Authentication plus Firestore/Storage rules. Hiding the admin URL is not the security mechanism.</p>
 </div></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
@@ -64,8 +122,17 @@ $("saveNotice").onclick=async()=>{try{let id=$("nId").value.trim()||("notice-"+D
 async function loadNotices(){const list=$("noticeList");list.innerHTML="";const snap=await db.collection("notices").get();snap.forEach(d=>{const n=d.data();const el=document.createElement("div");el.className="member-row";el.innerHTML='<div style="flex:1"><b>'+esc(n.title)+'</b><div class="muted">'+esc(n.body)+'</div></div><button data-edit>Delete</button>';el.querySelector("button").onclick=async()=>{await db.collection("notices").doc(d.id).delete();loadNotices()};list.appendChild(el)})}
 $("uploadMedia").onclick=async()=>{try{const f=$("mediaFile").files[0];if(!f)return alert("Choose a file.");const type=$("mediaType").value;const url=await upload(f,"media/"+Date.now()+"-"+f.name);await db.collection("media").add({title:$("mediaTitle").value,type,url,createdAt:firebase.firestore.FieldValue.serverTimestamp()});$("mediaFile").value="";$("mediaTitle").value="";await loadMedia();alert("Uploaded.")}catch(e){alert(e.message)}};
 async function loadMedia(){const list=$("mediaList");list.innerHTML="";const snap=await db.collection("media").get();snap.forEach(d=>{const x=d.data();const el=document.createElement("div");el.className="media-row";el.innerHTML='<div style="flex:1"><b>'+esc(x.title||"")+'</b><div class="muted">'+esc(x.type||"")+'</div></div><button class="danger">Delete</button>';el.querySelector("button").onclick=async()=>{await db.collection("media").doc(d.id).delete();loadMedia()};list.appendChild(el)})}
-$("saveSettings").onclick=async()=>{try{await db.collection("siteSettings").doc("main").set({title:$("sTitle").value,tag:$("sTag").value,heroTitle:$("sHeroTitle").value,heroText:$("sHeroText").value,aboutStory:$("sStory").value,aboutVibe:$("sVibe").value,phone:$("sPhone").value,primaryColor:$("sPrimary").value,accentColor:$("sAccent").value,backgroundStart:$("sBg1").value,backgroundEnd:$("sBg2").value,textColor:$("sText").value,cardColor:$("sCard").value,cardRadius:$("sRadius").value,fontFamily:$("sFont").value,customCss:$("sCustomCss").value},{merge:true});alert("Website settings saved.")}catch(e){alert(e.message)}};
-async function loadSettings(){const s=await db.collection("siteSettings").doc("main").get();if(s.exists){const x=s.data();$("sTitle").value=x.title||"";$("sTag").value=x.tag||"";$("sHeroTitle").value=x.heroTitle||"";$("sHeroText").value=x.heroText||"";$("sStory").value=x.aboutStory||"";$("sVibe").value=x.aboutVibe||"";$("sPhone").value=x.phone||"";$("sPrimary").value=x.primaryColor||"";$("sAccent").value=x.accentColor||"";$("sBg1").value=x.backgroundStart||"";$("sBg2").value=x.backgroundEnd||"";$("sText").value=x.textColor||"";$("sCard").value=x.cardColor||"";$("sRadius").value=x.cardRadius||"";$("sFont").value=x.fontFamily||"";$("sCustomCss").value=x.customCss||""}}
+const editorDefaults={title:"Friends Squad 2.0",aboutTitle:"",aboutSubtitle:"",aboutStory:"",aboutVibe:"",membersTitle:"",membersSubtitle:"",contactTitle:"",contactSubtitle:"",phone:"",footerText:"",primaryColor:"#7c5cff",navButtonColor:"#60a5fa",buttonTextColor:"#ffffff",accentColor:"#20d9c4",backgroundStart:"#090d1a",backgroundEnd:"#17254a",textColor:"#f5f7ff",cardColor:"#18243d",cardRadius:22,fontFamily:"Arial, sans-serif",customCss:""};
+const editorFields={title:"sTitle",aboutTitle:"sAboutTitle",aboutSubtitle:"sAboutSubtitle",aboutStory:"sStory",aboutVibe:"sVibe",membersTitle:"sMembersTitle",membersSubtitle:"sMembersSubtitle",contactTitle:"sContactTitle",contactSubtitle:"sContactSubtitle",phone:"sPhone",footerText:"sFooter",primaryColor:"sPrimary",navButtonColor:"sNavButton",buttonTextColor:"sButtonText",accentColor:"sAccent",backgroundStart:"sBg1",backgroundEnd:"sBg2",textColor:"sText",cardColor:"sCard",cardRadius:"sRadius",fontFamily:"sFont",customCss:"sCustomCss"};
+function setEditorValues(data){Object.keys(editorFields).forEach(k=>{const el=$(editorFields[k]);if(el)el.value=data[k]??editorDefaults[k]});$("radiusValue").textContent=$("sRadius").value+" px";updateEditorPreview();}
+function readEditorValues(){const out={};Object.keys(editorFields).forEach(k=>{const el=$(editorFields[k]);out[k]=el?el.value:editorDefaults[k]});out.cardRadius=Number(out.cardRadius)||22;return out}
+function updateEditorPreview(){const v=readEditorValues();$("previewNav").style.background="#090d1add";$("previewNavButton").style.background=v.navButtonColor;$("previewNavButton").style.color=v.buttonTextColor;$("editorPreview").style.background="linear-gradient(135deg,"+v.backgroundStart+","+v.backgroundEnd+")";$("editorPreview").style.color=v.textColor;$("previewTitle").style.color=v.accentColor;$("previewAction").style.background=v.primaryColor;$("previewAction").style.color=v.buttonTextColor;$("previewCard").style.background=v.cardColor;$("previewCard").style.borderRadius=v.cardRadius+"px";$("previewCard").style.color=v.textColor;$("previewCard").style.fontFamily=v.fontFamily;$("editorPreview").style.fontFamily=v.fontFamily;$("previewTitle").textContent=v.aboutTitle||"আমাদের বন্ধুত্ব, আমাদের গল্প";$("previewText").textContent=v.aboutSubtitle||"তোমার ওয়েবসাইটের ডিজাইন এখানে দেখা যাবে।";$("radiusValue").textContent=v.cardRadius+" px"}
+document.querySelectorAll("[data-editor-tab]").forEach(btn=>btn.onclick=()=>{document.querySelectorAll("[data-editor-tab]").forEach(x=>x.classList.toggle("active",x===btn));document.querySelectorAll("[data-editor-panel]").forEach(x=>x.classList.toggle("active",x.dataset.editorPanel===btn.dataset.editorTab))});
+Object.values(editorFields).forEach(id=>{const el=$(id);if(el)el.addEventListener("input",updateEditorPreview)});
+$("saveSettings").onclick=async()=>{const btn=$("saveSettings");try{btn.disabled=true;$("settingsStatus").textContent="সেভ হচ্ছে…";await db.collection("siteSettings").doc("main").set(readEditorValues(),{merge:true});$("settingsStatus").textContent="সফলভাবে সেভ হয়েছে!";alert("Website settings saved. Refresh the homepage to see the changes.");}catch(e){$("settingsStatus").textContent="সেভ করা যায়নি";alert(e.message)}finally{btn.disabled=false}};
+$("resetSettings").onclick=()=>{if(!confirm("সব Website Text & Design ডিফল্ট অবস্থায় ফিরিয়ে আনবে? এরপর Save & Publish চাপলে পরিবর্তনটি সাইটে কার্যকর হবে।"))return;setEditorValues(editorDefaults);$("settingsStatus").textContent="ডিফল্ট নমুনা লোড হয়েছে। কার্যকর করতে Save & Publish চাপো।"};
+async function loadSettings(){const s=await db.collection("siteSettings").doc("main").get();setEditorValues(s.exists?{...editorDefaults,...s.data()}:editorDefaults)}
+
 
 function downloadApprovedReceipt(data,type,reference){
  const rows=type==="member"?[["আবেদনকারীর নাম",data.name],["বয়স",data.age],["শ্রেণি",data.className],["জন্মতারিখ",data.birthDate],["ঠিকানা",data.address],["দলের নাম",data.teamName],["মোবাইল নম্বর",data.phone]]:[["দরপত্রের ক্রমিক নং",data.serial],["গ্রাহকের নাম",data.name],["ঠিকানা",data.address],["পত্র সংগ্রহের তারিখ",data.collectionDate],["পত্র জমার তারিখ",data.submissionDate],["আমি কোন স্থানটি নিতে ইচ্ছুক",data.place],["দরপত্রের নাম",data.tenderName],["মোবাইল",data.phone],["তারিখ",data.date]];
