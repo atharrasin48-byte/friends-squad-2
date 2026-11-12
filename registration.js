@@ -98,41 +98,48 @@ function addTenderReceiptDownload(form, data) {
   const e = escapeReceipt;
   const html = `<!doctype html>
 <html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tender Submission Receipt</title>
+<title>Tender Registration Receipt</title>
 <style>
-*{box-sizing:border-box}body{margin:0;padding:28px;background:#e9edf4;color:#1b2940;font-family:Arial,sans-serif}
-.paper{max-width:760px;margin:20px auto;background:#fff;border:1px solid #cbd4e2;box-shadow:0 12px 34px #182b481c}
-.head{padding:26px 30px;border-bottom:4px double #284d78;text-align:center}
-.kicker{font-size:12px;letter-spacing:2px;color:#61748f;font-weight:bold}.head h1{margin:8px 0;color:#203d63;font-size:24px}.head p{margin:0;color:#687991}
-.ribbon{margin:22px 30px 0;padding:11px 14px;background:#203d63;color:#fff;text-align:center;font-weight:bold;letter-spacing:1px}
-.content{padding:24px 30px}.intro{text-align:center;color:#53657d;line-height:1.6;margin:0 0 22px}
-table{width:100%;border-collapse:collapse}td{padding:12px 10px;border:1px solid #d7dfeb;vertical-align:top}td:first-child{width:38%;background:#f2f5fa;color:#526783;font-weight:bold}
-.ref{margin-top:20px;padding:16px;border:1px solid #aebed3;background:#f6f8fb;text-align:center}
-.ref span{display:block;color:#60728b;font-size:12px;letter-spacing:1px}.ref strong{display:block;margin-top:7px;color:#203d63;font-family:monospace;overflow-wrap:anywhere}
-.notice{margin-top:20px;padding:13px 15px;border-left:4px solid #d19b42;background:#fff8e9;color:#65512c;font-size:13px;line-height:1.6}
-.sign{display:flex;justify-content:space-between;gap:20px;margin-top:42px;color:#61728a;font-size:12px}.sign div{width:42%;border-top:1px solid #8c9bb0;padding-top:8px;text-align:center}
-.footer{margin-top:25px;padding:15px;background:#f2f5fa;text-align:center;color:#6b7b91;font-size:12px}
-button{display:block;margin:22px auto 0;padding:12px 22px;border:0;border-radius:4px;background:#203d63;color:#fff;font-weight:bold}
-@media(max-width:520px){body{padding:10px}.head,.content{padding:20px}.ribbon{margin-left:20px;margin-right:20px}td{padding:9px 7px;font-size:13px}}
-@media print{body{padding:0;background:white}.paper{margin:0;max-width:none;box-shadow:none}button{display:none}}
+*{box-sizing:border-box}body{margin:0;padding:22px;background:#fff;color:#111;font-family:Arial,"Noto Sans Bengali",sans-serif}
+.paper{max-width:760px;margin:0 auto;padding:28px;border:1px solid #999;background:#fff}
+.heading{text-align:center;border-bottom:1px solid #222;padding-bottom:14px}
+.heading h1{font-size:21px;margin:0 0 5px;font-weight:700;letter-spacing:.3px}
+.heading p{font-size:14px;margin:0}.heading h2{font-size:18px;margin:12px 0 0;font-weight:600}
+.intro{font-size:13px;margin:16px 0;text-align:center}
+.details{display:grid;grid-template-columns:minmax(0,1fr) 130px;gap:18px;align-items:start}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{border:1px solid #777;padding:9px 10px;vertical-align:top;overflow-wrap:anywhere}
+td:first-child{width:40%;font-weight:600}
+.photo{width:130px;height:155px;border:1px solid #777;display:flex;align-items:center;justify-content:center;color:#555;font-size:12px;text-align:center;overflow:hidden}
+.photo img{width:100%;height:100%;object-fit:cover}
+.reference{margin-top:16px;font-size:13px;padding:11px;border:1px solid #777}
+.reference strong{font-family:monospace;overflow-wrap:anywhere}
+.note{font-size:12px;margin-top:16px;line-height:1.5}
+.sign{display:flex;justify-content:space-between;gap:20px;margin-top:34px;font-size:12px}
+.sign div{width:42%;border-top:1px solid #777;padding-top:8px;text-align:center}
+.footer{border-top:1px solid #777;margin-top:20px;padding-top:9px;text-align:center;font-size:11px}
+button{display:block;margin:18px auto 0;padding:10px 18px;border:1px solid #333;background:#fff;color:#111;font-weight:600}
+@media(max-width:520px){body{padding:8px}.paper{padding:12px}.details{grid-template-columns:minmax(0,1fr) 95px;gap:8px}.photo{width:95px;height:120px}td{padding:7px 6px;font-size:12px}.heading h1{font-size:18px}}
+@media print{body{padding:0}.paper{max-width:none;border:0;padding:12mm}button{display:none}}
 </style></head><body><main class="paper">
-<header class="head"><div class="kicker">THE PRO BOYS CYCLING GANG</div><h1>FRIENDS SQUAD 2.0</h1><p>দরপত্র নিবন্ধন ও জমাদান সংক্রান্ত রসিদ</p></header>
-<div class="ribbon">OFFICIAL TENDER REGISTRATION RECEIPT</div>
-<section class="content"><p class="intro">আপনার দরপত্র সংক্রান্ত নিবন্ধন গ্রহণ করা হয়েছে। নিচে জমা দেওয়া তথ্যের সারসংক্ষেপ দেওয়া হলো।</p>
-<table>
-<tr><td>ক্রমিক নম্বর</td><td>${e(data.serial)}</td></tr>
-<tr><td>আবেদনকারী / প্রতিষ্ঠানের নাম</td><td>${e(data.name)}</td></tr>
+<header class="heading"><h1>FRIENDS SQUAD 2.0</h1><p>THE PRO BOYS CYCLING GANG</p><h2>দরপত্র রেজিস্ট্রেশন রসিদ</h2></header>
+<p class="intro">দরপত্র রেজিস্ট্রেশনের জন্য আপনার জমা দেওয়া তথ্যসমূহ নিচে উল্লেখ করা হলো।</p>
+<section class="details"><table>
+<tr><td>দরপত্রের ক্রমিক নং</td><td>${e(data.serial)}</td></tr>
+<tr><td>গ্রাহকের নাম</td><td>${e(data.name)}</td></tr>
+<tr><td>ঠিকানা</td><td>${e(data.address)}</td></tr>
+<tr><td>পত্র সংগ্রহের তারিখ</td><td>${e(data.collectionDate)}</td></tr>
+<tr><td>পত্র জমার তারিখ</td><td>${e(data.submissionDate)}</td></tr>
+<tr><td>আমি কোন স্থানটি নিতে ইচ্ছুক</td><td>${e(data.place)}</td></tr>
 <tr><td>দরপত্রের নাম</td><td>${e(data.tenderName)}</td></tr>
-<tr><td>নির্ধারিত স্থান</td><td>${e(data.place)}</td></tr>
-<tr><td>দরপত্র সংগ্রহের তারিখ</td><td>${e(data.collectionDate)}</td></tr>
-<tr><td>দরপত্র জমার তারিখ</td><td>${e(data.submissionDate)}</td></tr>
-<tr><td>নিবন্ধনের তারিখ</td><td>${e(data.date)}</td></tr>
-</table>
-<div class="ref"><span>RECEIPT / TRACKING NUMBER</span><strong>${e(data.reference)}</strong></div>
-<div class="notice">এই রসিদটি নিবন্ধন জমা দেওয়ার প্রমাণ হিসেবে সংরক্ষণ করুন। এটি দরপত্র গ্রহণ বা অনুমোদনের নিশ্চয়তা নয়।</div>
+<tr><td>মোবাইল</td><td>${e(data.phone)}</td></tr>
+<tr><td>তারিখ</td><td>${e(data.date)}</td></tr>
+</table><div class="photo">${data.imageUrl ? `<img src="${e(data.imageUrl)}" alt="আবেদনকারীর ছবি">` : "আবেদনকারীর ছবি"}</div></section>
+<div class="reference">রসিদ / রেফারেন্স নম্বর: <strong>${e(data.reference)}</strong></div>
+<p class="note">আপনার দরপত্র রেজিস্ট্রেশন তথ্য গ্রহণ করা হয়েছে। রসিদটি ভবিষ্যতের প্রয়োজনে সংরক্ষণ করুন।</p>
 <div class="sign"><div>আবেদনকারীর স্বাক্ষর</div><div>গ্রহণকারীর স্বাক্ষর</div></div>
-</section><footer class="footer">Friends Squad 2.0 · Tender Registration</footer>
-</main><button onclick="window.print()">Print / Save as PDF</button></body></html>`;
+<footer class="footer">Friends Squad 2.0 · Tender Registration</footer>
+</main><button onclick="window.print()">প্রিন্ট / PDF হিসেবে সংরক্ষণ</button></body></html>`;
   downloadReceipt(html, "friends-squad-tender-receipt.html", form, "দরপত্রের রসিদ ডাউনলোড করুন");
 }
 
@@ -325,11 +332,14 @@ $("tenderEntry").addEventListener("submit", async event => {
     addTenderReceiptDownload(form, {
       serial: values.get("serial"),
       name: values.get("name"),
+      address: values.get("address"),
       tenderName: values.get("tenderName"),
       place: values.get("place"),
       collectionDate: values.get("collectionDate"),
       submissionDate: values.get("submissionDate"),
+      phone: values.get("phone"),
       date: values.get("date"),
+      imageUrl,
       reference: tenderRef.id
     });
     form.reset();
