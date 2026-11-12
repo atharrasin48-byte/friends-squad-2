@@ -36,44 +36,55 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
 .live-clock-zone{font-size:12px;margin-top:5px;opacity:.8}
 @media(max-width:480px){.live-datetime{padding:0 5%;margin-top:18px}.live-clock-card{padding:18px 12px}}
 
+
+.nav-right{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap}
+.nav-links{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:2px}
+.nav-links a{margin:4px}
+.language-switch{display:flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid #93c5fd;border-radius:999px;background:#ffffff12;color:#dbeafe;font-size:12px;white-space:nowrap}
+.language-switch button{border:0;background:transparent;color:#dbeafe;font:700 12px Arial,sans-serif;padding:5px 7px;border-radius:999px;cursor:pointer}
+.language-switch button.active{background:#dbeafe;color:#123b70}
+.language-switch button:focus-visible{outline:2px solid #20d9c4;outline-offset:2px}
+@media(max-width:850px){nav{align-items:center}.nav-right{width:100%;justify-content:center}.nav-links{justify-content:center}}
+@media(max-width:480px){.nav-links a{padding:7px 10px;font-size:12px}.nav-right{gap:7px}}
+
 </style>
 </head>
 <body>
 
-<nav><div class="logo"><img src="ChatGPT%20Image%20Oct%2015%2C%202026%2C%2007_27_51%20PM.png" alt="Friends Squad 2.0 Logo" style="width:42px;height:42px;object-fit:contain;vertical-align:middle;margin-right:8px;border-radius:50%;"><span>Friends Squad 2.0</span></div><a href="#about">About</a><a href="#members">Friends</a><a href="#contact">Contact</a><a href="./registration.html">Registration</a><a href="./admin.html">Admin Login</a></nav>
+<nav><div class="logo"><img src="ChatGPT%20Image%20Oct%2015%2C%202026%2C%2007_27_51%20PM.png" alt="Friends Squad 2.0 Logo" style="width:42px;height:42px;object-fit:contain;vertical-align:middle;margin-right:8px;border-radius:50%;"><span>Friends Squad 2.0</span></div><div class="nav-right"><div class="nav-links"><a href="#about" data-i18n="navAbout">About</a><a href="#members" data-i18n="navFriends">Friends</a><a href="#contact" data-i18n="navContact">Contact</a><a href="./registration.html" data-i18n="navRegistration">Registration</a><a href="./admin.html" data-i18n="navAdmin">Admin Login</a></div><div class="language-switch" aria-label="Choose language"><button type="button" id="langBn" aria-pressed="false">বাংলা</button><span>|</span><button type="button" id="langEn" aria-pressed="true">English</button></div></div></nav>
 
 <section class="live-datetime" aria-label="Live time and date">
   <div class="live-clock-card">
-    <div class="live-clock-label">Current Time in Bangladesh</div>
+    <div class="live-clock-label" data-i18n="clockLabel">Current Time in Bangladesh</div>
     <div class="live-clock-time" id="liveClockTime">--:--:--</div>
     <div class="live-clock-date" id="liveClockDate">Loading date...</div>
-    <div class="live-clock-zone">Bangladesh Standard Time (UTC+6)</div>
+    <div class="live-clock-zone" data-i18n="clockZone">Bangladesh Standard Time (UTC+6)</div>
   </div>
 </section>
 
-<section id="about"><div class="section-title"><h2>About Us</h2><p>More than friends — we are a squad.</p></div><div class="about"><div class="card"><h3>Our Story</h3><p>Friends Squad 2.0 is built on trust, fun, support, and unforgettable memories.</p></div><div class="card"><h3>Our Vibe</h3><p>Good energy, big dreams, endless jokes, and real friendship.</p></div></div></section>
+<section id="about"><div class="section-title"><h2 data-i18n="aboutTitle">About Us</h2><p data-i18n="aboutSubtitle">More than friends — we are a squad.</p></div><div class="about"><div class="card"><h3 data-i18n="storyTitle">Our Story</h3><p data-i18n="storyText">Friends Squad 2.0 is built on trust, fun, support, and unforgettable memories.</p></div><div class="card"><h3 data-i18n="vibeTitle">Our Vibe</h3><p data-i18n="vibeText">Good energy, big dreams, endless jokes, and real friendship.</p></div></div></section>
 <section id="members">
-  <div class="section-title"><h2 id="membersTitle">Meet the Squad</h2><p id="membersSubtitle">Click a member to view details.</p></div>
+  <div class="section-title"><h2 id="membersTitle" data-i18n="membersTitle">Meet the Squad</h2><p id="membersSubtitle" data-i18n="membersSubtitle">Click a member to view details.</p></div>
   <div class="members" id="membersGrid"></div>
 </section>
 <section class="public-section" id="noticesSection" style="display:none">
-  <div class="section-title"><h2>Notices</h2><p>Latest updates from Friends Squad 2.0</p></div>
+  <div class="section-title"><h2 data-i18n="noticesTitle">Notices</h2><p data-i18n="noticesSubtitle">Latest updates from Friends Squad 2.0</p></div>
   <div class="notice-list" id="noticeList"></div>
 </section>
 <section class="public-section" id="mediaSection" style="display:none">
-  <div class="section-title"><h2>Photos & Videos</h2><p>Memories from the squad</p></div>
+  <div class="section-title"><h2 data-i18n="mediaTitle">Photos & Videos</h2><p data-i18n="mediaSubtitle">Memories from the squad</p></div>
   <div class="media-grid" id="mediaGrid"></div>
 </section>
-<section id="contact"><div class="card contact"><div class="section-title"><h2>Contact Us</h2><p>Want to connect with Friends Squad 2.0? Give us a call.</p></div><a class="phone" href="tel:01727553988">Call: 01727553988</a></div></section>
+<section id="contact"><div class="card contact"><div class="section-title"><h2 data-i18n="contactTitle">Contact Us</h2><p data-i18n="contactSubtitle">Want to connect with Friends Squad 2.0? Give us a call.</p></div><a class="phone" href="tel:01727553988">Call: 01727553988</a></div></section>
 <div class="modal-backdrop" id="memberModal" aria-hidden="true">
   <div class="modal">
-    <button class="close" id="modalClose" aria-label="Close">×</button>
+    <button class="close" id="modalClose" aria-label="Close" data-i18n-aria="closeLabel">×</button>
     <img id="modalImage" alt="">
     <h2 id="modalName"></h2><p id="modalRole"></p><div id="modalBio"></div>
   </div>
 </div>
-<section class="visitor-stats" aria-label="Website visitor statistics"><div class="visitor-stat"><strong id="todayVisitorCount">—</strong><span>VISITORS TODAY</span></div><div class="visitor-stat"><strong id="totalVisitorCount">—</strong><span>TOTAL VISITORS</span></div><p class="visitor-stats-note">Unique browser visits</p></section>
-<footer>© 2026 Friends Squad 2.0 — Made with friendship and good vibes.</footer>
+<section class="visitor-stats" aria-label="Website visitor statistics"><div class="visitor-stat"><strong id="todayVisitorCount">—</strong><span data-i18n="visitorsToday">VISITORS TODAY</span></div><div class="visitor-stat"><strong id="totalVisitorCount">—</strong><span data-i18n="totalVisitors">TOTAL VISITORS</span></div><p class="visitor-stats-note" data-i18n="visitorNote">Unique browser visits</p></section>
+<footer data-i18n="footerText">© 2026 Friends Squad 2.0 — Made with friendship and good vibes.</footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -97,14 +108,14 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     document.getElementById("modalImage").alt=m.name||"Member";
     document.getElementById("modalName").textContent=m.name||"";
     document.getElementById("modalRole").textContent=m.role||"";
-    document.getElementById("modalBio").innerHTML=m.bio?esc(m.bio).replace(/\n/g,"<br>"):"No details added yet.";
+    document.getElementById("modalBio").innerHTML=m.bio?esc(m.bio).replace(/\n/g,"<br>"):translations[currentLanguage].noDetails;
     modal.classList.add("open"); modal.setAttribute("aria-hidden","false");
   }
   function renderMembers(list){
     grid.innerHTML="";
     list.forEach(m=>{
       const a=document.createElement("article"); a.className="member";
-      a.innerHTML='<img src="'+esc(m.image)+'" alt="'+esc(m.name)+'"><h3>'+esc(m.name)+'</h3><p>'+esc(m.role||"Squad Member")+'</p>';
+      a.innerHTML='<img src="'+esc(m.image)+'" alt="'+esc(m.name)+'"><h3>'+esc(m.name)+'</h3><p>'+esc(m.role||translations[currentLanguage].squadMember)+'</p>';
       a.addEventListener("click",()=>openMember(m)); grid.appendChild(a);
     });
   }
@@ -145,7 +156,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     if(s.heroText) document.querySelector(".hero p").textContent=s.heroText;
     if(s.aboutStory) document.querySelector(".card h3").nextElementSibling.textContent=s.aboutStory;
     if(s.aboutVibe) document.querySelectorAll(".card h3")[1].nextElementSibling.textContent=s.aboutVibe;
-    if(s.phone){const a=document.querySelector(".phone");a.href="tel:"+s.phone;a.textContent="Call: "+s.phone;}
+    if(s.phone){const a=document.querySelector(".phone");a.href="tel:"+s.phone;a.textContent=translations[currentLanguage].call+s.phone;}
     const root=document.documentElement;
     if(s.primaryColor) root.style.setProperty("--primary",s.primaryColor);
     if(s.accentColor) root.style.setProperty("--accent",s.accentColor);
@@ -178,19 +189,45 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
         db.collection("visitorStats").get(),
         db.collection("visitorDaily").where("date","==",dateKey).get()
       ]);
-      document.getElementById("totalVisitorCount").textContent=totalSnap.size.toLocaleString("en-US");
-      document.getElementById("todayVisitorCount").textContent=todaySnap.size.toLocaleString("en-US");
+      document.getElementById("totalVisitorCount").dataset.raw=String(totalSnap.size);\n      document.getElementById("totalVisitorCount").textContent=totalSnap.size.toLocaleString(currentLanguage==="bn"?"bn-BD":"en-US");
+      document.getElementById("todayVisitorCount").dataset.raw=String(todaySnap.size);\n      document.getElementById("todayVisitorCount").textContent=todaySnap.size.toLocaleString(currentLanguage==="bn"?"bn-BD":"en-US");
     }catch(e){console.warn("Visitor counter:",e);}
   }
+
+
+  const translations={
+    en:{navAbout:"About",navFriends:"Friends",navContact:"Contact",navRegistration:"Registration",navAdmin:"Admin Login",clockLabel:"Current Time in Bangladesh",clockZone:"Bangladesh Standard Time (UTC+6)",aboutTitle:"About Us",aboutSubtitle:"More than friends — we are a squad.",storyTitle:"Our Story",storyText:"Friends Squad 2.0 is built on trust, fun, support, and unforgettable memories.",vibeTitle:"Our Vibe",vibeText:"Good energy, big dreams, endless jokes, and real friendship.",membersTitle:"Meet the Squad",membersSubtitle:"Click a member to view details.",noticesTitle:"Notices",noticesSubtitle:"Latest updates from Friends Squad 2.0",mediaTitle:"Photos & Videos",mediaSubtitle:"Memories from the squad",contactTitle:"Contact Us",contactSubtitle:"Want to connect with Friends Squad 2.0? Give us a call.",closeLabel:"Close",visitorsToday:"VISITORS TODAY",totalVisitors:"TOTAL VISITORS",visitorNote:"Unique browser visits",footerText:"© 2026 Friends Squad 2.0 — Made with friendship and good vibes.",loadingDate:"Loading date...",squadMember:"Squad Member",noDetails:"No details added yet.",call:"Call: "},
+    bn:{navAbout:"আমাদের সম্পর্কে",navFriends:"বন্ধুরা",navContact:"যোগাযোগ",navRegistration:"রেজিস্ট্রেশন",navAdmin:"অ্যাডমিন লগইন",clockLabel:"বাংলাদেশের বর্তমান সময়",clockZone:"বাংলাদেশ মান সময় (UTC+6)",aboutTitle:"আমাদের সম্পর্কে",aboutSubtitle:"আমরা শুধু বন্ধু নই — আমরা একটি পরিবার।",storyTitle:"আমাদের গল্প",storyText:"বিশ্বাস, আনন্দ, সহযোগিতা ও অসংখ্য স্মৃতি নিয়ে গড়ে উঠেছে Friends Squad 2.0।",vibeTitle:"আমাদের বন্ধন",vibeText:"ইতিবাচকতা, বড় স্বপ্ন, অফুরন্ত হাসি আর সত্যিকারের বন্ধুত্ব।",membersTitle:"আমাদের বন্ধুরা",membersSubtitle:"বিস্তারিত দেখতে কোনো সদস্যের ওপর ক্লিক করো।",noticesTitle:"নোটিশ",noticesSubtitle:"Friends Squad 2.0-এর সর্বশেষ ঘোষণা",mediaTitle:"ছবি ও ভিডিও",mediaSubtitle:"বন্ধুদের সঙ্গে কাটানো স্মৃতি",contactTitle:"যোগাযোগ",contactSubtitle:"Friends Squad 2.0-এর সঙ্গে যোগাযোগ করতে আমাদের কল করো।",closeLabel:"বন্ধ করুন",visitorsToday:"আজকের ভিজিটর",totalVisitors:"মোট ভিজিটর",visitorNote:"ইউনিক ব্রাউজার ভিজিট",footerText:"© ২০২৬ Friends Squad 2.0 — বন্ধুত্ব আর ভালোবাসায় তৈরি।",loadingDate:"তারিখ লোড হচ্ছে...",squadMember:"স্কোয়াড সদস্য",noDetails:"এখনো কোনো বিস্তারিত তথ্য যোগ করা হয়নি।",call:"কল করুন: "}
+  };
+  let currentLanguage=localStorage.getItem("fs20_home_language")==="bn"?"bn":"en";
+  function applyLanguage(lang){
+    currentLanguage=lang==="bn"?"bn":"en";
+    localStorage.setItem("fs20_home_language",currentLanguage);
+    const t=translations[currentLanguage];
+    document.documentElement.lang=currentLanguage;
+    document.querySelectorAll("[data-i18n]").forEach(el=>{const key=el.getAttribute("data-i18n");if(t[key]!==undefined)el.textContent=t[key];});
+    document.querySelectorAll("[data-i18n-aria]").forEach(el=>{const key=el.getAttribute("data-i18n-aria");if(t[key]!==undefined)el.setAttribute("aria-label",t[key]);});
+    document.getElementById("langBn").classList.toggle("active",currentLanguage==="bn");
+    document.getElementById("langEn").classList.toggle("active",currentLanguage==="en");
+    document.getElementById("langBn").setAttribute("aria-pressed",String(currentLanguage==="bn"));
+    document.getElementById("langEn").setAttribute("aria-pressed",String(currentLanguage==="en"));
+    updateLiveDateTime();
+    const total=document.getElementById("totalVisitorCount"),daily=document.getElementById("todayVisitorCount");
+    if(total.dataset.raw)total.textContent=Number(total.dataset.raw).toLocaleString(currentLanguage==="bn"?"bn-BD":"en-US");
+    if(daily.dataset.raw)daily.textContent=Number(daily.dataset.raw).toLocaleString(currentLanguage==="bn"?"bn-BD":"en-US");
+  }
+  document.getElementById("langBn").addEventListener("click",()=>applyLanguage("bn"));
+  document.getElementById("langEn").addEventListener("click",()=>applyLanguage("en"));
 
   function updateLiveDateTime(){
     const now=new Date();
     const time=document.getElementById("liveClockTime");
     const date=document.getElementById("liveClockDate");
     if(!time||!date) return;
-    time.textContent=new Intl.DateTimeFormat("en-BD",{timeZone:"Asia/Dhaka",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true}).format(now);
-    date.textContent=new Intl.DateTimeFormat("en-BD",{timeZone:"Asia/Dhaka",weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(now);
+    time.textContent=new Intl.DateTimeFormat(currentLanguage==="bn"?"bn-BD":"en-BD",{timeZone:"Asia/Dhaka",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true}).format(now);
+    date.textContent=new Intl.DateTimeFormat(currentLanguage==="bn"?"bn-BD":"en-BD",{timeZone:"Asia/Dhaka",weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(now);
   }
+  applyLanguage(currentLanguage);
   updateLiveDateTime();
   setInterval(updateLiveDateTime,1000);
 
