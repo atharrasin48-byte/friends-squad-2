@@ -30,6 +30,23 @@ function showStatus(form, message, success = false) {
   box.textContent = message;
 }
 
+function addReceiptDownload(form, title, name, reference) {
+  const safe = value => String(value || "").replace(/[&<>"']/g, ch => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[ch]));
+  const html = `<!doctype html><html lang="bn"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Registration Receipt</title><style>body{font-family:Arial,sans-serif;background:#f3f5fa;padding:24px;color:#172033}.receipt{max-width:620px;margin:30px auto;background:white;border:2px solid #20a995;border-radius:18px;padding:28px;text-align:center}.ref{font-family:monospace;background:#eef2f7;padding:10px;border-radius:8px;overflow-wrap:anywhere}.muted{color:#657087}button{padding:10px 18px;background:#20a995;color:white;border:0;border-radius:8px}</style><section class="receipt"><h1>Friends Squad 2.0</h1><h2>${safe(title)}</h2><p>রেজিস্ট্রেশন সফলভাবে জমা হয়েছে।</p><p><b>নাম:</b> ${safe(name)}</p><p><b>রেফারেন্স নম্বর:</b></p><p class="ref">${safe(reference)}</p><p class="muted">এই রসিদটি জমা দেওয়ার প্রমাণ হিসেবে সংরক্ষণ করুন।</p><button onclick="window.print()">Print / Save as PDF</button></section></html>`;
+  const url = URL.createObjectURL(new Blob([html], {type:"text/html;charset=utf-8"}));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "friends-squad-registration-receipt.html";
+  link.textContent = "রসিদ ডাউনলোড করুন";
+  link.style.display = "inline-block";
+  link.style.marginTop = "10px";
+  link.style.color = "#20d9c4";
+  form.querySelector(".status").appendChild(document.createElement("br"));
+  form.querySelector(".status").appendChild(link);
+}
+
 async function uploadImage(file) {
   if (!file || !file.type.startsWith("image/")) {
     throw new Error("একটি সঠিক ছবি নির্বাচন করুন।");
@@ -137,11 +154,13 @@ $("memberEntry").addEventListener("submit", async event => {
     }
 
     const key = await makeKey(name, birthDate);
-    const approved = await db
-      .collection("approvedMemberKeys").doc(key).get();
-
+    const approved = await db.collection("approvedMemberKeys").doc(key).get();
     if (approved.exists) {
       throw new Error("এই নামে ও জন্মতারিখে সদস্য ইতিমধ্যে নিবন্ধিত।");
+    }
+    const pending = await db.collection("memberApplications").doc(key).get();
+    if (pending.exists) {
+      throw new Error("এই আবেদনটি ইতিমধ্যে জমা হয়েছে। Admin-এর সিদ্ধান্তের অপেক্ষা করুন।");
     }
 
     const imageUrl = await uploadImage(values.get("image"));
@@ -162,6 +181,7 @@ $("memberEntry").addEventListener("submit", async event => {
     await db.collection("memberApplications").doc(key).set(application);
 
     showStatus(form, "রেজিস্ট্রেশন জমা হয়েছে। Admin অনুমোদনের অপেক্ষায় থাকুন।", true);
+    addReceiptDownload(form, "সদস্য রেজিস্ট্রেশন রসিদ", name, key);
     form.reset();
   } catch (error) {
     showStatus(form, error.message || "রেজিস্ট্রেশন সম্পন্ন হয়নি।");
@@ -193,7 +213,8 @@ $("tenderEntry").addEventListener("submit", async event => {
 
     const imageUrl = await uploadImage(values.get("image"));
 
-    await db.collection("tenderApplications").add({
+    const tenderRef = db.collection("tenderApplications").doc();
+    await tenderRef.set({
       serial: values.get("serial"),
       name: values.get("name"),
       address: values.get("address"),
@@ -208,6 +229,7 @@ $("tenderEntry").addEventListener("submit", async event => {
     });
 
     showStatus(form, "দরপত্রের রেজিস্ট্রেশন জমা হয়েছে।", true);
+    addReceiptDownload(form, "দরপত্র রেজিস্ট্রেশন রসিদ", String(values.get("name")), tenderRef.id);
     form.reset();
   } catch (error) {
     showStatus(form, error.message || "রেজিস্ট্রেশন সম্পন্ন হয়নি।");
