@@ -189,8 +189,10 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
         db.collection("visitorStats").get(),
         db.collection("visitorDaily").where("date","==",dateKey).get()
       ]);
-      document.getElementById("totalVisitorCount").dataset.raw=String(totalSnap.size);\n      document.getElementById("totalVisitorCount").textContent=totalSnap.size.toLocaleString(currentLanguage==="bn"?"bn-BD":"en-US");
-      document.getElementById("todayVisitorCount").dataset.raw=String(todaySnap.size);\n      document.getElementById("todayVisitorCount").textContent=todaySnap.size.toLocaleString(currentLanguage==="bn"?"bn-BD":"en-US");
+      document.getElementById("totalVisitorCount").dataset.raw=String(totalSnap.size);
+      document.getElementById("totalVisitorCount").textContent=totalSnap.size.toLocaleString(currentLanguage==="bn"?"bn-BD":"en-US");
+      document.getElementById("todayVisitorCount").dataset.raw=String(todaySnap.size);
+      document.getElementById("todayVisitorCount").textContent=todaySnap.size.toLocaleString(currentLanguage==="bn"?"bn-BD":"en-US");
     }catch(e){console.warn("Visitor counter:",e);}
   }
 
