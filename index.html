@@ -115,7 +115,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     grid.innerHTML="";
     list.forEach(m=>{
       const a=document.createElement("article"); a.className="member";
-      a.innerHTML='<img src="'+esc(m.image)+'" alt="'+esc(m.name)+'"><h3>'+esc(m.name)+'</h3><p>'+esc(m.role||translations[currentLanguage].squadMember)+'</p>';
+      a.innerHTML='<img src="'+esc(m.image)+'" alt="'+esc(m.name)+'"><h3>'+esc(m.name)+'</h3><p>'+esc(m.role||(currentLanguage==="bn"?"স্কোয়াড সদস্য":"Squad Member"))+'</p>';
       a.addEventListener("click",()=>openMember(m)); grid.appendChild(a);
     });
   }
