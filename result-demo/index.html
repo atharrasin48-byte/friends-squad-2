@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EduManage — Result Demo</title>
+<style>
+:root{--navy:#101b35;--blue:#315efb;--teal:#16b8a6;--bg:#f3f6fc;--ink:#17233d;--muted:#6b7892;--line:#e4eaf3}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,"Noto Sans Bengali",sans-serif}
+header{background:linear-gradient(120deg,#101b35,#244a91);color:white;padding:25px max(18px,calc((100% - 1120px)/2))}
+header .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.brand{font-size:22px;font-weight:850;letter-spacing:.3px}.brand span{color:#55e0d1}.tag{color:#cbd7f6;font-size:12px;border:1px solid #6175a8;padding:6px 10px;border-radius:20px}
+main{max-width:1120px;margin:24px auto;padding:0 16px}.intro{margin-bottom:20px}.intro h1{margin:0 0 6px;font-size:25px}.intro p{margin:0;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}.stat,.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 5px 18px #1c31500a}.stat small{color:var(--muted)}.stat b{display:block;font-size:25px;margin-top:4px}
+.layout{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.panel h2{font-size:18px;margin:0 0 15px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:13px;font-weight:650;margin-bottom:6px}.field input,.field select{width:100%;border:1px solid #d8e0ed;border-radius:9px;padding:11px;background:white;font:inherit;min-width:0}.subjects{display:grid;grid-template-columns:1fr 125px;gap:8px;align-items:center;margin:9px 0}.subjects label{font-size:13px}.subjects input{width:100%;padding:9px;border:1px solid #d8e0ed;border-radius:8px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}button{border:0;border-radius:9px;padding:10px 15px;font:inherit;font-weight:700;cursor:pointer;background:var(--blue);color:white}.secondary{background:#eaf0ff;color:#2949b8}.danger{background:#fff0f0;color:#b42318}.result{background:#f0fbfa;border:1px solid #c9f0e9;border-radius:12px;padding:14px;margin-top:14px;display:none}.result strong{font-size:25px}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:460px;font-size:13px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:650}.pill{padding:4px 8px;border-radius:20px;background:#e8f8f3;color:#087b68;font-weight:700}.muted{color:var(--muted);font-size:12px}.search{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-bottom:12px}
+footer{text-align:center;padding:25px;color:var(--muted);font-size:12px}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}.stat{padding:12px}.stat b{font-size:20px}}@media(max-width:420px){.grid{grid-template-columns:1fr}.subjects{grid-template-columns:1fr 100px}}
+@media print{header,.intro,.stats,.layout .panel:first-child,.actions,.search,.row-actions,footer{display:none!important}body{background:white}.layout{display:block}.panel{border:0;box-shadow:none}}
+</style>
+</head>
+<body>
+<header><div class="top"><div class="brand">Edu<span>Manage</span></div><div class="tag">DEMO • RESULT MANAGEMENT</div></div></header>
+<main>
+<section class="intro"><h1>Student Result Management</h1><p>শিক্ষার্থীর নম্বর ইনপুট করো, স্বয়ংক্রিয়ভাবে GPA ও গ্রেড হিসাব দেখো।</p></section>
+<div class="stats"><div class="stat"><small>মোট শিক্ষার্থী</small><b id="total">0</b></div><div class="stat"><small>গড় GPA</small><b id="average">0.00</b></div><div class="stat"><small>পাসের হার</small><b id="passrate">0%</b></div></div>
+<div class="layout">
+<section class="panel"><h2>নতুন রেজাল্ট এন্ট্রি</h2>
+<div class="grid">
+<div class="field"><label for="name">শিক্ষার্থীর নাম</label><input id="name" placeholder="নাম লিখো"></div>
+<div class="field"><label for="roll">রোল নম্বর</label><input id="roll" placeholder="যেমন ১০১"></div>
+<div class="field"><label for="className">শ্রেণি</label><select id="className"><option>নবম</option><option>দশম</option><option>একাদশ</option><option>দ্বাদশ</option></select></div>
+<div class="field"><label for="exam">পরীক্ষা</label><select id="exam"><option>বার্ষিক পরীক্ষা</option><option>অর্ধবার্ষিক পরীক্ষা</option><option>নির্বাচনী পরীক্ষা</option><option>মডেল টেস্ট</option></select></div>
+</div>
+<h3 style="font-size:14px;margin:18px 0 8px">বিষয়ভিত্তিক নম্বর (প্রতি বিষয়ে ১০০)</h3>
+<div id="subjects"></div>
+<div class="actions"><button id="save">রেজাল্ট সংরক্ষণ</button><button class="secondary" id="clear">ফর্ম পরিষ্কার</button></div>
+<div class="result" id="preview"></div>
+<p class="muted">ডেমো তথ্য শুধু এই ব্রাউজারের Local Storage-এ থাকবে। কোনো সার্ভারে পাঠানো হবে না।</p>
+</section>
+<section class="panel"><h2>রেজাল্ট তালিকা</h2><input class="search" id="search" placeholder="নাম বা রোল দিয়ে খুঁজুন..."><div class="table-wrap"><table><thead><tr><th>নাম / রোল</th><th>মোট</th><th>GPA</th><th>গ্রেড</th><th>অ্যাকশন</th></tr></thead><tbody id="rows"><tr><td colspan="5" class="muted">এখনো কোনো রেজাল্ট যোগ করা হয়নি।</td></tr></tbody></table></div><div class="actions"><button class="secondary" id="print">রেজাল্ট প্রিন্ট</button><button class="danger" id="deleteAll">সব ডেমো ডেটা মুছুন</button></div></section>
+</div>
+</main><footer>EduManage Demo · শিক্ষামূলক নমুনা · প্রকৃত AncovaEdu সেবা নয়</footer>
+<script>
+const subjects=["বাংলা","ইংরেজি","গণিত","তথ্য ও যোগাযোগ প্রযুক্তি","বিজ্ঞান","বাংলাদেশ ও বিশ্বপরিচয়"];
+const subjectBox=document.getElementById("subjects");
+subjects.forEach((s,i)=>{const d=document.createElement("div");d.className="subjects";d.innerHTML='<label for="mark'+i+'">'+s+'</label><input id="mark'+i+'" type="number" min="0" max="100" placeholder="০–১০০">';subjectBox.appendChild(d)});
+const $=id=>document.getElementById(id);let records=JSON.parse(localStorage.getItem("edumanage_demo_records")||"[]");let editing=null;
+function grade(n){if(n>=80)return["A+",5];if(n>=70)return["A",4];if(n>=60)return["A-",3.5];if(n>=50)return["B",3];if(n>=40)return["C",2];if(n>=33)return["D",1];return["F",0]}
+function calculate(marks){const failed=marks.some(n=>n<33);const total=marks.reduce((a,b)=>a+b,0);const points=marks.map(n=>grade(n)[1]);const gpa=failed?0:Math.min(5,points.reduce((a,b)=>a+b,0)/points.length);let g=gpa>=5?"A+":gpa>=4?"A":gpa>=3.5?"A-":gpa>=3?"B":gpa>=2?"C":gpa>=1?"D":"F";return{total,gpa:gpa.toFixed(2),grade:g,status:failed?"অকৃতকার্য":"উত্তীর্ণ"}}
+function getMarks(){return subjects.map((_,i)=>Number($("mark"+i).value))}
+function persist(){localStorage.setItem("edumanage_demo_records",JSON.stringify(records));render()}
+function render(){const q=$("search").value.trim().toLowerCase();const filtered=records.filter(r=>(r.name+" "+r.roll).toLowerCase().includes(q));$("rows").innerHTML=filtered.length?filtered.map(r=>'<tr><td><b>'+escapeHtml(r.name)+'</b><br><span class="muted">রোল: '+escapeHtml(r.roll)+'</span></td><td>'+r.result.total+'</td><td>'+r.result.gpa+'</td><td><span class="pill">'+r.result.grade+'</span></td><td class="row-actions"><button class="secondary" data-edit="'+r.id+'">Edit</button> <button class="danger" data-del="'+r.id+'">মুছুন</button></td></tr>').join(""):'<tr><td colspan="5" class="muted">কোনো রেজাল্ট পাওয়া যায়নি।</td></tr>';
+$("total").textContent=records.length;$("average").textContent=records.length?(records.reduce((a,r)=>a+Number(r.result.gpa),0)/records.length).toFixed(2):"0.00";$("passrate").textContent=records.length?Math.round(records.filter(r=>r.result.status==="উত্তীর্ণ").length/records.length*100)+"%":"0%";
+document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{const r=records.find(x=>x.id===b.dataset.edit);editing=r.id;$("name").value=r.name;$("roll").value=r.roll;$("className").value=r.className;$("exam").value=r.exam;r.marks.forEach((n,i)=>$("mark"+i).value=n);$("save").textContent="পরিবর্তন সংরক্ষণ";window.scrollTo({top:0,behavior:"smooth"})});
+document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{if(confirm("এই রেজাল্টটি মুছে ফেলবে?")){records=records.filter(r=>r.id!==b.dataset.del);persist()}});
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+$("save").onclick=()=>{const name=$("name").value.trim(),roll=$("roll").value.trim(),marks=getMarks();if(!name||!roll){alert("শিক্ষার্থীর নাম ও রোল লিখো।");return}if(marks.some((n,i)=>$("mark"+i).value===""||n<0||n>100)){alert("প্রতিটি বিষয়ে ০ থেকে ১০০-এর মধ্যে নম্বর দাও।");return}if(records.some(r=>r.roll===roll&&r.id!==editing)){alert("এই রোল নম্বরে আগে থেকেই রেজাল্ট আছে।");return}const item={id:editing||String(Date.now()),name,roll,className:$("className").value,exam:$("exam").value,marks,result:calculate(marks)};if(editing)records=records.map(r=>r.id===editing?item:r);else records.unshift(item);editing=null;persist();$("preview").style.display="block";$("preview").innerHTML='<b>'+escapeHtml(name)+'</b> — মোট নম্বর <strong>'+item.result.total+'</strong><br>GPA: <strong>'+item.result.gpa+'</strong> · গ্রেড: <strong>'+item.result.grade+'</strong> · '+item.result.status;$("save").textContent="রেজাল্ট সংরক্ষণ";};
+$("clear").onclick=()=>{editing=null;$("name").value="";$("roll").value="";subjects.forEach((_,i)=>$("mark"+i).value="");$("save").textContent="রেজাল্ট সংরক্ষণ";$("preview").style.display="none"};
+$("search").oninput=render;$("print").onclick=()=>window.print();$("deleteAll").onclick=()=>{if(confirm("সব ডেমো রেজাল্ট মুছে ফেলবে?")){records=[];persist();$("clear").click()}};
+render();
+</script></body></html>
