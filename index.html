@@ -213,7 +213,6 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     const granted=("Notification" in window)&&Notification.permission==="granted";
     const enabled=window.FS20Notifications&&window.FS20Notifications.isEnabled();
     notificationButton.hidden=false;
-    if(granted&&!enabled)localStorage.setItem("fs20_browser_notifications_enabled","yes");
     const active=window.FS20Notifications&&window.FS20Notifications.isEnabled();
     if(notificationStatus)notificationStatus.textContent=active
       ?(currentLanguage==="bn"?"নোটিফিকেশন বন্ধ করতে চাপ দিন":"Tap to turn notifications off")
