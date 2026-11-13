@@ -30,7 +30,7 @@
 <input id="email" type="email" placeholder="Admin email"><input id="password" type="password" placeholder="Password"><button id="loginBtn">Login</button><div id="loginMsg" class="status"></div></div>
 <div id="app">
 <div class="status">Logged in. <button id="logoutBtn">Logout</button></div>
-<div class="card"><h2>Member Registration Applications</h2><p class="muted">ব্যক্তিগত তথ্য শুধু Admin Panel-এ দেখা যাবে। Approve করলে শুধু নাম, ছবি ও role public Members-এ যোগ হবে।</p><div id="applicationList">Loading...</div></div>
+<div class="card"><h2>Member Registration</h2><p id="memberAdminStatus" class="status">অবস্থা যাচাই হচ্ছে…</p><button id="toggleMemberLock">লোড হচ্ছে…</button><h3>Member Registration Applications</h3><p class="muted">ব্যক্তিগত তথ্য শুধু Admin Panel-এ দেখা যাবে। Approve করলে শুধু নাম, ছবি ও role public Members-এ যোগ হবে।</p><div id="applicationList">Loading...</div></div>
 <div class="card"><h2>Tender Registration</h2><p id="tenderAdminStatus" class="status">অবস্থা যাচাই হচ্ছে…</p><button id="toggleTenderLock">লোড হচ্ছে…</button><div id="tenderApplicationList"></div></div>
 <div class="card"><h2>Members</h2><p class="muted">Add members, edit details, replace photos, or delete members.</p>
 <div class="grid"><div><input id="mId" placeholder="Member ID (for existing: member1, member2...)"><input id="mName" placeholder="Name"><input id="mRole" placeholder="Role"><textarea id="mBio" rows="5" placeholder="Member details / bio"></textarea><input id="mPhoto" type="file" accept="image/*"><button id="saveMember">Save Member</button><button id="clearMember">Clear</button></div><div><div id="memberList"></div></div></div></div>
@@ -166,6 +166,21 @@ async function loadMemberApplications(){
   list.appendChild(el);
  });
 }
+async function loadMemberRegistrationAdmin(){
+  const setting=await db.collection("registrationSettings").doc("main").get();
+  const locked=setting.exists&&setting.data().memberLocked===true;
+  $("memberAdminStatus").textContent=locked?"সদস্য রেজিস্ট্রেশন বন্ধ আছে।":"সদস্য রেজিস্ট্রেশন চালু আছে।";
+  $("toggleMemberLock").textContent=locked?"🔓 Unlock Member Registration":"🔒 Lock Member Registration";
+  $("toggleMemberLock").onclick=async()=>{
+    const next=!locked;
+    const btn=$("toggleMemberLock");btn.disabled=true;
+    try{
+      await db.collection("registrationSettings").doc("main").set({memberLocked:next,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      await loadMemberRegistrationAdmin();
+    }catch(e){alert("অবস্থা পরিবর্তন করা যায়নি: "+e.message)}
+    finally{btn.disabled=false}
+  };
+}
 async function loadTenderAdmin(){
  const setting=await db.collection("registrationSettings").doc("main").get();
  const locked=setting.exists&&setting.data().tenderLocked===true;
@@ -182,5 +197,5 @@ async function loadTenderAdmin(){
  snap.forEach(d=>{const a=d.data();const el=document.createElement("div");el.className="member-row";el.innerHTML='<img src="'+esc(a.imageUrl||"")+'" alt=""><div style="flex:1"><b>'+esc(a.name)+'</b><div class="muted">ক্রমিক: '+esc(a.serial)+' | দরপত্র: '+esc(a.tenderName)+'</div><div class="muted">ঠিকানা: '+esc(a.address)+' | মোবাইল: '+esc(a.phone)+'</div><div class="muted">স্থান: '+esc(a.place)+' | সংগ্রহ: '+esc(a.collectionDate)+' | জমা: '+esc(a.submissionDate)+'</div><div class="muted">অবস্থা: '+(a.approved?"অনুমোদিত":"অনুমোদনের অপেক্ষায়")+'</div></div><button data-approve>'+(a.approved?"সিলযুক্ত রসিদ":"Approve")+'</button><button class="danger" data-delete>Delete</button>';el.querySelector("[data-approve]").onclick=async()=>{if(!a.approved){if(!confirm("এই দরপত্র আবেদন অনুমোদন করবেন?"))return;await db.collection("tenderApplications").doc(d.id).update({approved:true,approvedAt:firebase.firestore.FieldValue.serverTimestamp()});a.approved=true;}downloadApprovedReceipt(a,"tender",d.id);};el.querySelector("[data-delete]").onclick=async()=>{if(confirm("এই দরপত্র আবেদন মুছে ফেলবেন?")){await db.collection("tenderApplications").doc(d.id).delete();await loadTenderAdmin()}};list.appendChild(el)})
 }
 
-async function loadAll(){await Promise.all([loadMembers(),loadNotices(),loadMedia(),loadSettings(),loadMemberApplications(),loadTenderAdmin()])}
+async function loadAll(){await Promise.all([loadMembers(),loadNotices(),loadMedia(),loadSettings(),loadMemberApplications(),loadMemberRegistrationAdmin(),loadTenderAdmin()])}
 </script></body></html>
