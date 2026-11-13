@@ -25,13 +25,14 @@
 .editor-actions button{margin:0}.save-editor{background:#0d9488}.reset-editor{background:#45536c}
 @media(max-width:600px){.editor-fields,.color-grid{grid-template-columns:1fr}.editor-tabs .editor-tab{flex:1 1 40%}.editor-actions button{width:100%}}
 .media-row button.is-hidden-toggle{background:#facc15!important;color:#42206!important;border:2px solid #eab308!important;box-shadow:0 0 0 2px rgba(250,204,21,.22)!important}
+.member-search{margin:16px 0;padding:15px;border:1px solid #20d9c455;border-radius:14px;background:#0e192d}.search-line{display:flex;gap:8px;align-items:center}.search-line input{flex:1;min-width:0;margin:7px 0}.search-line button{white-space:nowrap;background:#0d9488}.search-results{margin-top:10px}.search-person{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-top:1px solid #ffffff22}.search-person img{width:84px;height:100px;object-fit:cover;border-radius:10px}.search-person .details{flex:1;min-width:0;overflow-wrap:anywhere}.search-person .details div{margin:4px 0;color:#d2d9e9}.search-status{display:inline-block;padding:4px 8px;border-radius:20px;background:#174c42;color:#9cf2d9;font-size:12px}@media(max-width:520px){.search-line{flex-direction:column;align-items:stretch}.search-line button{width:100%;margin:0}.search-person img{width:68px;height:82px}}
 </style></head><body><div class="wrap">
 <h1>Friends Squad 2.0 — Admin Panel</h1>
 <div id="login" class="card"><h2>Admin Login</h2><p class="muted">Only your Firebase account should be allowed here.</p>
 <input id="email" type="email" placeholder="Admin email"><input id="password" type="password" placeholder="Password"><button id="loginBtn">Login</button><div id="loginMsg" class="status"></div></div>
 <div id="app">
 <div class="status">Logged in. <button id="logoutBtn">Logout</button></div>
-<div class="card"><h2>Member Registration</h2><p id="memberAdminStatus" class="status">অবস্থা যাচাই হচ্ছে…</p><button id="toggleMemberLock">লোড হচ্ছে…</button><h3>Member Registration Applications</h3><p class="muted">ব্যক্তিগত তথ্য শুধু Admin Panel-এ দেখা যাবে। Approve করলে শুধু নাম, ছবি ও role public Members-এ যোগ হবে।</p><div id="applicationList">Loading...</div></div>
+<div class="card"><h2>Member Registration</h2><p id="memberAdminStatus" class="status">অবস্থা যাচাই হচ্ছে…</p><button id="toggleMemberLock">লোড হচ্ছে…</button><h3>Member Registration Applications</h3><p class="muted">ব্যক্তিগত তথ্য শুধু Admin Panel-এ দেখা যাবে। Approve করলে শুধু নাম, ছবি ও role public Members-এ যোগ হবে।</p><div class="member-search"><h3>🔎 সদস্যের রেজিস্ট্রেশন তথ্য খুঁজুন</h3><div class="search-line"><input id="memberSearchInput" type="search" placeholder="সদস্যের সম্পূর্ণ নাম লিখুন..." autocomplete="off"><button type="button" id="memberSearchBtn">Search</button></div><div id="memberSearchResults" aria-live="polite" class="search-results">নাম লিখে Search চাপুন।</div></div><div id="applicationList">Loading...</div></div>
 <div class="card"><h2>Tender Registration</h2><p id="tenderAdminStatus" class="status">অবস্থা যাচাই হচ্ছে…</p><button id="toggleTenderLock">লোড হচ্ছে…</button><div id="tenderApplicationList"></div></div>
 <div class="card"><h2>Members</h2><p class="muted">Add members, edit details, replace photos, or delete members.</p>
 <div class="grid"><div><input id="mId" placeholder="Member ID (for existing: member1, member2...)"><input id="mName" placeholder="Name"><input id="mRole" placeholder="Role"><textarea id="mBio" rows="5" placeholder="Member details / bio"></textarea><input id="mPhoto" type="file" accept="image/*"><button id="saveMember">Save Member</button><button id="clearMember">Clear</button></div><div><div id="memberList"></div></div></div></div>
@@ -167,6 +168,35 @@ async function loadMemberApplications(){
   list.appendChild(el);
  });
 }
+async function searchMemberRegistrations(){
+ const input=$("memberSearchInput"),out=$("memberSearchResults");
+ const query=input.value.trim().toLocaleLowerCase();
+ if(!query){out.textContent="প্রথমে সদস্যের নাম লিখুন।";return}
+ out.textContent="খোঁজা হচ্ছে…";
+ try{
+  const [pendingSnap,approvedSnap]=await Promise.all([
+   db.collection("memberApplications").get(),
+   db.collection("approvedMemberKeys").get()
+  ]);
+  const matches=[];
+  pendingSnap.forEach(d=>{const a=d.data();if(String(a.name||"").toLocaleLowerCase().includes(query))matches.push({id:d.id,data:a,status:"অনুমোদনের অপেক্ষায়"})});
+  approvedSnap.forEach(d=>{const x=d.data(),a=x.receiptData||{};if(String(a.name||"").toLocaleLowerCase().includes(query))matches.push({id:d.id,data:a,status:"অনুমোদিত"})});
+  out.innerHTML="";
+  if(!matches.length){out.textContent="এই নামে কোনো রেজিস্ট্রেশন পাওয়া যায়নি।";return}
+  matches.forEach(({id,data:a,status})=>{
+   const card=document.createElement("div");card.className="search-person";
+   const photo=document.createElement("img");photo.src=a.imageUrl||"";photo.alt="সদস্যের ছবি";
+   const details=document.createElement("div");details.className="details";
+   const title=document.createElement("b");title.textContent=a.name||"নাম নেই";details.appendChild(title);
+   const state=document.createElement("div");state.innerHTML='<span class="search-status">'+esc(status)+'</span>';details.appendChild(state);
+   const fields=[["রেজিস্ট্রেশন রেফারেন্স",id],["বয়স",a.age],["শ্রেণি",a.className],["জন্মতারিখ",a.birthDate],["ঠিকানা",a.address],["দলের নাম",a.teamName],["মোবাইল নম্বর",a.phone]];
+   fields.forEach(([label,value])=>{const line=document.createElement("div");line.textContent=label+": "+(value??"—");details.appendChild(line)});
+   card.append(photo,details);out.appendChild(card);
+  });
+ }catch(error){out.textContent="তথ্য খুঁজে পাওয়া যায়নি: "+error.message}
+}
+$("memberSearchBtn").onclick=searchMemberRegistrations;
+$("memberSearchInput").addEventListener("keydown",e=>{if(e.key==="Enter")searchMemberRegistrations()});
 async function loadMemberRegistrationAdmin(){
   const setting=await db.collection("registrationSettings").doc("main").get();
   const locked=setting.exists&&setting.data().memberLocked===true;
