@@ -78,6 +78,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
   <div class="section-title"><h2 id="membersTitle" data-i18n="membersTitle">Meet the Squad</h2><p id="membersSubtitle" data-i18n="membersSubtitle">Click a member to view details.</p></div>
   <div class="members" id="membersGrid"></div>
 </section>
+<section class="public-section" id="notificationCenter"><div class="section-title"><h2>🔔 Notification Center</h2><p>Friends Squad 2.0-এর নতুন ঘোষণা ও আপডেট</p><button type="button" id="enableNotifications">মোবাইলে নোটিফিকেশন চালু করুন</button><p id="notificationStatus" class="member-search-hint" role="status">নোটিফিকেশন পেতে এই ডিভাইসে অনুমতি দিন।</p></div><div class="notice-list" id="notificationList"><p class="member-search-hint">এখনো কোনো নতুন ঘোষণা নেই।</p></div></section>
 <section class="public-section" id="noticesSection" style="display:none">
   <div class="section-title"><h2 data-i18n="noticesTitle">Notices</h2><p data-i18n="noticesSubtitle">Latest updates from Friends Squad 2.0</p></div>
   <div class="notice-list" id="noticeList"></div>
@@ -99,7 +100,8 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-messaging-compat.js"></script>
+<script src="firebase-config.js"></script><script src="notification-config.js"></script><script src="notification-client.js"></script>
 <script src="seed-members.js"></script>
 <script>
 (function(){
@@ -204,6 +206,23 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
   modal.addEventListener("click",e=>{if(e.target===modal) modal.classList.remove("open")});
   renderMembers(defaults);
 
+  const notificationButton=document.getElementById("enableNotifications");
+  const notificationStatus=document.getElementById("notificationStatus");
+  if(notificationButton)notificationButton.addEventListener("click",async()=>{
+    notificationButton.disabled=true;
+    try{await window.FS20Notifications.enable();notificationStatus.textContent="এই ডিভাইসে নোটিফিকেশন চালু হয়েছে। ধন্যবাদ!";}
+    catch(error){notificationStatus.textContent=error.message||"নোটিফিকেশন চালু করা যায়নি।";}
+    finally{notificationButton.disabled=false;}
+  });
+  async function loadNotificationCenter(){
+    if(!db)return;
+    try{
+      const snap=await db.collection("notifications").orderBy("createdAt","desc").limit(30).get();
+      const list=document.getElementById("notificationList");list.innerHTML="";
+      if(snap.empty){list.innerHTML='<p class="member-search-hint">এখনো কোনো নতুন ঘোষণা নেই।</p>';return;}
+      snap.forEach(d=>{const n=d.data();const card=document.createElement("div");card.className="notice-card";const h=document.createElement("h3");h.textContent=n.title||"Announcement";const p=document.createElement("p");p.textContent=n.body||"";card.append(h,p);list.appendChild(card);});
+    }catch(error){console.warn("Notification center:",error);}
+  }
   async function loadCloud(){
     if(!db) return;
     try{
