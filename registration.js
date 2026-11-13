@@ -263,7 +263,7 @@ loadTenderStatus();
 const registrationNotificationButton=$("enableRegistrationNotifications");
 if(registrationNotificationButton)registrationNotificationButton.addEventListener("click",async()=>{
   const status=$("registrationNotificationStatus");registrationNotificationButton.disabled=true;
-  try{await window.FS20Notifications.enable();status.textContent="এই ডিভাইসে নোটিফিকেশন চালু হয়েছে।";}
+  try{await window.FS20Notifications.enable();status.textContent="সাইট খোলা থাকা অবস্থায় এই ডিভাইসে নোটিফিকেশন দেখা যাবে।";}
   catch(error){status.textContent=error.message||"নোটিফিকেশন চালু করা যায়নি।";}
   finally{registrationNotificationButton.disabled=false;}
 });
@@ -305,8 +305,7 @@ $("memberEntry").addEventListener("submit", async event => {
       teamName: values.get("teamName"),
       phone: values.get("phone"),
       imageUrl,
-      ...(window.FS20Notifications && window.FS20Notifications.getToken() ? {notificationToken:window.FS20Notifications.getToken()} : {}),
-      status: "pending",
+            status: "pending",
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
@@ -365,8 +364,7 @@ $("tenderEntry").addEventListener("submit", async event => {
       place: values.get("place"),
       tenderName: values.get("tenderName"),
       phone: values.get("phone"),
-      ...(window.FS20Notifications && window.FS20Notifications.getToken() ? {notificationToken:window.FS20Notifications.getToken()} : {}),
-      date: values.get("date"),
+            date: values.get("date"),
       imageUrl,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
