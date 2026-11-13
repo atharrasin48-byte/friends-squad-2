@@ -161,7 +161,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
       directory=Array.from(unique.values());
       if(requestId!==memberSearchRequest)return;
       allMembers=directory;
-      const matches=query?directory.filter(m=>toSearchText(m.name).includes(query)||toSearchText(m.registrationNo).includes(query)):directory;
+      const matches=query?(/^\\d{2}$/.test(query)?directory.filter(m=>toSearchText(m.registrationNo)===query):directory.filter(m=>toSearchText(m.name).includes(query)||toSearchText(m.registrationNo).includes(query))):directory;
       renderMembers(matches,false);
       if(query&&!matches.length){
         const empty=document.createElement("p");
@@ -172,7 +172,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     }catch(error){
       console.warn("Member search refresh failed:",error);
       if(requestId!==memberSearchRequest)return;
-      const matches=query?allMembers.filter(m=>toSearchText(m.name).includes(query)||toSearchText(m.registrationNo).includes(query)):allMembers;
+      const matches=query?(/^\\d{2}$/.test(query)?allMembers.filter(m=>toSearchText(m.registrationNo)===query):allMembers.filter(m=>toSearchText(m.name).includes(query)||toSearchText(m.registrationNo).includes(query))):allMembers;
       renderMembers(matches,false);
       if(query&&!matches.length){
         const empty=document.createElement("p");
