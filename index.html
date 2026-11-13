@@ -131,13 +131,45 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     });
   }
 
-  function searchPublicMembers(){
+  let memberSearchRequest=0;
+  async function searchPublicMembers(){
+    const requestId=++memberSearchRequest;
     const input=document.getElementById("publicMemberSearch");
     const query=input.value.trim().toLocaleLowerCase();
-    if(!query){renderMembers(allMembers);return;}
-    const matches=allMembers.filter(m=>String(m.name||"").toLocaleLowerCase().includes(query));
-    renderMembers(matches,false);
-    if(!matches.length){const empty=document.createElement("p");empty.className="member-search-empty";empty.textContent=currentLanguage==="bn"?"এই নামে কোনো সদস্য পাওয়া যায়নি।":"No members found with that name.";grid.appendChild(empty);}
+    try{
+      // Always refresh the public directory so manually added members and
+      // approved registration members are both searchable.
+      let directory=allMembers.slice();
+      if(db){
+        const snap=await db.collection("members").get();
+        const cloud={};
+        snap.forEach(d=>cloud[d.id]=Object.assign({id:d.id},d.data()));
+        const base=defaults.map(m=>Object.assign({},m,cloud[m.id]||{})).filter(m=>!m.deleted);
+        const extras=Object.keys(cloud).filter(id=>!defaults.some(m=>m.id===id)).map(id=>cloud[id]).filter(m=>!m.deleted);
+        directory=base.concat(extras);
+      }
+      if(requestId!==memberSearchRequest)return;
+      allMembers=directory;
+      const matches=query?directory.filter(m=>String(m.name||"").toLocaleLowerCase().includes(query)):directory;
+      renderMembers(matches,false);
+      if(query&&!matches.length){
+        const empty=document.createElement("p");
+        empty.className="member-search-empty";
+        empty.textContent=currentLanguage==="bn"?"এই নামে কোনো সদস্য পাওয়া যায়নি।":"No members found with that name.";
+        grid.appendChild(empty);
+      }
+    }catch(error){
+      console.warn("Member search refresh failed:",error);
+      if(requestId!==memberSearchRequest)return;
+      const matches=query?allMembers.filter(m=>String(m.name||"").toLocaleLowerCase().includes(query)):allMembers;
+      renderMembers(matches,false);
+      if(query&&!matches.length){
+        const empty=document.createElement("p");
+        empty.className="member-search-empty";
+        empty.textContent=currentLanguage==="bn"?"এই নামে কোনো সদস্য পাওয়া যায়নি।":"No members found with that name.";
+        grid.appendChild(empty);
+      }
+    }
   }
   document.getElementById("publicMemberSearchBtn").addEventListener("click",searchPublicMembers);
   document.getElementById("publicMemberSearch").addEventListener("input",searchPublicMembers);
