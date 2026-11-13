@@ -62,7 +62,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
 
 <nav><div class="logo"><img src="ChatGPT%20Image%20Oct%2015%2C%202026%2C%2007_27_51%20PM.png" alt="Friends Squad 2.0 Logo" style="width:42px;height:42px;object-fit:contain;vertical-align:middle;margin-right:8px;border-radius:50%;"><span>Friends Squad 2.0</span></div><div class="nav-right"><div class="nav-links"><a href="#about" data-i18n="navAbout">About</a><a href="#members" data-i18n="navFriends">Friends</a><a href="#contact" data-i18n="navContact">Contact</a><a href="./registration.html" data-i18n="navRegistration">Registration</a><a href="./admin.html" data-i18n="navAdmin">Admin Login</a></div><div class="language-switch" aria-label="Choose language"><button type="button" id="langBn" aria-pressed="false">বাংলা</button><span>|</span><button type="button" id="langEn" aria-pressed="true">English</button></div></div></nav>
 
-<div class="member-search-top"><div class="member-directory-search"><h3 data-i18n="memberSearchTitle">🔎 সদস্য খুঁজুন</h3><div class="search-controls"><input id="publicMemberSearch" type="search" placeholder="সদস্যের নাম লিখুন..." data-i18n-placeholder="memberSearchPlaceholder" autocomplete="off"><button type="button" id="publicMemberSearchBtn" data-i18n="memberSearchButton">Search</button></div><p class="member-search-hint" data-i18n="memberSearchHint">নাম লিখে Search চাপুন। বিস্তারিত দেখতে ফলাফলে ক্লিক করুন।</p></div></div>
+<div class="member-search-top"><div class="member-directory-search"><h3 data-i18n="memberSearchTitle">🔎 সদস্য খুঁজুন</h3><div class="search-controls"><input id="publicMemberSearch" type="search" placeholder="সদস্যের নাম অথবা রেজিস্ট্রেশন নম্বর লিখুন..." data-i18n-placeholder="memberSearchPlaceholder" autocomplete="off"><button type="button" id="publicMemberSearchBtn" data-i18n="memberSearchButton">Search</button></div><p class="member-search-hint" data-i18n="memberSearchHint">সদস্যের নাম অথবা দুই সংখ্যার রেজিস্ট্রেশন নম্বর লিখে Search চাপুন। বিস্তারিত দেখতে ফলাফলে ক্লিক করুন।</p></div></div>
 
 <section class="live-datetime" aria-label="Live time and date">
   <div class="live-clock-card">
@@ -137,7 +137,8 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
   async function searchPublicMembers(){
     const requestId=++memberSearchRequest;
     const input=document.getElementById("publicMemberSearch");
-    const query=input.value.trim().toLocaleLowerCase();
+    const toSearchText=value=>String(value??"").trim().toLocaleLowerCase().replace(/[০-৯]/g,d=>"০১২৩৪৫৬৭৮৯".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
+      const query=toSearchText(input.value);
     try{
       // Always refresh the public directory so manually added members and
       // approved registration members are both searchable.
@@ -160,23 +161,23 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
       directory=Array.from(unique.values());
       if(requestId!==memberSearchRequest)return;
       allMembers=directory;
-      const matches=query?directory.filter(m=>String(m.name||"").toLocaleLowerCase().includes(query)):directory;
+      const matches=query?directory.filter(m=>toSearchText(m.name).includes(query)||toSearchText(m.registrationNo).includes(query)):directory;
       renderMembers(matches,false);
       if(query&&!matches.length){
         const empty=document.createElement("p");
         empty.className="member-search-empty";
-        empty.textContent=currentLanguage==="bn"?"এই নামে কোনো সদস্য পাওয়া যায়নি।":"No members found with that name.";
+        empty.textContent=currentLanguage==="bn"?"এই নাম বা রেজিস্ট্রেশন নম্বরে কোনো সদস্য পাওয়া যায়নি।":"No members found with that name or registration number.";
         grid.appendChild(empty);
       }
     }catch(error){
       console.warn("Member search refresh failed:",error);
       if(requestId!==memberSearchRequest)return;
-      const matches=query?allMembers.filter(m=>String(m.name||"").toLocaleLowerCase().includes(query)):allMembers;
+      const matches=query?allMembers.filter(m=>toSearchText(m.name).includes(query)||toSearchText(m.registrationNo).includes(query)):allMembers;
       renderMembers(matches,false);
       if(query&&!matches.length){
         const empty=document.createElement("p");
         empty.className="member-search-empty";
-        empty.textContent=currentLanguage==="bn"?"এই নামে কোনো সদস্য পাওয়া যায়নি।":"No members found with that name.";
+        empty.textContent=currentLanguage==="bn"?"এই নাম বা রেজিস্ট্রেশন নম্বরে কোনো সদস্য পাওয়া যায়নি।":"No members found with that name or registration number.";
         grid.appendChild(empty);
       }
     }
