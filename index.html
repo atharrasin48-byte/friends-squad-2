@@ -181,7 +181,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
       const matches=query?(isNumber?directory.filter(m=>toSearchText(m.registrationNo)===query):directory.filter(m=>toSearchText(m.name).includes(query)||toSearchText(m.registrationNo).includes(query))):directory;
       renderMembers(matches,false);
       if(query&&!matches.length){
-        showSearchMessage(isNumber?{title:"রেজিস্ট্রেশন পাওয়া যায়নি!",detail:"এই নম্বরে কোনো সদস্যের রেজিস্ট্রেশন নেই।"}:{title:currentLanguage==="bn"?"সদস্য পাওয়া যায়নি!":"Member not found!",detail:currentLanguage==="bn"?"এই নাম বা রেজিস্ট্রেশন নম্বরে কোনো সদস্য পাওয়া যায়নি।":"No member found with this name or registration number."});
+        showSearchMessage(isNumber?{title:"রেজিস্ট্রেশন পাওয়া যায়নি!",detail:"এই নম্বরে কোনো সদস্যের রেজিস্ট্রেশন নেই।"}:{title:currentLanguage==="bn"?"সদস্য পাওয়া যায়নি!":"Member not found!",detail:currentLanguage==="bn"?"এই নাম বা রেজিস্ট্রেশন নম্বরে কোনো সদস্য পাওয়া যায়নি।":"No member found with this name or registration number."});
       }
     }catch(error){
       console.warn("Member search refresh failed:",error);
@@ -190,7 +190,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
       const matches=query?(isNumber?allMembers.filter(m=>toSearchText(m.registrationNo)===query):allMembers.filter(m=>toSearchText(m.name).includes(query)||toSearchText(m.registrationNo).includes(query))):allMembers;
       renderMembers(matches,false);
       if(query&&!matches.length){
-        showSearchMessage(isNumber?{title:"রেজিস্ট্রেশন পাওয়া যায়নি!",detail:"এই নম্বরে কোনো সদস্যের রেজিস্ট্রেশন নেই।"}:{title:currentLanguage==="bn"?"সদস্য পাওয়া যায়নি!":"Member not found!",detail:currentLanguage==="bn"?"এই নাম বা রেজিস্ট্রেশন নম্বরে কোনো সদস্য পাওয়া যায়নি।":"No member found with this name or registration number."});
+        showSearchMessage(isNumber?{title:"রেজিস্ট্রেশন পাওয়া যায়নি!",detail:"এই নম্বরে কোনো সদস্যের রেজিস্ট্রেশন নেই।"}:{title:currentLanguage==="bn"?"সদস্য পাওয়া যায়নি!":"Member not found!",detail:currentLanguage==="bn"?"এই নাম বা রেজিস্ট্রেশন নম্বরে কোনো সদস্য পাওয়া যায়নি।":"No member found with this name or registration number."});
       }
     }
   }
