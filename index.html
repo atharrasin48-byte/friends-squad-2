@@ -54,6 +54,8 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
 @media(max-width:850px){nav{align-items:center}.nav-right{width:100%;justify-content:center}.nav-links{justify-content:center}}
 @media(max-width:480px){.nav-links a{padding:7px 10px;font-size:12px}.nav-right{gap:7px}}
 
+
+.member-directory-search{max-width:760px;margin:0 auto 24px;padding:18px;border:1px solid #20d9c455;border-radius:18px;background:#ffffff0d;box-shadow:0 8px 24px #0002}.member-directory-search h3{margin:0 0 10px;color:var(--accent,#20d9c4);text-align:center}.member-directory-search .search-controls{display:flex;gap:9px}.member-directory-search input{flex:1;min-width:0;padding:13px 15px;border:1px solid #ffffff40;border-radius:12px;background:#0b1428;color:#fff;font-size:15px;outline:none}.member-directory-search input:focus{border-color:#20d9c4;box-shadow:0 0 0 3px #20d9c422}.member-directory-search button{padding:12px 20px;border:0;border-radius:12px;background:var(--primary,#7c5cff);color:var(--button-text,#fff);font-weight:700;cursor:pointer}.member-search-hint{text-align:center;color:#b9c2dd;font-size:13px;margin:9px 0 0}.member-search-empty{text-align:center;color:#fbbf24;padding:14px;grid-column:1/-1}@media(max-width:480px){.member-directory-search{padding:14px}.member-directory-search .search-controls{flex-direction:column}.member-directory-search button{width:100%}}
 </style>
 </head>
 <body>
@@ -72,7 +74,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
 <section id="about"><div class="section-title"><h2 data-i18n="aboutTitle">About Us</h2><p data-i18n="aboutSubtitle">More than friends — we are a squad.</p></div><div class="about"><div class="card"><h3 data-i18n="storyTitle">Our Story</h3><p data-i18n="storyText">Friends Squad 2.0 is built on trust, fun, support, and unforgettable memories.</p></div><div class="card"><h3 data-i18n="vibeTitle">Our Vibe</h3><p data-i18n="vibeText">Good energy, big dreams, endless jokes, and real friendship.</p></div></div></section>
 <section id="members">
   <div class="section-title"><h2 id="membersTitle" data-i18n="membersTitle">Meet the Squad</h2><p id="membersSubtitle" data-i18n="membersSubtitle">Click a member to view details.</p></div>
-  <div class="members" id="membersGrid"></div>
+  <div class="member-directory-search"><h3 data-i18n="memberSearchTitle">🔎 সদস্য খুঁজুন</h3><div class="search-controls"><input id="publicMemberSearch" type="search" placeholder="সদস্যের নাম লিখুন..." data-i18n-placeholder="memberSearchPlaceholder" autocomplete="off"><button type="button" id="publicMemberSearchBtn" data-i18n="memberSearchButton">Search</button></div><p class="member-search-hint" data-i18n="memberSearchHint">নাম লিখে Search চাপুন। বিস্তারিত দেখতে ফলাফলে ক্লিক করুন।</p></div><div class="members" id="membersGrid"></div>
 </section>
 <section class="public-section" id="noticesSection" style="display:none">
   <div class="section-title"><h2 data-i18n="noticesTitle">Notices</h2><p data-i18n="noticesSubtitle">Latest updates from Friends Squad 2.0</p></div>
@@ -109,6 +111,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
   const defaults=window.DEFAULT_MEMBERS||[];
   const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
   const grid=document.getElementById("membersGrid");
+  let allMembers=[];
   const modal=document.getElementById("memberModal");
   function openMember(m){
     document.getElementById("modalImage").src=m.image||"";
@@ -119,6 +122,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     modal.classList.add("open"); modal.setAttribute("aria-hidden","false");
   }
   function renderMembers(list){
+    allMembers=list.slice();
     grid.innerHTML="";
     list.forEach(m=>{
       const a=document.createElement("article"); a.className="member";
@@ -126,6 +130,18 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
       a.addEventListener("click",()=>openMember(m)); grid.appendChild(a);
     });
   }
+
+  function searchPublicMembers(){
+    const input=document.getElementById("publicMemberSearch");
+    const query=input.value.trim().toLocaleLowerCase();
+    if(!query){renderMembers(allMembers);return;}
+    const matches=allMembers.filter(m=>String(m.name||"").toLocaleLowerCase().includes(query));
+    renderMembers(matches);
+    if(!matches.length){const empty=document.createElement("p");empty.className="member-search-empty";empty.textContent=currentLanguage==="bn"?"এই নামে কোনো সদস্য পাওয়া যায়নি।":"No members found with that name.";grid.appendChild(empty);}
+  }
+  document.getElementById("publicMemberSearchBtn").addEventListener("click",searchPublicMembers);
+  document.getElementById("publicMemberSearch").addEventListener("input",searchPublicMembers);
+  document.getElementById("publicMemberSearch").addEventListener("keydown",e=>{if(e.key==="Enter")searchPublicMembers()});
   document.getElementById("modalClose").onclick=()=>modal.classList.remove("open");
   modal.addEventListener("click",e=>{if(e.target===modal) modal.classList.remove("open")});
   renderMembers(defaults);
@@ -221,7 +237,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
 
 
   const translations={
-    en:{navAbout:"About",navFriends:"Friends",navContact:"Contact",navRegistration:"Registration",navAdmin:"Admin Login",clockLabel:"Current Time in Bangladesh",clockZone:"Bangladesh Standard Time (UTC+6)",aboutTitle:"About Us",aboutSubtitle:"More than friends — we are a squad.",storyTitle:"Our Story",storyText:"Friends Squad 2.0 is built on trust, fun, support, and unforgettable memories.",vibeTitle:"Our Vibe",vibeText:"Good energy, big dreams, endless jokes, and real friendship.",membersTitle:"Meet the Squad",membersSubtitle:"Click a member to view details.",noticesTitle:"Notices",noticesSubtitle:"Latest updates from Friends Squad 2.0",mediaTitle:"Photos & Videos",mediaSubtitle:"Memories from the squad",contactTitle:"Contact Us",contactSubtitle:"Want to connect with Friends Squad 2.0? Give us a call.",closeLabel:"Close",visitorsToday:"VISITORS TODAY",totalVisitors:"TOTAL VISITORS",visitorNote:"Unique browser visits",footerText:"© 2026 Friends Squad 2.0 — Made with friendship and good vibes.",loadingDate:"Loading date...",squadMember:"Squad Member",noDetails:"No details added yet.",call:"Call: "},
+    en:{navAbout:"About",navFriends:"Friends",navContact:"Contact",navRegistration:"Registration",navAdmin:"Admin Login",clockLabel:"Current Time in Bangladesh",clockZone:"Bangladesh Standard Time (UTC+6)",aboutTitle:"About Us",aboutSubtitle:"More than friends — we are a squad.",storyTitle:"Our Story",storyText:"Friends Squad 2.0 is built on trust, fun, support, and unforgettable memories.",vibeTitle:"Our Vibe",vibeText:"Good energy, big dreams, endless jokes, and real friendship.",membersTitle:"Meet the Squad",membersSubtitle:"Click a member to view details.",memberSearchTitle:"🔎 Find a Member",memberSearchPlaceholder:"Enter a member name...",memberSearchButton:"Search",memberSearchHint:"Type a name and search. Click a result to view the member profile.",noticesTitle:"Notices",noticesSubtitle:"Latest updates from Friends Squad 2.0",mediaTitle:"Photos & Videos",mediaSubtitle:"Memories from the squad",contactTitle:"Contact Us",contactSubtitle:"Want to connect with Friends Squad 2.0? Give us a call.",closeLabel:"Close",visitorsToday:"VISITORS TODAY",totalVisitors:"TOTAL VISITORS",visitorNote:"Unique browser visits",footerText:"© 2026 Friends Squad 2.0 — Made with friendship and good vibes.",loadingDate:"Loading date...",squadMember:"Squad Member",noDetails:"No details added yet.",call:"Call: "},
     bn:{navAbout:"আমাদের সম্পর্কে",navFriends:"বন্ধুরা",navContact:"যোগাযোগ",navRegistration:"রেজিস্ট্রেশন",navAdmin:"অ্যাডমিন লগইন",clockLabel:"বাংলাদেশের বর্তমান সময়",clockZone:"বাংলাদেশ মান সময় (UTC+6)",aboutTitle:"আমাদের সম্পর্কে",aboutSubtitle:"আমরা শুধু বন্ধু নই — আমরা একটি পরিবার।",storyTitle:"আমাদের গল্প",storyText:"বিশ্বাস, আনন্দ, সহযোগিতা ও অসংখ্য স্মৃতি নিয়ে গড়ে উঠেছে Friends Squad 2.0।",vibeTitle:"আমাদের বন্ধন",vibeText:"ইতিবাচকতা, বড় স্বপ্ন, অফুরন্ত হাসি আর সত্যিকারের বন্ধুত্ব।",membersTitle:"আমাদের বন্ধুরা",membersSubtitle:"বিস্তারিত দেখতে কোনো সদস্যের ওপর ক্লিক করো।",noticesTitle:"নোটিশ",noticesSubtitle:"Friends Squad 2.0-এর সর্বশেষ ঘোষণা",mediaTitle:"ছবি ও ভিডিও",mediaSubtitle:"বন্ধুদের সঙ্গে কাটানো স্মৃতি",contactTitle:"যোগাযোগ",contactSubtitle:"Friends Squad 2.0-এর সঙ্গে যোগাযোগ করতে আমাদের কল করো।",closeLabel:"বন্ধ করুন",visitorsToday:"আজকের ভিজিটর",totalVisitors:"মোট ভিজিটর",visitorNote:"ইউনিক ব্রাউজার ভিজিট",footerText:"© ২০২৬ Friends Squad 2.0 — বন্ধুত্ব আর ভালোবাসায় তৈরি।",loadingDate:"তারিখ লোড হচ্ছে...",squadMember:"স্কোয়াড সদস্য",noDetails:"এখনো কোনো বিস্তারিত তথ্য যোগ করা হয়নি।",call:"কল করুন: "}
   };
   let currentLanguage=localStorage.getItem("fs20_home_language")==="bn"?"bn":"en";
@@ -232,6 +248,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     document.documentElement.lang=currentLanguage;
     document.querySelectorAll("[data-i18n]").forEach(el=>{const key=el.getAttribute("data-i18n");if(t[key]!==undefined)el.textContent=t[key];});
     document.querySelectorAll("[data-i18n-aria]").forEach(el=>{const key=el.getAttribute("data-i18n-aria");if(t[key]!==undefined)el.setAttribute("aria-label",t[key]);});
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{const key=el.getAttribute("data-i18n-placeholder");if(t[key]!==undefined)el.setAttribute("placeholder",t[key]);});
     document.getElementById("langBn").classList.toggle("active",currentLanguage==="bn");
     document.getElementById("langEn").classList.toggle("active",currentLanguage==="en");
     document.getElementById("langBn").setAttribute("aria-pressed",String(currentLanguage==="bn"));
