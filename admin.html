@@ -141,7 +141,7 @@ function downloadApprovedReceipt(data,type,reference){
  const e=v=>String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
  const table=rows.map(r=>'<tr><td>'+e(r[0])+'</td><td>'+e(r[1])+'</td></tr>').join("");
  const title=type==="member"?"সদস্য রেজিস্ট্রেশন রসিদ":"দরপত্র রেজিস্ট্রেশন রসিদ";
- const html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title+'</title><style>*{box-sizing:border-box}body{font-family:Arial,"Noto Sans Bengali",sans-serif;color:#111;background:white;padding:20px}.paper{max-width:760px;margin:auto;border:1px solid #999;padding:26px}.head{text-align:center;border-bottom:1px solid #222;padding-bottom:12px}.details{display:grid;grid-template-columns:1fr 125px;gap:16px;margin-top:20px}table{border-collapse:collapse;width:100%;font-size:14px}td{border:1px solid #777;padding:8px}td:first-child{font-weight:bold;width:40%}.photo{width:125px;height:150px;border:1px solid #777;overflow:hidden}.photo img{width:100%;height:100%;object-fit:cover}.ref{margin-top:14px;font-size:12px}.stamp{width:190px;height:190px;margin:22px auto 8px;display:block}.foot{text-align:center;border-top:1px solid #777;padding-top:9px;margin-top:16px;font-size:12px}button{display:block;margin:16px auto;padding:10px 18px}@media print{body{padding:0}.paper{border:0}button{display:none}}</style></head><body><main class="paper"><header class="head"><b>FRIENDS SQUAD 2.0</b><div>THE PRO BOYS CYCLING GANG</div><h2>'+title+'</h2></header><section class="details"><table>'+table+'</table><div class="photo">'+(data.imageUrl?'<img src="'+e(data.imageUrl)+'" alt="Applicant photo">':"")+'</div></section><div class="ref">রেফারেন্স নম্বর: <b>'+e(reference)+'</b></div><svg class="stamp" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg"><circle cx="120" cy="120" r="108" fill="none" stroke="#152f9b" stroke-width="5"/><circle cx="120" cy="120" r="96" fill="none" stroke="#152f9b" stroke-width="2.5"/><circle cx="120" cy="120" r="68" fill="none" stroke="#152f9b" stroke-width="2.5"/><defs><path id="stampTextPath" d="M 32 120 A 88 88 0 1 1 208 120"/></defs><text fill="#152f9b" font-size="15" font-weight="bold" letter-spacing="1.5"><textPath href="#stampTextPath" startOffset="50%" text-anchor="middle">FRIENDS SQUAD 2.0</textPath></text><text x="120" y="130" text-anchor="middle" font-size="27" font-weight="bold" fill="#152f9b">অনুমোদিত</text></svg><footer class="foot">অনুমোদনের তারিখ: '+e(new Date().toLocaleDateString("bn-BD"))+'<br>Friends Squad 2.0</footer></main><button onclick="window.print()">প্রিন্ট / PDF হিসেবে সংরক্ষণ</button></body></html>';
+ const html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title+'</title><style>*{box-sizing:border-box}body{font-family:Arial,"Noto Sans Bengali",sans-serif;color:#111;background:white;padding:20px}.paper{max-width:760px;margin:auto;border:1px solid #999;padding:26px}.head{text-align:center;border-bottom:1px solid #222;padding-bottom:12px}.details{display:grid;grid-template-columns:1fr 125px;gap:16px;margin-top:20px}table{border-collapse:collapse;width:100%;font-size:14px}td{border:1px solid #777;padding:8px}td:first-child{font-weight:bold;width:40%}.photo{width:125px;height:150px;border:1px solid #777;overflow:hidden}.photo img{width:100%;height:100%;object-fit:cover}.ref{margin-top:14px;font-size:12px}.stamp{width:190px;height:190px;margin:22px auto 8px;display:block}.foot{text-align:center;border-top:1px solid #777;padding-top:9px;margin-top:16px;font-size:12px}button{display:block;margin:16px auto;padding:10px 18px}@media print{body{padding:0}.paper{border:0}button{display:none}}</style></head><body><main class="paper"><header class="head"><b>FRIENDS SQUAD 2.0</b><div>THE PRO BOYS CYCLING GANG</div><h2>'+title+'</h2></header><section class="details"><table>'+table+'</table><div class="photo">'+(data.imageUrl?'<img src="'+e(data.imageUrl)+'" alt="Applicant photo">':"")+'</div></section><div class="ref">'+(type==="member"?"রেজিস্ট্রেশন নম্বর: ":"রেফারেন্স নম্বর: ")+'<b>'+e(reference)+'</b></div><svg class="stamp" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg"><circle cx="120" cy="120" r="108" fill="none" stroke="#152f9b" stroke-width="5"/><circle cx="120" cy="120" r="96" fill="none" stroke="#152f9b" stroke-width="2.5"/><circle cx="120" cy="120" r="68" fill="none" stroke="#152f9b" stroke-width="2.5"/><defs><path id="stampTextPath" d="M 32 120 A 88 88 0 1 1 208 120"/></defs><text fill="#152f9b" font-size="15" font-weight="bold" letter-spacing="1.5"><textPath href="#stampTextPath" startOffset="50%" text-anchor="middle">FRIENDS SQUAD 2.0</textPath></text><text x="120" y="130" text-anchor="middle" font-size="27" font-weight="bold" fill="#152f9b">অনুমোদিত</text></svg><footer class="foot">অনুমোদনের তারিখ: '+e(new Date().toLocaleDateString("bn-BD"))+'<br>Friends Squad 2.0</footer></main><button onclick="window.print()">প্রিন্ট / PDF হিসেবে সংরক্ষণ</button></body></html>';
  const blob=new Blob([html],{type:"text/html;charset=utf-8"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="friends-squad-approved-"+type+"-receipt.html";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
 }
 async function loadMemberApplications(){
@@ -153,12 +153,37 @@ async function loadMemberApplications(){
   el.innerHTML='<img src="'+esc(a.imageUrl||"")+'" alt=""><div style="flex:1;min-width:180px"><b>'+esc(a.name)+'</b><div class="muted">বয়স: '+esc(a.age)+' | শ্রেণী: '+esc(a.className)+'</div><div class="muted">জন্ম: '+esc(a.birthDate)+' | ফোন: '+esc(a.phone)+'</div><div class="muted">ঠিকানা: '+esc(a.address)+'</div><div class="muted">দল: '+esc(a.teamName)+'</div></div><button data-approve>Approve</button><button class="danger" data-remove>Remove</button>';
   el.querySelector("[data-approve]").onclick=async()=>{
    if(!confirm("এই আবেদন Approve করে Public Members-এ যোগ করবেন?"))return;
-   const memberId="member-"+d.id.slice(0,16);
-   await db.collection("members").doc(memberId).set({id:memberId,name:a.name,role:"Member",bio:"",image:a.imageUrl,approvedAt:firebase.firestore.FieldValue.serverTimestamp()});
-   await db.collection("approvedMemberKeys").doc(d.id).set({approved:true,memberId,receiptData:a,approvedAt:firebase.firestore.FieldValue.serverTimestamp()});
-   downloadApprovedReceipt(a,"member",d.id);
-   await db.collection("memberApplications").doc(d.id).delete();
-   await loadMembers();await loadMemberApplications();alert("সদস্য অনুমোদিত হয়েছে। সিলমোহরসহ রসিদ ডাউনলোড হয়েছে।");
+   const approveBtn=el.querySelector("[data-approve]");approveBtn.disabled=true;
+   try{
+    const memberId="member-"+d.id.slice(0,16);
+    const applicationRef=db.collection("memberApplications").doc(d.id);
+    const approvedRef=db.collection("approvedMemberKeys").doc(d.id);
+    const memberRef=db.collection("members").doc(memberId);
+    const numbers=Array.from({length:90},(_,i)=>i+10);
+    for(let i=numbers.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[numbers[i],numbers[j]]=[numbers[j],numbers[i]];}
+    let registrationNo=null;
+    for(const number of numbers){
+     const numberText=String(number),numberRef=db.collection("memberRegistrationNumbers").doc(numberText);
+     try{
+      await db.runTransaction(async transaction=>{
+       const appSnap=await transaction.get(applicationRef);
+       const numberSnap=await transaction.get(numberRef);
+       if(!appSnap.exists)throw new Error("এই আবেদনটি আর পাওয়া যাচ্ছে না বা ইতিমধ্যে অনুমোদিত হয়েছে।");
+       if(numberSnap.exists)throw new Error("NUMBER_TAKEN");
+       const approvedAt=firebase.firestore.FieldValue.serverTimestamp();
+       transaction.set(numberRef,{registrationNo:numberText,applicationId:d.id,memberId,assignedAt:approvedAt});
+       transaction.set(memberRef,{id:memberId,name:a.name,role:"Member",bio:"",image:a.imageUrl,registrationNo:numberText,approvedAt},{merge:true});
+       transaction.set(approvedRef,{approved:true,memberId,registrationNo:numberText,receiptData:a,approvedAt});
+       transaction.delete(applicationRef);
+      });
+      registrationNo=numberText;break;
+     }catch(error){if(error.message==="NUMBER_TAKEN")continue;throw error;}
+    }
+    if(!registrationNo)throw new Error("১০ থেকে ৯৯ পর্যন্ত সব রেজিস্ট্রেশন নম্বর বরাদ্দ হয়ে গেছে।");
+    downloadApprovedReceipt(a,"member",registrationNo);
+    await loadMembers();await loadMemberApplications();
+    alert("সদস্য অনুমোদিত হয়েছে। দুই সংখ্যার রেজিস্ট্রেশন নম্বর "+registrationNo+"-সহ রসিদ ডাউনলোড হয়েছে।");
+   }catch(error){alert("অনুমোদন করা যায়নি: "+error.message);approveBtn.disabled=false;}
   };
   el.querySelector("[data-remove]").onclick=async()=>{
    if(!confirm("আবেদনটি স্থায়ীভাবে মুছে ফেলবেন?"))return;
