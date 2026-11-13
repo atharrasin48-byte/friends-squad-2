@@ -127,8 +127,8 @@ async function loadMembers(){
   const record=approvedDoc.data(),receipt=record.receiptData||{};
   if(!record.memberId||!cloud[record.memberId])continue;
   const member=cloud[record.memberId];
-  const publicDetails={teamName:receipt.teamName||member.teamName||"",className:receipt.className||member.className||""};
-  if(member.teamName!==publicDetails.teamName||member.className!==publicDetails.className){
+  const publicDetails={teamName:receipt.teamName||member.teamName||"",className:receipt.className||member.className||"",age:receipt.age||member.age||""};
+  if(member.teamName!==publicDetails.teamName||member.className!==publicDetails.className||member.age!==publicDetails.age){
    await db.collection("members").doc(record.memberId).set(publicDetails,{merge:true});
    Object.assign(member,publicDetails);
   }
@@ -206,7 +206,7 @@ async function loadMemberApplications(){
        if(numberSnap.exists)throw new Error("NUMBER_TAKEN");
        const approvedAt=firebase.firestore.FieldValue.serverTimestamp();
        transaction.set(numberRef,{registrationNo:numberText,applicationId:d.id,memberId,assignedAt:approvedAt});
-       transaction.set(memberRef,{id:memberId,name:a.name,role:"Member",bio:"",image:a.imageUrl,registrationNo:numberText,teamName:a.teamName||"",className:a.className||"",approvedAt},{merge:true});
+       transaction.set(memberRef,{id:memberId,name:a.name,role:"Member",bio:"",image:a.imageUrl,registrationNo:numberText,teamName:a.teamName||"",className:a.className||"",age:a.age||"",approvedAt},{merge:true});
        transaction.set(approvedRef,{approved:true,memberId,registrationNo:numberText,receiptData:a,approvedAt});
        transaction.delete(applicationRef);
       });
