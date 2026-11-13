@@ -121,8 +121,8 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     document.getElementById("modalBio").innerHTML=m.bio?esc(m.bio).replace(/\n/g,"<br>"):translations[currentLanguage].noDetails;
     modal.classList.add("open"); modal.setAttribute("aria-hidden","false");
   }
-  function renderMembers(list){
-    allMembers=list.slice();
+  function renderMembers(list,saveList=true){
+    if(saveList)allMembers=list.slice();
     grid.innerHTML="";
     list.forEach(m=>{
       const a=document.createElement("article"); a.className="member";
@@ -136,7 +136,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     const query=input.value.trim().toLocaleLowerCase();
     if(!query){renderMembers(allMembers);return;}
     const matches=allMembers.filter(m=>String(m.name||"").toLocaleLowerCase().includes(query));
-    renderMembers(matches);
+    renderMembers(matches,false);
     if(!matches.length){const empty=document.createElement("p");empty.className="member-search-empty";empty.textContent=currentLanguage==="bn"?"এই নামে কোনো সদস্য পাওয়া যায়নি।":"No members found with that name.";grid.appendChild(empty);}
   }
   document.getElementById("publicMemberSearchBtn").addEventListener("click",searchPublicMembers);
