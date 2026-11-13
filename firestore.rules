@@ -56,7 +56,7 @@ service cloud.firestore {
         && !exists(/databases/$(database)/documents/approvedMemberKeys/$(memberKey))
         && request.resource.data.keys().hasAll([
           'name', 'age', 'className', 'birthDate', 'address',
-          'teamName', 'phone', 'imageUrl', 'status', 'createdAt'
+          'teamName', 'phone', 'imageUrl', 'notificationToken', 'status', 'createdAt'
         ])
         && request.resource.data.keys().hasOnly([
           'name', 'age', 'className', 'birthDate', 'address',
@@ -95,7 +95,7 @@ service cloud.firestore {
       allow create: if tenderIsOpen()
         && request.resource.data.keys().hasAll([
           'serial', 'name', 'address', 'collectionDate', 'submissionDate',
-          'place', 'tenderName', 'phone', 'date', 'imageUrl', 'createdAt'
+          'place', 'tenderName', 'phone', 'date', 'imageUrl', 'notificationToken', 'createdAt'
         ])
         && request.resource.data.keys().hasOnly([
           'serial', 'name', 'address', 'collectionDate', 'submissionDate',
@@ -108,6 +108,28 @@ service cloud.firestore {
         && request.resource.data.imageUrl.matches('https://res\\.cloudinary\\.com/.*')
         && request.resource.data.createdAt == request.time;
       allow get, list, update, delete: if isAdmin();
+    }
+
+
+    match /notificationSubscriptions/{subscriptionId} {
+      allow create, update: if subscriptionId.matches('^[a-f0-9]{64}
+    match /registrationSettings/{settingsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+})
+        && request.resource.data.keys().hasOnly(['token','enabled','platform','updatedAt','createdAt'])
+        && request.resource.data.token is string
+        && request.resource.data.token.size() > 20
+        && request.resource.data.enabled == true
+        && request.resource.data.updatedAt == request.time;
+      allow read, delete: if isAdmin();
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // Registration status is public to read; only admin may change it.
