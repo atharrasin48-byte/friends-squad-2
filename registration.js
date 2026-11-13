@@ -167,10 +167,38 @@ async function uploadImage(file) {
   return result.secure_url;
 }
 
+// Member registration lock status
+async function loadMemberStatus() {
+  const hint=$("memberLockHint");
+  const memberButton=document.querySelector('[data-form="member"]');
+  try {
+    const setting=await db.collection("registrationSettings").doc("main").get();
+    const locked=setting.exists&&setting.data().memberLocked===true;
+    hint.textContent=locked?"সদস্য রেজিস্ট্রেশন বর্তমানে বন্ধ।":"সদস্য রেজিস্ট্রেশন চালু আছে।";
+    if(memberButton) memberButton.textContent=locked?"🔒 সদস্য রেজিস্ট্রেশন (বন্ধ)":"সদস্য রেজিস্ট্রেশন";
+  } catch(error) {
+    hint.textContent="সদস্য রেজিস্ট্রেশনের অবস্থা যাচাই করা যায়নি।";
+  }
+}
+loadMemberStatus();
+
 // Registration type buttons
 document.querySelectorAll(".choice").forEach(button => {
   button.addEventListener("click", async () => {
     const type = button.dataset.form;
+
+    if (type === "member") {
+      try {
+        const setting=await db.collection("registrationSettings").doc("main").get();
+        if(setting.exists&&setting.data().memberLocked===true){
+          alert("সদস্য রেজিস্ট্রেশন বর্তমানে বন্ধ রয়েছে।");
+          return;
+        }
+      } catch(error) {
+        alert("সদস্য রেজিস্ট্রেশনের অবস্থা যাচাই করা যায়নি।");
+        return;
+      }
+    }
 
     if (type === "tender") {
       try {
@@ -247,6 +275,11 @@ $("memberEntry").addEventListener("submit", async event => {
 
     if (code !== ADMIN_CODE) {
       throw new Error("Error! Please Correct Code.");
+    }
+
+    const memberSetting=await db.collection("registrationSettings").doc("main").get();
+    if(memberSetting.exists&&memberSetting.data().memberLocked===true) {
+      throw new Error("সদস্য রেজিস্ট্রেশন বর্তমানে বন্ধ।");
     }
 
     // The document ID is a private hash of name + date of birth.
