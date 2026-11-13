@@ -37,6 +37,7 @@
 <div class="card"><h2>Members</h2><p class="muted">Add members, edit details, replace photos, or delete members.</p>
 <div class="grid"><div><input id="mId" placeholder="Member ID (for existing: member1, member2...)"><input id="mName" placeholder="Name"><input id="mRole" placeholder="Role"><textarea id="mBio" rows="5" placeholder="Member details / bio"></textarea><input id="mPhoto" type="file" accept="image/*"><button id="saveMember">Save Member</button><button id="clearMember">Clear</button></div><div><div id="memberList"></div></div></div></div>
 <div class="card"><h2>Notices</h2><input id="nId" placeholder="Notice ID (leave blank for new)"><input id="nTitle" placeholder="Notice title"><textarea id="nBody" rows="5" placeholder="Notice text"></textarea><button id="saveNotice">Save Notice</button><div id="noticeList"></div></div>
+<div class="card"><h2>🔔 General Announcement</h2><p class="muted">এখানে ঘোষণা প্রকাশ করলে Notification Center-এ দেখা যাবে এবং নোটিফিকেশন চালু করা ডিভাইসগুলোতে পাঠানো হবে।</p><input id="announcementTitle" maxlength="120" placeholder="ঘোষণার শিরোনাম"><textarea id="announcementBody" rows="4" maxlength="1000" placeholder="ঘোষণার বিস্তারিত লিখুন"></textarea><button id="sendAnnouncement">ঘোষণা প্রকাশ ও নোটিফিকেশন পাঠান</button><p id="announcementStatus" class="muted small" role="status"></p></div>
 <div class="card"><h2>Photos & Videos</h2><input id="mediaTitle" placeholder="Title"><select id="mediaType"><option value="photo">Photo</option><option value="video">Video</option></select><input id="mediaFile" type="file" accept="image/*,video/*"><button id="uploadMedia">Upload</button><div id="mediaList"></div></div>
 <div class="card editor-card">
 <h2>Website Text & Design</h2>
@@ -258,5 +259,13 @@ async function loadTenderAdmin(){
  snap.forEach(d=>{const a=d.data();const el=document.createElement("div");el.className="member-row";el.innerHTML='<img src="'+esc(a.imageUrl||"")+'" alt=""><div style="flex:1"><b>'+esc(a.name)+'</b><div class="muted">ক্রমিক: '+esc(a.serial)+' | দরপত্র: '+esc(a.tenderName)+'</div><div class="muted">ঠিকানা: '+esc(a.address)+' | মোবাইল: '+esc(a.phone)+'</div><div class="muted">স্থান: '+esc(a.place)+' | সংগ্রহ: '+esc(a.collectionDate)+' | জমা: '+esc(a.submissionDate)+'</div><div class="muted">অবস্থা: '+(a.approved?"অনুমোদিত":"অনুমোদনের অপেক্ষায়")+'</div></div><button data-approve>'+(a.approved?"সিলযুক্ত রসিদ":"Approve")+'</button><button class="danger" data-delete>Delete</button>';el.querySelector("[data-approve]").onclick=async()=>{if(!a.approved){if(!confirm("এই দরপত্র আবেদন অনুমোদন করবেন?"))return;await db.collection("tenderApplications").doc(d.id).update({approved:true,approvedAt:firebase.firestore.FieldValue.serverTimestamp()});a.approved=true;}downloadApprovedReceipt(a,"tender",d.id);};el.querySelector("[data-delete]").onclick=async()=>{if(confirm("এই দরপত্র আবেদন মুছে ফেলবেন?")){await db.collection("tenderApplications").doc(d.id).delete();await loadTenderAdmin()}};list.appendChild(el)})
 }
 
+$("sendAnnouncement").onclick=async()=>{
+ const title=$("announcementTitle").value.trim(),body=$("announcementBody").value.trim(),status=$("announcementStatus"),btn=$("sendAnnouncement");
+ if(!title||!body){status.textContent="শিরোনাম ও ঘোষণা—দুটিই লিখুন।";return;}
+ btn.disabled=true;status.textContent="প্রকাশ করা হচ্ছে…";
+ try{await db.collection("notifications").add({title,body,createdAt:firebase.firestore.FieldValue.serverTimestamp(),type:"announcement"});$("announcementTitle").value="";$("announcementBody").value="";status.textContent="ঘোষণা প্রকাশ করা হয়েছে। সাবস্ক্রাইব করা ডিভাইসগুলোতে পাঠানোর প্রক্রিয়া শুরু হয়েছে।";}
+ catch(e){status.textContent="প্রকাশ করা যায়নি: "+e.message;}
+ finally{btn.disabled=false;}
+};
 async function loadAll(){await Promise.all([loadMembers(),loadNotices(),loadMedia(),loadSettings(),loadMemberApplications(),loadMemberRegistrationAdmin(),loadTenderAdmin()])}
 </script></body></html>
