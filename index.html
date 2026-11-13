@@ -119,8 +119,10 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     document.getElementById("modalImage").src=m.image||"";
     document.getElementById("modalImage").alt=m.name||"Member";
     document.getElementById("modalName").textContent=m.name||"";
-    document.getElementById("modalRole").textContent=m.role||"";
-    document.getElementById("modalBio").innerHTML=m.bio?esc(m.bio).replace(/\n/g,"<br>"):translations[currentLanguage].noDetails;
+    const registration=m.registrationNo?((currentLanguage==="bn"?"রেজিস্ট্রেশন নম্বর: ":"Registration No: ")+m.registrationNo):"";
+    document.getElementById("modalRole").textContent=[m.role||"",registration].filter(Boolean).join(" · ");
+    const details=[m.teamName?(currentLanguage==="bn"?"দলের নাম: ":"Team: ")+m.teamName:"",m.className?(currentLanguage==="bn"?"শ্রেণি: ":"Class: ")+m.className:"",m.bio||""].filter(Boolean).join("\n");
+    document.getElementById("modalBio").innerHTML=details?esc(details).replace(/\n/g,"<br>"):translations[currentLanguage].noDetails;
     modal.classList.add("open"); modal.setAttribute("aria-hidden","false");
   }
   function renderMembers(list,saveList=true){
@@ -171,7 +173,8 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
       }
       const unique=new Map();
       directory.filter(m=>m&&!m.deleted).forEach(m=>{
-        const key=m.id||String(m.name||"").trim().toLocaleLowerCase();
+        const nameKey=String(m.name||"").trim().toLocaleLowerCase().replace(/\s+/g," ");
+        const key=nameKey||m.id;
         if(key)unique.set(key,Object.assign({},unique.get(key)||{},m));
       });
       directory=Array.from(unique.values());
@@ -208,7 +211,12 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
       const cloud={}; snap.forEach(d=>cloud[d.id]=d.data());
       const merged=defaults.map(m=>Object.assign({},m,cloud[m.id]||{})).filter(m=>!m.deleted);
       const extras=Object.keys(cloud).filter(id=>!defaults.some(m=>m.id===id)).map(id=>Object.assign({id},cloud[id])).filter(m=>!m.deleted);
-      renderMembers(merged.concat(extras));
+      const unique=new Map();
+      merged.concat(extras).forEach(m=>{
+        const key=String(m.name||"").trim().toLocaleLowerCase().replace(/\s+/g," ")||m.id;
+        if(key)unique.set(key,Object.assign({},unique.get(key)||{},m));
+      });
+      renderMembers(Array.from(unique.values()));
     }catch(e){console.warn(e)}
     try{
       const s=await db.collection("siteSettings").doc("main").get();
