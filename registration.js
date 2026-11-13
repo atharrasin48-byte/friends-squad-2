@@ -8,6 +8,19 @@ if (!firebase.apps.length) {
 }
 const db = firebase.firestore();
 
+// Show new announcements and approval updates while this page is open.
+let firstNotificationSnapshot = true;
+db.collection("notifications").orderBy("createdAt","desc").limit(30).onSnapshot(snapshot=>{
+  if(!firstNotificationSnapshot && window.FS20Notifications){
+    snapshot.docChanges().filter(change=>change.type==="added").forEach(change=>{
+      const item=change.doc.data();
+      window.FS20Notifications.show(item.title,item.body);
+    });
+  }
+  firstNotificationSnapshot=false;
+},error=>console.warn("Notification listener:",error));
+
+
 const ADMIN_CODE = "2627";
 const CLOUD_NAME = "r4qeis1r";
 const UPLOAD_PRESET = "aneigyz6";
