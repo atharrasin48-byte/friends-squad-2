@@ -33,7 +33,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
 .modal-backdrop.open{display:flex}.modal{width:min(620px,100%);max-height:90vh;overflow:auto;background:#111a2f;border:1px solid #ffffff22;border-radius:24px;padding:24px;position:relative;box-shadow:0 20px 70px #0008}
 .modal img{width:100%;max-height:360px;object-fit:cover;border-radius:18px}.modal h2{margin:16px 0 4px;color:var(--accent,#20d9c4)}.modal .close{position:absolute;right:12px;top:8px;border:0;background:#ffffff18;color:white;font-size:28px;width:42px;height:42px;border-radius:50%;cursor:pointer}
 .public-section{max-width:1150px;margin:auto;padding:45px 7%}.notice-list,.media-grid{display:grid;gap:16px}.notice-card,.media-card{background:#ffffff12;border:1px solid #ffffff1c;border-radius:18px;padding:18px}.media-grid{grid-template-columns:repeat(3,1fr)}.media-card img,.media-card video{width:100%;border-radius:14px;max-height:260px;object-fit:cover}.notice-card h3{color:#20d9c4;margin-top:0}
-.notification-optin{position:fixed;right:16px;bottom:18px;z-index:9998;max-width:min(340px,calc(100vw - 32px));padding:11px 16px;border:1px solid #20d9c4;border-radius:999px;background:#10233a;color:#fff;box-shadow:0 8px 26px #0007;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:9px}.notification-optin[hidden]{display:none}.notification-optin:disabled{opacity:.8;cursor:default}.notification-optin-icon{font-size:18px}.notification-optin-status{display:block;font-size:11px;font-weight:400;color:#b9c2dd;margin-top:1px}
+.notification-optin{position:fixed;right:16px;top:88px;bottom:auto;z-index:9998;max-width:min(340px,calc(100vw - 32px));padding:11px 16px;border:1px solid #20d9c4;border-radius:999px;background:#10233a;color:#fff;box-shadow:0 8px 26px #0007;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:9px}.notification-optin[hidden]{display:none}.notification-optin:disabled{opacity:.8;cursor:default}.notification-optin-icon{font-size:18px}.notification-optin-status{display:block;font-size:11px;font-weight:400;color:#b9c2dd;margin-top:1px}
 @media(max-width:850px){.media-grid{grid-template-columns:1fr 1fr}}@media(max-width:480px){.media-grid{grid-template-columns:1fr}}
 
 .live-datetime{max-width:900px;margin:28px auto 0;padding:0 7%}
@@ -214,20 +214,33 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     const enabled=window.FS20Notifications&&window.FS20Notifications.isEnabled();
     notificationButton.hidden=false;
     if(granted&&!enabled)localStorage.setItem("fs20_browser_notifications_enabled","yes");
-    if(granted&&notificationStatus)notificationStatus.textContent=currentLanguage==="bn"?"নোটিফিকেশন চালু আছে":"Notifications are enabled";
+    const active=window.FS20Notifications&&window.FS20Notifications.isEnabled();
+    if(notificationStatus)notificationStatus.textContent=active
+      ?(currentLanguage==="bn"?"নোটিফিকেশন বন্ধ করতে চাপ দিন":"Tap to turn notifications off")
+      :(currentLanguage==="bn"?"নোটিফিকেশন চালু করতে চাপ দিন":"Tap to turn notifications on");
+    const label=notificationButton.querySelector("[data-i18n='enableNotificationsText']");
+    if(label)label.textContent=active
+      ?(currentLanguage==="bn"?"নোটিফিকেশন বন্ধ করুন":"Turn Notifications Off")
+      :(currentLanguage==="bn"?"নোটিফিকেশন চালু করুন":"Turn Notifications On");
   }
   syncNotificationButton();
   if(notificationButton)notificationButton.addEventListener("click",async()=>{
     notificationButton.disabled=true;
-    if(notificationStatus)notificationStatus.textContent="অনুমতি চাওয়া হচ্ছে...";
+    const active=window.FS20Notifications&&window.FS20Notifications.isEnabled();
+    if(active){
+      window.FS20Notifications.disable();
+      syncNotificationButton();
+      notificationButton.disabled=false;
+      return;
+    }
+    if(notificationStatus)notificationStatus.textContent=currentLanguage==="bn"?"অনুমতি চাওয়া হচ্ছে...":"Requesting permission...";
     try{
       await window.FS20Notifications.enable();
-      if(notificationStatus)notificationStatus.textContent=currentLanguage==="bn"?"নোটিফিকেশন চালু আছে":"Notifications are enabled";
-      notificationButton.disabled=false;
+      syncNotificationButton();
     }catch(error){
       if(notificationStatus)notificationStatus.textContent=error.message||"অনুমতি দেওয়া যায়নি।";
-      notificationButton.disabled=false;
     }
+    notificationButton.disabled=false;
   });
   function loadNotifications(){
     if(!db)return;
