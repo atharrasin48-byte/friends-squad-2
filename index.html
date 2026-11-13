@@ -121,7 +121,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     document.getElementById("modalName").textContent=m.name||"";
     const registration=m.registrationNo?((currentLanguage==="bn"?"রেজিস্ট্রেশন নম্বর: ":"Registration No: ")+m.registrationNo):"";
     document.getElementById("modalRole").textContent=[m.role||"",registration].filter(Boolean).join(" · ");
-    const details=[m.teamName?(currentLanguage==="bn"?"দলের নাম: ":"Team: ")+m.teamName:"",m.className?(currentLanguage==="bn"?"শ্রেণি: ":"Class: ")+m.className:"",m.bio||""].filter(Boolean).join("\n");
+    const details=[m.age?(currentLanguage==="bn"?"বয়স: ":"Age: ")+m.age:"",m.teamName?(currentLanguage==="bn"?"দলের নাম: ":"Team: ")+m.teamName:"",m.className?(currentLanguage==="bn"?"শ্রেণি: ":"Class: ")+m.className:"",m.bio||""].filter(Boolean).join("\n");
     document.getElementById("modalBio").innerHTML=details?esc(details).replace(/\n/g,"<br>"):translations[currentLanguage].noDetails;
     modal.classList.add("open"); modal.setAttribute("aria-hidden","false");
   }
