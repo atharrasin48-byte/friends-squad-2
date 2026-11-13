@@ -152,8 +152,8 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     try{
       const snap=await db.collection("media").orderBy("createdAt","desc").limit(30).get();
       const grid=document.getElementById("mediaGrid"); grid.innerHTML="";
-      snap.forEach(d=>{const x=d.data(); const el=document.createElement("div"); el.className="media-card"; if(x.type==="video") el.innerHTML='<video controls src="'+esc(x.url)+'"></video><p>'+esc(x.title||"")+'</p>'; else el.innerHTML='<img src="'+esc(x.url)+'" alt="'+esc(x.title||"Photo")+'"><p>'+esc(x.title||"")+'</p>'; grid.appendChild(el);});
-      if(snap.size) document.getElementById("mediaSection").style.display="";
+      snap.forEach(d=>{const x=d.data();if(x.hidden===true)return;const el=document.createElement("div");el.className="media-card";if(x.type==="video")el.innerHTML='<video controls src="'+esc(x.url)+'"></video><p>'+esc(x.title||"")+'</p>';else el.innerHTML='<img src="'+esc(x.url)+'" alt="'+esc(x.title||"Photo")+'"><p>'+esc(x.title||"")+'</p>';grid.appendChild(el);});
+      if(grid.children.length) document.getElementById("mediaSection").style.display="";
     }catch(e){}
   }
   let activeSiteSettings={};
