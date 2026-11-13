@@ -141,15 +141,23 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     try{
       // Always refresh the public directory so manually added members and
       // approved registration members are both searchable.
+      // Include every member already displayed on the homepage, seeded members,
+      // and members stored in Firestore (including approved registrations).
       let directory=allMembers.slice();
       if(db){
         const snap=await db.collection("members").get();
         const cloud={};
         snap.forEach(d=>cloud[d.id]=Object.assign({id:d.id},d.data()));
-        const base=defaults.map(m=>Object.assign({},m,cloud[m.id]||{})).filter(m=>!m.deleted);
-        const extras=Object.keys(cloud).filter(id=>!defaults.some(m=>m.id===id)).map(id=>cloud[id]).filter(m=>!m.deleted);
-        directory=base.concat(extras);
+        const combined=defaults.map(m=>Object.assign({},m,cloud[m.id]||{}))
+          .concat(Object.keys(cloud).filter(id=>!defaults.some(m=>m.id===id)).map(id=>cloud[id]));
+        directory=directory.concat(combined);
       }
+      const unique=new Map();
+      directory.filter(m=>m&&!m.deleted).forEach(m=>{
+        const key=m.id||String(m.name||"").trim().toLocaleLowerCase();
+        if(key)unique.set(key,Object.assign({},unique.get(key)||{},m));
+      });
+      directory=Array.from(unique.values());
       if(requestId!==memberSearchRequest)return;
       allMembers=directory;
       const matches=query?directory.filter(m=>String(m.name||"").toLocaleLowerCase().includes(query)):directory;
