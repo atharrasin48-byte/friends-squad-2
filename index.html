@@ -166,7 +166,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
       if(query&&!matches.length){
         const empty=document.createElement("p");
         empty.className="member-search-empty";
-        empty.textContent=currentLanguage==="bn"?(/^\d{2}$/.test(query)?"রেজিস্ট্রেশন পাওয়া যায়নি! এই নম্বরে কোনো সদস্যের রেজিস্ট্রেশন নেই।":"এই নাম বা রেজিস্ট্রেশন নম্বরে কোনো সদস্য পাওয়া যায়নি।"):"No member registration found for this number.";
+        empty.textContent=/^\d{2}$/.test(query)?"রেজিস্ট্রেশন পাওয়া যায়নি! এই নম্বরে কোনো সদস্যের রেজিস্ট্রেশন নেই。":(currentLanguage==="bn"?"এই নাম বা রেজিস্ট্রেশন নম্বরে কোনো সদস্য পাওয়া যায়নি।":"No member found with this name or registration number.");
         grid.appendChild(empty);
       }
     }catch(error){
@@ -177,7 +177,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
       if(query&&!matches.length){
         const empty=document.createElement("p");
         empty.className="member-search-empty";
-        empty.textContent=currentLanguage==="bn"?(/^\d{2}$/.test(query)?"রেজিস্ট্রেশন পাওয়া যায়নি! এই নম্বরে কোনো সদস্যের রেজিস্ট্রেশন নেই।":"এই নাম বা রেজিস্ট্রেশন নম্বরে কোনো সদস্য পাওয়া যায়নি।"):"No member registration found for this number.";
+        empty.textContent=/^\d{2}$/.test(query)?"রেজিস্ট্রেশন পাওয়া যায়নি! এই নম্বরে কোনো সদস্যের রেজিস্ট্রেশন নেই。":(currentLanguage==="bn"?"এই নাম বা রেজিস্ট্রেশন নম্বরে কোনো সদস্য পাওয়া যায়নি।":"No member found with this name or registration number.");
         grid.appendChild(empty);
       }
     }
