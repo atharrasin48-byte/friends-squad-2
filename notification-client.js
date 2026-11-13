@@ -22,5 +22,6 @@
       });
     }catch(error){console.warn("Browser notification:",error);}
   }
-  window.FS20Notifications = {enable,show,isEnabled:()=>localStorage.getItem(ENABLED_KEY)==="yes"};
+  function disable(){localStorage.removeItem(ENABLED_KEY);return true;}
+  window.FS20Notifications = {enable,disable,show,isEnabled:()=>localStorage.getItem(ENABLED_KEY)==="yes"};
 })();
