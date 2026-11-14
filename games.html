@@ -26,7 +26,19 @@ main{max-width:1100px;margin:auto;padding:12px 7% 70px}.section-head{text-align:
 <section class="card game-panel" id="memory"><div class="panel-top"><h2>Memory Match</h2><button class="close" data-close>Close</button></div><p class="status" id="memoryStatus">একই ইমোজি জোড়া খুঁজে বের করো!</p><div class="memory-board" id="memoryBoard"></div><div style="text-align:center"><button id="memoryReset">Restart</button></div></section>
 <section class="card game-panel" id="guess"><div class="panel-top"><h2>Number Guess</h2><button class="close" data-close>Close</button></div><p class="status" id="guessStatus">১–১০০-এর মধ্যে একটি সংখ্যা ভেবেছি। অনুমান করো!</p><div class="guess-row"><input id="guessInput" type="number" min="1" max="100" placeholder="তোমার অনুমান"><button id="guessBtn">Guess</button></div><p class="status" id="guessCount">চেষ্টা: ০</p><div style="text-align:center"><button id="guessReset">New Number</button></div></section>
 <div class="section-head"><h2>🌐 Online Multiplayer</h2><p>বন্ধুরা নিজ নিজ মোবাইল থেকে অনলাইনে খেলবে।</p></div>
-<div class="card online-card"><div class="game-icon">👥</div><h3>Play with Friends Online</h3><p class="muted">Room তৈরি, Room Code দিয়ে বন্ধুকে আমন্ত্রণ এবং লাইভ ম্যাচ খেলার ব্যবস্থা পরবর্তী ধাপে যুক্ত হবে।</p><span class="note">Online Room চালু করতে Firebase-এর জন্য আলাদা নিরাপদ multiplayer rules ও room logic যোগ করতে হবে।</span></div>
+<div class="card online-card" id="onlineTic">
+<div class="game-icon">🌐</div><h3>Online Tic Tac Toe</h3>
+<p class="muted">একজন Room তৈরি করো, অন্যজন কোড দিয়ে যোগ দাও। দুজন আলাদা মোবাইল থেকে খেলতে পারবে।</p>
+<div class="guess-row"><input id="onlineName" maxlength="18" placeholder="তোমার নাম"><button id="createRoom">Create Room</button></div>
+<div class="guess-row"><input id="roomCodeInput" maxlength="6" placeholder="৬ অক্ষরের Room Code" style="text-transform:uppercase"><button id="joinRoom">Join Room</button></div>
+<p class="status" id="onlineStatus" aria-live="polite">প্রথমে নাম লিখে Room তৈরি করো অথবা বন্ধুর কোড দিয়ে যোগ দাও।</p>
+<div id="roomArea" hidden>
+<div style="text-align:center"><p>Room Code</p><h2 id="roomCodeShow" style="letter-spacing:6px;color:#20d9c4"></h2><button id="copyRoomCode" class="close">Copy Code</button><p id="onlinePlayers" class="muted"></p><p id="onlineTurn" class="status"></p></div>
+<div class="board" id="onlineBoard"></div>
+<div style="text-align:center;display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button id="onlineRestart">Rematch</button><button id="leaveRoom" class="close">Leave Room</button></div>
+</div>
+<p class="note">অনলাইন খেলার জন্য Firebase Anonymous Sign-in চালু এবং নতুন Firestore Rules প্রকাশ করতে হবে।</p>
+</div>
 <div class="section-head"><h2>🔥 More Games</h2><p>সব গেম Friends Squad 2.0-এর ভেতরেই খেলার জন্য তৈরি হবে।</p></div>
 <div class="grid">
 <article class="card"><div class="game-icon">🧱</div><h3>Block World</h3><p class="muted">Roblox-এর মতো নিজের জগৎ তৈরি ও এক্সপ্লোর করার ওয়েব গেম।</p><span class="note">ওয়েব ভার্সন তৈরির তালিকায় আছে।</span></article>
@@ -54,4 +66,90 @@ let secret=0,tries=0;
 function guessStart(){secret=Math.floor(Math.random()*100)+1;tries=0;document.getElementById('guessInput').value='';document.getElementById('guessStatus').textContent='১–১০০-এর মধ্যে একটি সংখ্যা ভেবেছি। অনুমান করো!';document.getElementById('guessCount').textContent='চেষ্টা: ০';}
 function makeGuess(){const input=document.getElementById('guessInput'),v=Number(input.value);if(!input.value||v<1||v>100||!Number.isInteger(v)){document.getElementById('guessStatus').textContent='১ থেকে ১০০-এর মধ্যে পূর্ণসংখ্যা দাও।';return;}tries++;document.getElementById('guessCount').textContent='চেষ্টা: '+tries;if(v===secret){document.getElementById('guessStatus').textContent='সঠিক! তুমি '+tries+' চেষ্টায় পেরেছ!';}else document.getElementById('guessStatus').textContent=v<secret?'আরও বড় সংখ্যা!':'আরও ছোট সংখ্যা!';input.select();}
 document.getElementById('guessBtn').onclick=makeGuess;document.getElementById('guessInput').addEventListener('keydown',e=>{if(e.key==='Enter')makeGuess()});document.getElementById('guessReset').onclick=guessStart;guessStart();
-</script></body></html>
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const onlineStatus=document.getElementById('onlineStatus');
+const roomArea=document.getElementById('roomArea');
+let db,auth,user,roomRef,roomUnsub=null,roomData=null,myMark=null,roomCode=null,onlineBusy=false;
+const firebaseConfig=window.FIREBASE_CONFIG;
+function onlineMessage(msg){onlineStatus.textContent=msg;}
+function randomCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s;}
+function playerName(){return (document.getElementById('onlineName').value.trim()||'Player').slice(0,18);}
+function drawOnline(){
+ if(!roomData)return;
+ roomArea.hidden=false;
+ document.getElementById('roomCodeShow').textContent=roomCode;
+ document.getElementById('onlinePlayers').textContent=(roomData.hostName||'Host')+' (X)  vs  '+(roomData.guestName||'অপেক্ষায়...')+' (O)';
+ const winner=roomData.winner;
+ document.getElementById('onlineTurn').textContent=winner?(winner==='draw'?'ম্যাচ ড্র হয়েছে!':winner+' জিতেছে!'):(roomData.turn===myMark?'তোমার চাল ('+myMark+')':'বন্ধুর চাল চলছে...');
+ const board=document.getElementById('onlineBoard');board.innerHTML='';
+ (roomData.board||Array(9).fill('')).forEach((v,i)=>{const b=document.createElement('button');b.className='cell';b.textContent=v;b.disabled=!!v||!!winner||roomData.turn!==myMark||!roomData.guestUid;b.addEventListener('click',()=>onlineMove(i));board.append(b);});
+}
+async function initOnline(){
+ if(db&&user)return;
+ if(!firebaseConfig)throw new Error('Firebase config পাওয়া যায়নি।');
+ const app=initializeApp(firebaseConfig);
+ auth=getAuth(app);db=getFirestore(app);
+ const cred=await signInAnonymously(auth);user=cred.user;
+}
+function watchRoom(){
+ if(roomUnsub)roomUnsub();
+ roomUnsub=onSnapshot(roomRef,snap=>{
+  if(!snap.exists()){onlineMessage('Room পাওয়া যায়নি বা মুছে ফেলা হয়েছে।');roomArea.hidden=true;return;}
+  roomData=snap.data();drawOnline();
+  if(!roomData.guestUid)onlineMessage('Room তৈরি হয়েছে। বন্ধুকে Room Code পাঠাও।');
+  else onlineMessage('দুজন যুক্ত! খেলা শুরু করো।');
+ },err=>onlineMessage('Room sync error: '+err.message));
+}
+async function createOnlineRoom(){
+ if(onlineBusy)return;onlineBusy=true;
+ try{
+  await initOnline();myMark='X';let code,ref,snap;
+  for(let i=0;i<5;i++){code=randomCode();ref=doc(db,'gameRooms',code);snap=await getDoc(ref);if(!snap.exists())break;ref=null;}
+  if(!ref)throw new Error('Room Code তৈরি করা যায়নি। আবার চেষ্টা করো।');
+  roomCode=code;roomRef=ref;
+  await setDoc(roomRef,{code:roomCode,hostUid:user.uid,hostName:playerName(),guestUid:null,guestName:null,board:Array(9).fill(''),turn:'X',winner:null,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+  watchRoom();
+ }catch(e){onlineMessage('Room তৈরি হয়নি: '+e.message);}finally{onlineBusy=false;}
+}
+async function joinOnlineRoom(){
+ if(onlineBusy)return;onlineBusy=true;
+ try{
+  await initOnline();const code=document.getElementById('roomCodeInput').value.trim().toUpperCase();
+  if(!/^[A-HJ-NP-Z2-9]{6}$/.test(code))throw new Error('সঠিক ৬ অক্ষরের Room Code দাও।');
+  const ref=doc(db,'gameRooms',code),snap=await getDoc(ref);
+  if(!snap.exists())throw new Error('এই Room পাওয়া যায়নি।');
+  const data=snap.data();
+  if(data.hostUid===user.uid)throw new Error('নিজের তৈরি Room-এ যোগ দেওয়া যাবে না।');
+  if(data.guestUid&&data.guestUid!==user.uid)throw new Error('এই Room-এ ইতিমধ্যে দুইজন আছে।');
+  if(data.winner)throw new Error('এই ম্যাচ শেষ। নতুন Room তৈরি করতে বলো।');
+  roomCode=code;roomRef=ref;myMark='O';
+  await updateDoc(ref,{guestUid:user.uid,guestName:playerName(),updatedAt:serverTimestamp()});
+  watchRoom();
+ }catch(e){onlineMessage('Join করা যায়নি: '+e.message);}finally{onlineBusy=false;}
+}
+async function onlineMove(i){
+ if(!roomData||roomData.turn!==myMark||roomData.board[i]||roomData.winner||!roomData.guestUid)return;
+ const board=roomData.board.slice();board[i]=myMark;
+ const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+ let winner=null;for(const line of lines){if(board[line[0]]&&board[line[0]]===board[line[1]]&&board[line[1]]===board[line[2]])winner=board[line[0]];}
+ if(!winner&&board.every(Boolean))winner='draw';
+ try{await updateDoc(roomRef,{board,turn:myMark==='X'?'O':'X',winner,updatedAt:serverTimestamp()});}
+ catch(e){onlineMessage('চাল দেওয়া যায়নি: '+e.message);}
+}
+async function onlineRestart(){
+ if(!roomData||!roomRef)return;
+ try{await updateDoc(roomRef,{board:Array(9).fill(''),turn:'X',winner:null,updatedAt:serverTimestamp()});}
+ catch(e){onlineMessage('নতুন ম্যাচ শুরু হয়নি: '+e.message);}
+}
+function leaveOnline(){if(roomUnsub)roomUnsub();roomUnsub=null;roomRef=null;roomData=null;roomCode=null;myMark=null;roomArea.hidden=true;onlineMessage('Room থেকে বের হয়েছ। নতুন Room তৈরি করো বা কোড দিয়ে যোগ দাও।');}
+document.getElementById('createRoom').addEventListener('click',createOnlineRoom);
+document.getElementById('joinRoom').addEventListener('click',joinOnlineRoom);
+document.getElementById('onlineRestart').addEventListener('click',onlineRestart);
+document.getElementById('leaveRoom').addEventListener('click',leaveOnline);
+document.getElementById('copyRoomCode').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(roomCode);onlineMessage('Room Code কপি হয়েছে।');}catch(e){onlineMessage('কপি হয়নি। কোডটি দেখে লিখে নাও।');}});
+</script>
+</body></html>
