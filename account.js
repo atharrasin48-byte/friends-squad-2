@@ -86,7 +86,7 @@ $("editProfileForm").addEventListener("submit",async e=>{
  e.preventDefault();const button=e.currentTarget.querySelector('button[type="submit"]');button.disabled=true;clearStatus("profileStatus");
  try{
   const name=$("editName").value.trim(),age=Number($("editAge").value),file=$("editPhoto").files[0];
-  if(!name||!Number.isInteger(age)||age<1||age>120)throw new Error("নাম ও সঠিক বয়স লিখো।");
+  if(!name||!Number.isInteger(age)||age<13||age>99)throw new Error("নাম ও সঠিক বয়স লিখো।");
   const photoURL=file?await uploadPhoto(file):(currentProfile.photoURL||"");
   await db.collection("userProfiles").doc(auth.currentUser.uid).update({name,age,photoURL,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
   status("profileStatus","প্রোফাইল সফলভাবে আপডেট হয়েছে।",true);await loadProfile(auth.currentUser);
