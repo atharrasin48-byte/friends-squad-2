@@ -176,6 +176,7 @@ $("memberEntry").addEventListener("submit", async event => {
   submit.disabled = true;
   try {
     const values = new FormData(form);
+    if (String(values.get("code") || "").trim() !== ADMIN_CODE) throw new Error("Error! Please Correct Code.");
     const data = {
       name: String(values.get("name") || "").trim(),
       age: String(values.get("age") || "").trim(),
