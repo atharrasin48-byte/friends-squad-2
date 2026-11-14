@@ -8,7 +8,15 @@
 <button class="choice" type="button" data-form="tender" aria-pressed="false">দরপত্র রেজিস্ট্রেশন</button></div>
 <p class="hint" id="memberLockHint">সদস্য রেজিস্ট্রেশনের অবস্থা যাচাই করা হচ্ছে…</p><p class="hint" id="tenderLockHint">দরপত্র রেজিস্ট্রেশনের অবস্থা যাচাই করা হচ্ছে…</p></section>
 <section class="panel form" id="memberForm"><h2>সদস্য রেজিস্ট্রেশন</h2><form id="memberEntry">
-<label>নাম</label><input name="name" maxlength="100" required><label>ইমেইল ঠিকানা (Login ID)</label><input name="email" type="email" maxlength="150" autocomplete="email" required><label>পাসওয়ার্ড</label><input name="password" type="password" minlength="8" autocomplete="new-password" required><label>পাসওয়ার্ড নিশ্চিত করুন</label><input name="confirmPassword" type="password" minlength="8" autocomplete="new-password" required><label>জন্মতারিখ</label><input name="birthDate" type="date" required><p class="hint">পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হবে। এটি ব্যক্তিগত—Admin-ও দেখতে পারবে না। আবেদন অনুমোদিত হলে ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করতে পারবে।</p>
+<label>নাম</label><input name="name" maxlength="100" required>
+<label>বয়স</label><input name="age" type="number" min="13" max="99" required>
+<label>শ্রেণি</label><input name="className" maxlength="40" required>
+<label>জন্মতারিখ</label><input name="birthDate" type="date" required>
+<label>ঠিকানা</label><textarea name="address" rows="2" required></textarea>
+<label>দলের নাম</label><input name="teamName" maxlength="100" required>
+<label>মোবাইল নম্বর</label><input name="phone" type="tel" maxlength="20" required>
+<label>ছবি (ঐচ্ছিক)</label><input name="image" type="file" accept="image/*">
+<p class="hint">সঠিক তথ্য দিয়ে ফর্মটি পূরণ করে Submit করুন। Admin অনুমোদন করলে সদস্য তালিকায় যুক্ত হবে।</p>
 <button type="submit">Submit</button><div class="status" role="status"></div></form></section>
 <section class="panel form" id="tenderForm"><h2>দরপত্র রেজিস্ট্রেশন</h2><form id="tenderEntry">
 <label>দরপত্রের ক্রমিক নং</label><input name="serial" required><label>গ্রাহকের নাম</label><input name="name" required><label>ঠিকানা</label><textarea name="address" rows="2" required></textarea>
