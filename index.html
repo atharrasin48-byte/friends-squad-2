@@ -102,7 +102,22 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script><script src="notification-client.js"></script>
-<script src="seed-members.js"></script>
+<script>
+/* Keep the Bangladesh clock independent from Firebase and the main page scripts. */
+(function(){
+  function showBangladeshTime(){
+    try{
+      const now=new Date();
+      const time=document.getElementById("liveClockTime");
+      const date=document.getElementById("liveClockDate");
+      if(time)time.textContent=new Intl.DateTimeFormat("en-BD",{timeZone:"Asia/Dhaka",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true}).format(now);
+      if(date)date.textContent=new Intl.DateTimeFormat("en-BD",{timeZone:"Asia/Dhaka",weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(now);
+    }catch(error){console.warn("Bangladesh clock:",error);}
+  }
+  showBangladeshTime();
+  setInterval(showBangladeshTime,1000);
+})();
+</script>
 <script>
 (function(){
   const cfg=window.FIREBASE_CONFIG||{};
@@ -118,7 +133,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
   let allMembers=[];
   const modal=document.getElementById("memberModal");
   function openMember(m){
-    document.getElementById("modalImage").src=m.image||"";
+    document.getElementById("modalImage").src=m.image||m.imageUrl||m.photoUrl||"";
     document.getElementById("modalImage").alt=m.name||"Member";
     document.getElementById("modalName").textContent=m.name||"";
     const registration=m.registrationNo?((currentLanguage==="bn"?"রেজিস্ট্রেশন নম্বর: ":"Registration No: ")+m.registrationNo):"";
@@ -132,7 +147,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     grid.innerHTML="";
     list.forEach(m=>{
       const a=document.createElement("article"); a.className="member";
-      a.innerHTML='<img src="'+esc(m.image)+'" alt="'+esc(m.name)+'"><h3>'+esc(m.name)+'</h3><p>'+esc(m.role||(currentLanguage==="bn"?"স্কোয়াড সদস্য":"Squad Member"))+'</p>';
+      a.innerHTML='<img src="'+esc(m.image||m.imageUrl||m.photoUrl||"")+'" alt="'+esc(m.name)+'"><h3>'+esc(m.name)+'</h3><p>'+esc(m.role||(currentLanguage==="bn"?"স্কোয়াড সদস্য":"Squad Member"))+'</p>';
       a.addEventListener("click",()=>openMember(m)); grid.appendChild(a);
     });
   }
@@ -313,14 +328,14 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     put(".logo span",s.title);
     put("#about .section-title h2",s.aboutTitle);
     put("#about .section-title p",s.aboutSubtitle);
-    put("#about .about .card:first-child p",s.aboutStory);
-    put("#about .about .card:last-child p",s.aboutVibe);
+    put("#about .about .card:first-child p",s.aboutStory||s.story);
+    put("#about .about .card:last-child p",s.aboutVibe||s.vibe);
     put("#members .section-title h2",s.membersTitle);
     put("#members .section-title p",s.membersSubtitle);
     put("#contact .section-title h2",s.contactTitle);
     put("#contact .section-title p",s.contactSubtitle);
     put("footer",s.footerText);
-    if(s.phone){const phone=document.querySelector(".phone");if(phone){phone.href="tel:"+s.phone;phone.textContent=(t.call||"Call: ")+s.phone}}
+    const phoneNumber=String(s.phone||s.contactPhone||"").trim();if(phoneNumber){const phone=document.querySelector(".phone");if(phone){phone.href="tel:"+phoneNumber;phone.textContent=(t.call||"Call: ")+phoneNumber}}
   }
   async function trackVisitors(){
     if(!db) return;
