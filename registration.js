@@ -193,11 +193,6 @@ $("memberEntry").addEventListener("submit", async event => {
     if (setting.exists && setting.data().memberLocked === true) throw new Error("সদস্য রেজিস্ট্রেশন বর্তমানে বন্ধ।");
     const key = await makeKey(data.name, data.birthDate);
     const ref = db.collection("memberApplications").doc(key);
-    const [existing, approved] = await Promise.all([
-      ref.get(), db.collection("approvedMemberKeys").doc(key).get()
-    ]);
-    if (existing.exists) throw new Error("এই নাম ও জন্মতারিখ দিয়ে আগে আবেদন জমা হয়েছে।");
-    if (approved.exists) throw new Error("এই সদস্যের আবেদন ইতিমধ্যে অনুমোদিত হয়েছে।");
     const imageFile = values.get("image");
     data.imageUrl = imageFile && imageFile.size ? await uploadImage(imageFile) : "";
     data.status = "pending";
