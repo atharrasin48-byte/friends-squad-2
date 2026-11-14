@@ -123,7 +123,7 @@ async function loadMembers(){
  snap.forEach(d=>cloud[d.id]=d.data());
  // Remove only Safwan's older, unregistered duplicate; preserve the registered entry.
  const safwanName="সাফওয়ান ইবনে শিহাব";
- const safwanMatches=snap.docs.filter(d=>String((d.data()||{}).name||"").trim().replace(/\\s+/g," ")===safwanName);
+ const safwanMatches=snap.docs.filter(d=>String((d.data()||{}).name||"").trim().replace(/\s+/g," ")===safwanName);
  const safwanRegistered=safwanMatches.find(d=>String((d.data()||{}).registrationNo||"").trim()!=="");
  if(safwanRegistered){
   for(const d of safwanMatches){
