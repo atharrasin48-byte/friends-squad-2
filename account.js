@@ -32,7 +32,7 @@ function switchTab(signup){
 $("showSignup").onclick=()=>switchTab(true);$("showLogin").onclick=()=>switchTab(false);
 $("signupForm").addEventListener("submit",async e=>{
  e.preventDefault();const button=e.currentTarget.querySelector('button[type="submit"]');button.disabled=true;clearStatus("authStatus");
- let createdUser=null;
+ let createdUser=null,profileCreated=false;
  try{
   const name=$("signupName").value.trim(),username=cleanUsername($("signupUsername").value),age=Number($("signupAge").value),email=$("signupEmail").value.trim().toLowerCase(),password=$("signupPassword").value,confirm=$("signupConfirm").value,file=$("signupPhoto").files[0];
   if(!/^[a-z0-9._]{3,20}$/.test(username))throw new Error("Username ৩–২০ অক্ষরের হতে হবে।");
@@ -46,12 +46,14 @@ $("signupForm").addEventListener("submit",async e=>{
    tx.set(usernameRef,{uid:createdUser.uid,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
    tx.set(profileRef,{uid:createdUser.uid,name,username,age,email,photoURL,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
   });
+  profileCreated=true;
   await createdUser.sendEmailVerification();
   status("authStatus","অ্যাকাউন্ট তৈরি হয়েছে! Gmail-এ verification email পাঠানো হয়েছে। ইমেইল যাচাই না করা পর্যন্ত প্রোফাইল ব্যবহার করা যাবে না।",true);
   showPanel("verify");
  }catch(err){
-  if(createdUser){try{await createdUser.delete();}catch(_){}}
-  status("authStatus",friendly(err));
+  if(createdUser&&!profileCreated){try{await createdUser.delete();}catch(_){}}
+  if(profileCreated){showPanel("verify");status("verifyStatus","অ্যাকাউন্ট তৈরি হয়েছে, কিন্তু verification email পাঠানো যায়নি। Resend Verification Email চাপো। "+friendly(err));}
+  else status("authStatus",friendly(err));
  }finally{button.disabled=false;}
 });
 $("loginForm").addEventListener("submit",async e=>{
