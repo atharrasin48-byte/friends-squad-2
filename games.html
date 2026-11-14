@@ -27,8 +27,12 @@ main{max-width:1100px;margin:auto;padding:12px 7% 70px}.section-head{text-align:
 <section class="card game-panel" id="guess"><div class="panel-top"><h2>Number Guess</h2><button class="close" data-close>Close</button></div><p class="status" id="guessStatus">১–১০০-এর মধ্যে একটি সংখ্যা ভেবেছি। অনুমান করো!</p><div class="guess-row"><input id="guessInput" type="number" min="1" max="100" placeholder="তোমার অনুমান"><button id="guessBtn">Guess</button></div><p class="status" id="guessCount">চেষ্টা: ০</p><div style="text-align:center"><button id="guessReset">New Number</button></div></section>
 <div class="section-head"><h2>🌐 Online Multiplayer</h2><p>বন্ধুরা নিজ নিজ মোবাইল থেকে অনলাইনে খেলবে।</p></div>
 <div class="card online-card"><div class="game-icon">👥</div><h3>Play with Friends Online</h3><p class="muted">Room তৈরি, Room Code দিয়ে বন্ধুকে আমন্ত্রণ এবং লাইভ ম্যাচ খেলার ব্যবস্থা পরবর্তী ধাপে যুক্ত হবে।</p><span class="note">Online Room চালু করতে Firebase-এর জন্য আলাদা নিরাপদ multiplayer rules ও room logic যোগ করতে হবে।</span></div>
-<div class="section-head"><h2>🔥 Popular Games</h2><p>জনপ্রিয় গেমের অফিসিয়াল প্ল্যাটফর্মে যাও।</p></div>
-<div class="card"><div class="popular-links"><a href="https://www.roblox.com/" target="_blank" rel="noopener noreferrer">🎮 Roblox ↗</a><a href="https://ff.garena.com/" target="_blank" rel="noopener noreferrer">🔥 Free Fire ↗</a></div><p class="note">এই লিংকগুলো গেমের অফিসিয়াল সাইটে নিয়ে যাবে। গেম খেলতে তাদের নিজস্ব অ্যাপ বা প্ল্যাটফর্ম লাগতে পারে।</p></div>
+<div class="section-head"><h2>🔥 More Games</h2><p>সব গেম Friends Squad 2.0-এর ভেতরেই খেলার জন্য তৈরি হবে।</p></div>
+<div class="grid">
+<article class="card"><div class="game-icon">🧱</div><h3>Block World</h3><p class="muted">Roblox-এর মতো নিজের জগৎ তৈরি ও এক্সপ্লোর করার ওয়েব গেম।</p><span class="note">ওয়েব ভার্সন তৈরির তালিকায় আছে।</span></article>
+<article class="card"><div class="game-icon">🏆</div><h3>Battle Arena</h3><p class="muted">Free Fire-এর মতো প্রতিযোগিতামূলক, কিন্তু নিজস্ব সহজ ওয়েব গেম।</p><span class="note">ওয়েব ভার্সন তৈরির তালিকায় আছে।</span></article>
+</div>
+<p class="note" style="text-align:center">Roblox ও Free Fire-এর আসল গেম তৃতীয় পক্ষের অ্যাপ/প্ল্যাটফর্মে চলে, তাই সেগুলো এখানে সরাসরি এমবেড করা হয়নি।</p>
 </main><footer>© 2026 Friends Squad 2.0 — Games Zone</footer>
 <script>
 const panels=[...document.querySelectorAll('.game-panel')];
