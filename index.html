@@ -33,7 +33,6 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
 .modal-backdrop.open{display:flex}.modal{width:min(620px,100%);max-height:90vh;overflow:auto;background:#111a2f;border:1px solid #ffffff22;border-radius:24px;padding:24px;position:relative;box-shadow:0 20px 70px #0008}
 .modal img{width:100%;max-height:360px;object-fit:cover;border-radius:18px}.modal h2{margin:16px 0 4px;color:var(--accent,#20d9c4)}.modal .close{position:absolute;right:12px;top:8px;border:0;background:#ffffff18;color:white;font-size:28px;width:42px;height:42px;border-radius:50%;cursor:pointer}
 .public-section{max-width:1150px;margin:auto;padding:45px 7%}.notice-list,.media-grid{display:grid;gap:16px}.notice-card,.media-card{background:#ffffff12;border:1px solid #ffffff1c;border-radius:18px;padding:18px}.media-grid{grid-template-columns:repeat(3,1fr)}.media-card img,.media-card video{width:100%;border-radius:14px;max-height:260px;object-fit:cover}.notice-card h3{color:#20d9c4;margin-top:0}
-.notification-optin{position:fixed;right:16px;top:88px;bottom:auto;z-index:9998;max-width:min(340px,calc(100vw - 32px));padding:11px 16px;border:1px solid #20d9c4;border-radius:999px;background:#10233a;color:#fff;box-shadow:0 8px 26px #0007;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:9px}.notification-optin[hidden]{display:none}.notification-optin:disabled{opacity:.8;cursor:default}.notification-optin-icon{font-size:18px}.notification-optin-status{display:block;font-size:11px;font-weight:400;color:#b9c2dd;margin-top:1px}
 @media(max-width:850px){.media-grid{grid-template-columns:1fr 1fr}}@media(max-width:480px){.media-grid{grid-template-columns:1fr}}
 
 .live-datetime{max-width:900px;margin:28px auto 0;padding:0 7%}
@@ -79,7 +78,6 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
   <div class="section-title"><h2 id="membersTitle" data-i18n="membersTitle">Meet the Squad</h2><p id="membersSubtitle" data-i18n="membersSubtitle">Click a member to view details.</p></div>
   <div class="members" id="membersGrid"></div>
 </section>
-<button type="button" class="notification-optin" id="enableNotifications" hidden><span class="notification-optin-icon" aria-hidden="true">🔔</span><span><span data-i18n="enableNotificationsText">নোটিফিকেশন চালু করুন</span><span class="notification-optin-status" id="notificationStatus" role="status" data-i18n="notificationHint">নতুন আপডেট পেতে এখানে চাপ দিন</span></span></button>
 <section class="public-section" id="noticesSection" style="display:none">
   <div class="section-title"><h2 data-i18n="noticesTitle">Notices</h2><p data-i18n="noticesSubtitle">Latest updates from Friends Squad 2.0</p></div>
   <div class="notice-list" id="noticeList"></div>
@@ -101,7 +99,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script><script src="notification-client.js"></script>
+<script src="firebase-config.js"></script>
 <script>
 /* Keep the Bangladesh clock independent from Firebase and the main page scripts. */
 (function(){
@@ -221,55 +219,6 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
   modal.addEventListener("click",e=>{if(e.target===modal) modal.classList.remove("open")});
   renderMembers(defaults);
 
-  const notificationButton=document.getElementById("enableNotifications");
-  const notificationStatus=document.getElementById("notificationStatus");
-  function syncNotificationButton(){
-    if(!notificationButton)return;
-    const granted=("Notification" in window)&&Notification.permission==="granted";
-    const enabled=window.FS20Notifications&&window.FS20Notifications.isEnabled();
-    notificationButton.hidden=false;
-    const active=window.FS20Notifications&&window.FS20Notifications.isEnabled();
-    if(notificationStatus)notificationStatus.textContent=active
-      ?(currentLanguage==="bn"?"নোটিফিকেশন বন্ধ করতে চাপ দিন":"Tap to turn notifications off")
-      :(currentLanguage==="bn"?"নোটিফিকেশন চালু করতে চাপ দিন":"Tap to turn notifications on");
-    const label=notificationButton.querySelector("[data-i18n='enableNotificationsText']");
-    if(label)label.textContent=active
-      ?(currentLanguage==="bn"?"নোটিফিকেশন বন্ধ করুন":"Turn Notifications Off")
-      :(currentLanguage==="bn"?"নোটিফিকেশন চালু করুন":"Turn Notifications On");
-  }
-  syncNotificationButton();
-  if(notificationButton)notificationButton.addEventListener("click",async()=>{
-    notificationButton.disabled=true;
-    const active=window.FS20Notifications&&window.FS20Notifications.isEnabled();
-    if(active){
-      window.FS20Notifications.disable();
-      syncNotificationButton();
-      notificationButton.disabled=false;
-      return;
-    }
-    if(notificationStatus)notificationStatus.textContent=currentLanguage==="bn"?"অনুমতি চাওয়া হচ্ছে...":"Requesting permission...";
-    try{
-      await window.FS20Notifications.enable();
-      syncNotificationButton();
-    }catch(error){
-      if(notificationStatus)notificationStatus.textContent=error.message||"অনুমতি দেওয়া যায়নি।";
-    }
-    notificationButton.disabled=false;
-  });
-  function loadNotifications(){
-    if(!db)return;
-    let firstSnapshot=true;
-    db.collection("notifications").where("type","==","announcement").orderBy("createdAt","desc").limit(30).onSnapshot(snap=>{
-      if(!firstSnapshot){
-        snap.docChanges().filter(change=>change.type==="added").forEach(change=>{
-          const n=change.doc.data();
-          if(["member-approved","tender-approved"].includes(n.type))return;
-          if(window.FS20Notifications)window.FS20Notifications.show(n.title,n.body);
-        });
-      }
-      firstSnapshot=false;
-    },error=>console.warn("Notifications:",error));
-  }
   async function loadCloud(){
     if(!db) return;
     try{
@@ -377,7 +326,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
 
 
   const translations={
-    en:{navAbout:"About",navFriends:"Friends",navContact:"Contact",navRegistration:"Registration",navAdmin:"Admin Login",clockLabel:"Current Time in Bangladesh",clockZone:"Bangladesh Standard Time (UTC+6)",aboutTitle:"About Us",aboutSubtitle:"More than friends — we are a squad.",storyTitle:"Our Story",storyText:"Friends Squad 2.0 is built on trust, fun, support, and unforgettable memories.",vibeTitle:"Our Vibe",vibeText:"Good energy, big dreams, endless jokes, and real friendship.",membersTitle:"Meet the Squad",membersSubtitle:"Click a member to view details.",memberSearchTitle:"🔎 Find a Member",memberSearchPlaceholder:"Enter a member name...",memberSearchButton:"Search",memberSearchHint:"Type a name and search. Click a result to view the member profile.",enableNotificationsText:"Enable Notifications",notificationHint:"Tap here to get new updates",noticesTitle:"Notices",noticesSubtitle:"Latest updates from Friends Squad 2.0",mediaTitle:"Photos & Videos",mediaSubtitle:"Memories from the squad",contactTitle:"Contact Us",contactSubtitle:"Want to connect with Friends Squad 2.0? Give us a call.",closeLabel:"Close",visitorsToday:"VISITORS TODAY",totalVisitors:"TOTAL VISITORS",visitorNote:"Unique browser visits",footerText:"© 2026 Friends Squad 2.0 — Made with friendship and good vibes.",loadingDate:"Loading date...",squadMember:"Squad Member",noDetails:"No details added yet.",call:"Call: "},
+    en:{navAbout:"About",navFriends:"Friends",navContact:"Contact",navRegistration:"Registration",navAdmin:"Admin Login",clockLabel:"Current Time in Bangladesh",clockZone:"Bangladesh Standard Time (UTC+6)",aboutTitle:"About Us",aboutSubtitle:"More than friends — we are a squad.",storyTitle:"Our Story",storyText:"Friends Squad 2.0 is built on trust, fun, support, and unforgettable memories.",vibeTitle:"Our Vibe",vibeText:"Good energy, big dreams, endless jokes, and real friendship.",membersTitle:"Meet the Squad",membersSubtitle:"Click a member to view details.",memberSearchTitle:"🔎 Find a Member",memberSearchPlaceholder:"Enter a member name...",memberSearchButton:"Search",memberSearchHint:"Type a name and search. Click a result to view the member profile.",noticesTitle:"Notices",noticesSubtitle:"Latest updates from Friends Squad 2.0",mediaTitle:"Photos & Videos",mediaSubtitle:"Memories from the squad",contactTitle:"Contact Us",contactSubtitle:"Want to connect with Friends Squad 2.0? Give us a call.",closeLabel:"Close",visitorsToday:"VISITORS TODAY",totalVisitors:"TOTAL VISITORS",visitorNote:"Unique browser visits",footerText:"© 2026 Friends Squad 2.0 — Made with friendship and good vibes.",loadingDate:"Loading date...",squadMember:"Squad Member",noDetails:"No details added yet.",call:"Call: "},
     bn:{navAbout:"আমাদের সম্পর্কে",navFriends:"বন্ধুরা",navContact:"যোগাযোগ",navRegistration:"রেজিস্ট্রেশন",navAdmin:"অ্যাডমিন লগইন",clockLabel:"বাংলাদেশের বর্তমান সময়",clockZone:"বাংলাদেশ মান সময় (UTC+6)",aboutTitle:"আমাদের সম্পর্কে",aboutSubtitle:"আমরা শুধু বন্ধু নই — আমরা একটি পরিবার।",storyTitle:"আমাদের গল্প",storyText:"বিশ্বাস, আনন্দ, সহযোগিতা ও অসংখ্য স্মৃতি নিয়ে গড়ে উঠেছে Friends Squad 2.0।",vibeTitle:"আমাদের বন্ধন",vibeText:"ইতিবাচকতা, বড় স্বপ্ন, অফুরন্ত হাসি আর সত্যিকারের বন্ধুত্ব।",membersTitle:"আমাদের বন্ধুরা",membersSubtitle:"বিস্তারিত দেখতে কোনো সদস্যের ওপর ক্লিক করো।",enableNotificationsText:"নোটিফিকেশন চালু করুন",notificationHint:"নতুন আপডেট পেতে এখানে চাপ দিন",noticesTitle:"নোটিশ",noticesSubtitle:"Friends Squad 2.0-এর সর্বশেষ ঘোষণা",mediaTitle:"ছবি ও ভিডিও",mediaSubtitle:"বন্ধুদের সঙ্গে কাটানো স্মৃতি",contactTitle:"যোগাযোগ",contactSubtitle:"Friends Squad 2.0-এর সঙ্গে যোগাযোগ করতে আমাদের কল করো।",closeLabel:"বন্ধ করুন",visitorsToday:"আজকের ভিজিটর",totalVisitors:"মোট ভিজিটর",visitorNote:"ইউনিক ব্রাউজার ভিজিট",footerText:"© ২০২৬ Friends Squad 2.0 — বন্ধুত্ব আর ভালোবাসায় তৈরি।",loadingDate:"তারিখ লোড হচ্ছে...",squadMember:"স্কোয়াড সদস্য",noDetails:"এখনো কোনো বিস্তারিত তথ্য যোগ করা হয়নি।",call:"কল করুন: "}
   };
   let currentLanguage=localStorage.getItem("fs20_home_language")==="bn"?"bn":"en";
@@ -416,7 +365,6 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
 
   trackVisitors();
   loadCloud();
-  loadNotifications();
 })();
 </script>
 </body></html>
