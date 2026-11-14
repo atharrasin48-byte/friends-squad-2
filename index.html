@@ -259,7 +259,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
   function loadNotifications(){
     if(!db)return;
     let firstSnapshot=true;
-    db.collection("notifications").orderBy("createdAt","desc").limit(30).onSnapshot(snap=>{
+    db.collection("notifications").where("type","==","announcement").orderBy("createdAt","desc").limit(30).onSnapshot(snap=>{
       if(!firstSnapshot){
         snap.docChanges().filter(change=>change.type==="added").forEach(change=>{
           const n=change.doc.data();
