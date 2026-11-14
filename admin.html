@@ -193,6 +193,17 @@ async function loadMemberApplications(){
     const applicationRef=db.collection("memberApplications").doc(d.id);
     const approvedRef=db.collection("approvedMemberKeys").doc(d.id);
     const memberRef=db.collection("members").doc(memberId);
+    // Find an older member record for this same person before approving the new registration.
+    const normalizeMemberName=value=>String(value||"").trim().toLocaleLowerCase().replace(/\\s+/g," ");
+    const existingMembersSnap=await db.collection("members").get();
+    const olderMatchingMemberIds=[];
+    existingMembersSnap.forEach(doc=>{
+     const oldMember=doc.data()||{};
+     if(doc.id!==memberId && oldMember.deleted!==true &&
+        normalizeMemberName(oldMember.name)===normalizeMemberName(a.name)){
+      olderMatchingMemberIds.push(doc.id);
+     }
+    });
     const numbers=Array.from({length:90},(_,i)=>i+10);
     for(let i=numbers.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[numbers[i],numbers[j]]=[numbers[j],numbers[i]];}
     let registrationNo=null;
@@ -214,9 +225,13 @@ async function loadMemberApplications(){
      }catch(error){if(error.message==="NUMBER_TAKEN")continue;throw error;}
     }
     if(!registrationNo)throw new Error("১০ থেকে ৯৯ পর্যন্ত সব রেজিস্ট্রেশন নম্বর বরাদ্দ হয়ে গেছে।");
+    // Keep the newly registered record and hide older matching records from the member directory.
+    for(const oldMemberId of olderMatchingMemberIds){
+     await db.collection("members").doc(oldMemberId).set({deleted:true,replacedBy:memberId,replacedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    }
     downloadApprovedReceipt(a,"member",registrationNo);
     await loadMembers();await loadMemberApplications();
-    alert("সদস্য অনুমোদিত হয়েছে। দুই সংখ্যার রেজিস্ট্রেশন নম্বর "+registrationNo+"-সহ রসিদ ডাউনলোড হয়েছে।");
+    alert("সদস্য অনুমোদিত হয়েছে। একই নামের পুরোনো এন্ট্রি থাকলে সেটি বাদ দিয়ে নতুন রেজিস্ট্রেশন রাখা হয়েছে। রেজিস্ট্রেশন নম্বর "+registrationNo+"।");
    }catch(error){alert("অনুমোদন করা যায়নি: "+error.message);approveBtn.disabled=false;}
   };
   el.querySelector("[data-remove]").onclick=async()=>{
