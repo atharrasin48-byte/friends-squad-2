@@ -58,7 +58,7 @@ service cloud.firestore {
         ])
         && request.resource.data.keys().hasOnly([
           'name', 'age', 'className', 'birthDate', 'address',
-          'teamName', 'phone', 'imageUrl', 'notificationToken', 'status', 'createdAt'
+          'teamName', 'phone', 'imageUrl', 'status', 'createdAt'
         ])
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
@@ -94,7 +94,7 @@ service cloud.firestore {
         ])
         && request.resource.data.keys().hasOnly([
           'serial', 'name', 'address', 'collectionDate', 'submissionDate',
-          'place', 'tenderName', 'phone', 'date', 'imageUrl', 'notificationToken', 'createdAt'
+          'place', 'tenderName', 'phone', 'date', 'imageUrl', 'createdAt'
         ])
         && request.resource.data.name is string
         && request.resource.data.address is string
@@ -105,20 +105,6 @@ service cloud.firestore {
       allow get, list, update, delete: if isAdmin();
     }
 
-    match /notificationSubscriptions/{subscriptionId} {
-      allow create, update: if subscriptionId.matches('^[a-f0-9]{64}$')
-        && request.resource.data.keys().hasOnly(['token', 'enabled', 'platform', 'updatedAt', 'createdAt'])
-        && request.resource.data.token is string
-        && request.resource.data.token.size() > 20
-        && request.resource.data.enabled == true
-        && request.resource.data.updatedAt == request.time;
-      allow read, delete: if isAdmin();
-    }
-
-    match /notifications/{notificationId} {
-      allow read: if isAdmin() || resource.data.type == "announcement";
-      allow write: if isAdmin();
-    }
 
     match /registrationSettings/{settingsId} {
       allow read: if true;
