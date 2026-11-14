@@ -67,6 +67,7 @@ function guessStart(){secret=Math.floor(Math.random()*100)+1;tries=0;document.ge
 function makeGuess(){const input=document.getElementById('guessInput'),v=Number(input.value);if(!input.value||v<1||v>100||!Number.isInteger(v)){document.getElementById('guessStatus').textContent='১ থেকে ১০০-এর মধ্যে পূর্ণসংখ্যা দাও।';return;}tries++;document.getElementById('guessCount').textContent='চেষ্টা: '+tries;if(v===secret){document.getElementById('guessStatus').textContent='সঠিক! তুমি '+tries+' চেষ্টায় পেরেছ!';}else document.getElementById('guessStatus').textContent=v<secret?'আরও বড় সংখ্যা!':'আরও ছোট সংখ্যা!';input.select();}
 document.getElementById('guessBtn').onclick=makeGuess;document.getElementById('guessInput').addEventListener('keydown',e=>{if(e.key==='Enter')makeGuess()});document.getElementById('guessReset').onclick=guessStart;guessStart();
 </script>
+<script src="./firebase-config.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
