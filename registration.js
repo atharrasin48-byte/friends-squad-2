@@ -168,7 +168,7 @@ async function uploadImage(file) {
   return result.secure_url;
 }
 
-// Member account registration: Firebase Authentication keeps passwords private.
+// Simple member account signup: name, email, birth date and private password.
 $("memberEntry").addEventListener("submit", async event => {
   event.preventDefault();
   const form = event.currentTarget;
@@ -182,44 +182,35 @@ $("memberEntry").addEventListener("submit", async event => {
     const email = String(values.get("email")).trim().toLowerCase();
     const password = String(values.get("password"));
     const confirmPassword = String(values.get("confirmPassword"));
+    if (!name) throw new Error("তোমার নাম লিখো।");
+    if (!birthDate) throw new Error("জন্মতারিখ নির্বাচন করো।");
     if (password.length < 8) throw new Error("পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।");
     if (password !== confirmPassword) throw new Error("দুটি পাসওয়ার্ড মিলছে না।");
     if (signedInUser) await auth.signOut();
     try {
-      const credential = await auth.createUserWithEmailAndPassword(email, password);
-      signedInUser = credential.user;
+      signedInUser = (await auth.createUserWithEmailAndPassword(email, password)).user;
     } catch (authError) {
       if (authError.code !== "auth/email-already-in-use") throw authError;
-      const credential = await auth.signInWithEmailAndPassword(email, password);
-      signedInUser = credential.user;
+      signedInUser = (await auth.signInWithEmailAndPassword(email, password)).user;
     }
     const memberSetting = await db.collection("registrationSettings").doc("main").get();
     if (memberSetting.exists && memberSetting.data().memberLocked === true) {
       throw new Error("সদস্য রেজিস্ট্রেশন বর্তমানে বন্ধ।");
     }
     const key = await makeKey(name, birthDate);
-    const imageUrl = await uploadImage(values.get("image"));
-    const application = {
-      uid: signedInUser.uid,
-      email,
-      name,
-      age: Number(values.get("age")),
-      className: String(values.get("className")),
-      birthDate,
-      address: String(values.get("address")),
-      teamName: String(values.get("teamName")),
-      phone: String(values.get("phone")),
-      imageUrl,
-      status: "pending",
+    const applicationRef = db.collection("memberApplications").doc(key);
+    const existingApplication = await applicationRef.get();
+    if (existingApplication.exists) {
+      if (existingApplication.data().uid === signedInUser.uid) throw new Error("তোমার আবেদন ইতিমধ্যে জমা আছে। Admin অনুমোদনের অপেক্ষায় থাকো।");
+      throw new Error("এই নাম ও জন্মতারিখ দিয়ে একটি আবেদন আগে থেকেই জমা আছে।");
+    }
+    const approved = await db.collection("approvedMemberKeys").doc(key).get();
+    if (approved.exists) throw new Error("এই সদস্যের অ্যাকাউন্ট ইতিমধ্যে অনুমোদিত হয়েছে।");
+    await applicationRef.set({
+      uid: signedInUser.uid, email, name, birthDate, status: "pending",
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    await db.collection("memberApplications").doc(key).set(application);
-    showStatus(form, "অ্যাকাউন্ট তৈরি হয়েছে এবং আবেদন জমা হয়েছে। Admin অনুমোদনের পর Member Login করতে পারবে।", true);
-    addMemberReceiptDownload(form, {
-      name, age: values.get("age"), className: values.get("className"),
-      birthDate, address: values.get("address"), teamName: values.get("teamName"),
-      phone: values.get("phone"), imageUrl, reference: key
     });
+    showStatus(form, "অ্যাকাউন্ট তৈরি হয়েছে এবং আবেদন জমা হয়েছে। Admin অনুমোদনের পর Member Login করতে পারবে।", true);
     form.reset();
   } catch (error) {
     showStatus(form, error.message || "রেজিস্ট্রেশন সম্পন্ন হয়নি।");
