@@ -119,14 +119,14 @@ service cloud.firestore {
   }
 })
         && request.resource.data.age is int
-        && request.resource.data.age >= 1
-        && request.resource.data.age <= 120
+        && request.resource.data.age >= 13
+        && request.resource.data.age <= 99
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.photoURL is string
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time
-        && exists(/databases/$(database)/documents/usernames/$(request.resource.data.username))
-        && get(/databases/$(database)/documents/usernames/$(request.resource.data.username)).data.uid == uid;
+        && existsAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username))
+        && getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username)).data.uid == uid;
       allow update: if request.auth != null
         && request.auth.uid == uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','age','photoURL','updatedAt'])
@@ -134,8 +134,8 @@ service cloud.firestore {
         && request.resource.data.name.size() > 0
         && request.resource.data.name.size() <= 70
         && request.resource.data.age is int
-        && request.resource.data.age >= 1
-        && request.resource.data.age <= 120
+        && request.resource.data.age >= 13
+        && request.resource.data.age <= 99
         && request.resource.data.photoURL is string
         && request.resource.data.updatedAt == request.time;
       allow delete: if false;
