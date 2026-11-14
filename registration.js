@@ -7,6 +7,7 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 const ADMIN_CODE = "2627";
 const CLOUD_NAME = "r4qeis1r";
@@ -167,153 +168,57 @@ async function uploadImage(file) {
   return result.secure_url;
 }
 
-// Member registration lock status
-async function loadMemberStatus() {
-  const hint=$("memberLockHint");
-  const memberButton=document.querySelector('[data-form="member"]');
-  try {
-    const setting=await db.collection("registrationSettings").doc("main").get();
-    const locked=setting.exists&&setting.data().memberLocked===true;
-    hint.textContent=locked?"সদস্য রেজিস্ট্রেশন বর্তমানে বন্ধ।":"সদস্য রেজিস্ট্রেশন চালু আছে।";
-    if(memberButton) memberButton.textContent=locked?"🔒 সদস্য রেজিস্ট্রেশন (বন্ধ)":"সদস্য রেজিস্ট্রেশন";
-  } catch(error) {
-    hint.textContent="সদস্য রেজিস্ট্রেশনের অবস্থা যাচাই করা যায়নি।";
-  }
-}
-loadMemberStatus();
-
-// Registration type buttons
-document.querySelectorAll(".choice").forEach(button => {
-  button.addEventListener("click", async () => {
-    const type = button.dataset.form;
-
-    if (type === "member") {
-      try {
-        const setting=await db.collection("registrationSettings").doc("main").get();
-        if(setting.exists&&setting.data().memberLocked===true){
-          alert("সদস্য রেজিস্ট্রেশন বর্তমানে বন্ধ রয়েছে।");
-          return;
-        }
-      } catch(error) {
-        alert("সদস্য রেজিস্ট্রেশনের অবস্থা যাচাই করা যায়নি।");
-        return;
-      }
-    }
-
-    if (type === "tender") {
-      try {
-        const setting = await db
-          .collection("registrationSettings")
-          .doc("main").get();
-
-        if (setting.exists && setting.data().tenderLocked === true) {
-          alert("দরপত্র রেজিস্ট্রেশন বর্তমানে বন্ধ রয়েছে।");
-          return;
-        }
-      } catch (error) {
-        alert("রেজিস্ট্রেশনের অবস্থা যাচাই করা যায়নি।");
-        return;
-      }
-    }
-
-    document.querySelectorAll(".form").forEach(section =>
-      section.classList.remove("active")
-    );
-
-    const selected = $(type + "Form");
-    if (selected) selected.classList.add("active");
-
-    document.querySelectorAll(".choice").forEach(item =>
-      item.setAttribute("aria-pressed", String(item === button))
-    );
-  });
-});
-
-// Tender lock status
-async function loadTenderStatus() {
-  const hint = $("tenderLockHint");
-  if (!hint) return;
-  try {
-    const setting = await db
-      .collection("registrationSettings")
-      .doc("main").get();
-
-    const locked = setting.exists &&
-      setting.data().tenderLocked === true;
-
-    hint.textContent = locked
-      ? "দরপত্র রেজিস্ট্রেশন বর্তমানে বন্ধ।"
-      : "দরপত্র রেজিস্ট্রেশন চালু আছে।";
-
-    const tenderButton = document.querySelector(
-      '[data-form="tender"]'
-    );
-    if (tenderButton) {
-      tenderButton.textContent = locked
-        ? "🔒 দরপত্র রেজিস্ট্রেশন (বন্ধ)"
-        : "🔓 দরপত্র রেজিস্ট্রেশন";
-    }
-  } catch (error) {
-    hint.textContent = "অবস্থা যাচাই করা যায়নি।";
-  }
-}
-
-loadTenderStatus();
-
-// Member registration
+// Member account registration: Firebase Authentication keeps passwords private.
 $("memberEntry").addEventListener("submit", async event => {
   event.preventDefault();
   const form = event.currentTarget;
   const submit = form.querySelector('[type="submit"]');
   submit.disabled = true;
-
+  let signedInUser = auth.currentUser;
   try {
     const values = new FormData(form);
     const name = String(values.get("name")).trim();
     const birthDate = String(values.get("birthDate"));
-    const code = String(values.get("code"));
-
-    if (code !== ADMIN_CODE) {
-      throw new Error("Error! Please Correct Code.");
+    const email = String(values.get("email")).trim().toLowerCase();
+    const password = String(values.get("password"));
+    const confirmPassword = String(values.get("confirmPassword"));
+    if (password.length < 8) throw new Error("পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।");
+    if (password !== confirmPassword) throw new Error("দুটি পাসওয়ার্ড মিলছে না।");
+    if (signedInUser) await auth.signOut();
+    try {
+      const credential = await auth.createUserWithEmailAndPassword(email, password);
+      signedInUser = credential.user;
+    } catch (authError) {
+      if (authError.code !== "auth/email-already-in-use") throw authError;
+      const credential = await auth.signInWithEmailAndPassword(email, password);
+      signedInUser = credential.user;
     }
-
-    const memberSetting=await db.collection("registrationSettings").doc("main").get();
-    if(memberSetting.exists&&memberSetting.data().memberLocked===true) {
+    const memberSetting = await db.collection("registrationSettings").doc("main").get();
+    if (memberSetting.exists && memberSetting.data().memberLocked === true) {
       throw new Error("সদস্য রেজিস্ট্রেশন বর্তমানে বন্ধ।");
     }
-
-    // The document ID is a private hash of name + date of birth.
-    // Firestore rules enforce create-only and block already-approved keys.
     const key = await makeKey(name, birthDate);
-
     const imageUrl = await uploadImage(values.get("image"));
-
     const application = {
+      uid: signedInUser.uid,
+      email,
       name,
       age: Number(values.get("age")),
-      className: values.get("className"),
+      className: String(values.get("className")),
       birthDate,
-      address: values.get("address"),
-      teamName: values.get("teamName"),
-      phone: values.get("phone"),
+      address: String(values.get("address")),
+      teamName: String(values.get("teamName")),
+      phone: String(values.get("phone")),
       imageUrl,
-            status: "pending",
+      status: "pending",
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-
     await db.collection("memberApplications").doc(key).set(application);
-
-    showStatus(form, "রেজিস্ট্রেশন জমা হয়েছে। Admin অনুমোদনের অপেক্ষায় থাকুন।", true);
+    showStatus(form, "অ্যাকাউন্ট তৈরি হয়েছে এবং আবেদন জমা হয়েছে। Admin অনুমোদনের পর Member Login করতে পারবে।", true);
     addMemberReceiptDownload(form, {
-      name,
-      age: values.get("age"),
-      className: values.get("className"),
-      birthDate,
-      address: values.get("address"),
-      teamName: values.get("teamName"),
-      phone: values.get("phone"),
-      imageUrl,
-      reference: key
+      name, age: values.get("age"), className: values.get("className"),
+      birthDate, address: values.get("address"), teamName: values.get("teamName"),
+      phone: values.get("phone"), imageUrl, reference: key
     });
     form.reset();
   } catch (error) {
