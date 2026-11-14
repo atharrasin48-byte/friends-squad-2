@@ -121,6 +121,19 @@ async function loadMembers(){
  const list=$("memberList");list.innerHTML="";
  const snap=await db.collection("members").get(),cloud={};
  snap.forEach(d=>cloud[d.id]=d.data());
+ // Remove only Safwan's older, unregistered duplicate; preserve the registered entry.
+ const safwanName="সাফওয়ান ইবনে শিহাব";
+ const safwanMatches=snap.docs.filter(d=>String((d.data()||{}).name||"").trim().replace(/\\s+/g," ")===safwanName);
+ const safwanRegistered=safwanMatches.find(d=>String((d.data()||{}).registrationNo||"").trim()!=="");
+ if(safwanRegistered){
+  for(const d of safwanMatches){
+   const oldData=d.data()||{};
+   if(!String(oldData.registrationNo||"").trim() && oldData.deleted!==true){
+    await db.collection("members").doc(d.id).set({deleted:true,replacedBy:safwanRegistered.id,replacedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    oldData.deleted=true;
+   }
+  }
+ }
  const approvedSnap=await db.collection("approvedMemberKeys").get();
  const privateByMember={};
  for(const approvedDoc of approvedSnap.docs){
