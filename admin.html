@@ -197,7 +197,7 @@ async function loadMemberApplications(){
  if(snap.empty){list.textContent="কোনো নতুন আবেদন নেই।";return}
  snap.forEach(d=>{
   const a=d.data();const el=document.createElement("div");el.className="member-row";
-  el.innerHTML='<img src="'+esc(a.imageUrl||"")+'" alt=""><div style="flex:1;min-width:180px"><b>'+esc(a.name)+'</b><div class="muted">বয়স: '+esc(a.age)+' | শ্রেণী: '+esc(a.className)+'</div><div class="muted">জন্ম: '+esc(a.birthDate)+' | ফোন: '+esc(a.phone)+'</div><div class="muted">ঠিকানা: '+esc(a.address)+'</div><div class="muted">দল: '+esc(a.teamName)+'</div></div><button data-approve>Approve</button><button class="danger" data-remove>Remove</button>';
+  el.innerHTML='<div style="flex:1;min-width:180px"><b>'+esc(a.name)+'</b><div class="muted">ইমেইল: '+esc(a.email)+'</div><div class="muted">জন্মতারিখ: '+esc(a.birthDate)+'</div></div><button data-approve>Approve</button><button class="danger" data-remove>Remove</button>';
   el.querySelector("[data-approve]").onclick=async()=>{
    if(!confirm("এই আবেদন Approve করে Public Members-এ যোগ করবেন?"))return;
    const approveBtn=el.querySelector("[data-approve]");approveBtn.disabled=true;
@@ -230,7 +230,7 @@ async function loadMemberApplications(){
        if(numberSnap.exists)throw new Error("NUMBER_TAKEN");
        const approvedAt=firebase.firestore.FieldValue.serverTimestamp();
        transaction.set(numberRef,{registrationNo:numberText,applicationId:d.id,memberId,assignedAt:approvedAt});
-       transaction.set(memberRef,{id:memberId,name:a.name,role:"Member",bio:"",image:a.imageUrl,registrationNo:numberText,teamName:a.teamName||"",className:a.className||"",age:a.age||"",approvedAt},{merge:true});
+       transaction.set(memberRef,{id:memberId,name:a.name,role:"Member",bio:"",registrationNo:numberText,approvedAt},{merge:true});
        transaction.set(approvedRef,{approved:true,memberId,registrationNo:numberText,receiptData:a,approvedAt});
        if(a.uid){transaction.set(db.collection("memberAccounts").doc(a.uid),{uid:a.uid,email:a.email||"",name:a.name,memberId,registrationNo:numberText,approved:true,approvedAt});}
        transaction.delete(applicationRef);
