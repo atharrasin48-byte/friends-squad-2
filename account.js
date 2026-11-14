@@ -37,7 +37,7 @@ $("signupForm").addEventListener("submit",async e=>{
   const name=$("signupName").value.trim(),username=cleanUsername($("signupUsername").value),age=Number($("signupAge").value),email=$("signupEmail").value.trim().toLowerCase(),password=$("signupPassword").value,confirm=$("signupConfirm").value,file=$("signupPhoto").files[0];
   if(!/^[a-z0-9._]{3,20}$/.test(username))throw new Error("Username ৩–২০ অক্ষরের হতে হবে।");
   if(password!==confirm)throw new Error("দুটি পাসওয়ার্ড মিলছে না।");
-  if(!name||!Number.isInteger(age)||age<1||age>120)throw new Error("নাম ও সঠিক বয়স লিখো।");
+  if(!name||!Number.isInteger(age)||age<13||age>99)throw new Error("নাম ও সঠিক বয়স লিখো।");
   const photoURL=await uploadPhoto(file);
   const credential=await auth.createUserWithEmailAndPassword(email,password);createdUser=credential.user;
   await db.runTransaction(async tx=>{
