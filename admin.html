@@ -232,6 +232,7 @@ async function loadMemberApplications(){
        transaction.set(numberRef,{registrationNo:numberText,applicationId:d.id,memberId,assignedAt:approvedAt});
        transaction.set(memberRef,{id:memberId,name:a.name,role:"Member",bio:"",image:a.imageUrl,registrationNo:numberText,teamName:a.teamName||"",className:a.className||"",age:a.age||"",approvedAt},{merge:true});
        transaction.set(approvedRef,{approved:true,memberId,registrationNo:numberText,receiptData:a,approvedAt});
+       if(a.uid){transaction.set(db.collection("memberAccounts").doc(a.uid),{uid:a.uid,email:a.email||"",name:a.name,memberId,registrationNo:numberText,approved:true,approvedAt});}
        transaction.delete(applicationRef);
       });
       registrationNo=numberText;break;
