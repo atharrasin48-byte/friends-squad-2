@@ -278,3 +278,58 @@ $("tenderEntry").addEventListener("submit", async event => {
     submit.disabled = false;
   }
 });
+
+
+// Registration type buttons: reveal the selected form and respect admin lock settings.
+(function setupRegistrationChoices() {
+  const choices = document.querySelectorAll(".choice[data-form]");
+  const memberForm = document.getElementById("memberForm");
+  const tenderForm = document.getElementById("tenderForm");
+  const memberHint = document.getElementById("memberLockHint");
+  const tenderHint = document.getElementById("tenderLockHint");
+
+  async function readRegistrationSettings() {
+    try {
+      const snap = await db.collection("registrationSettings").doc("main").get();
+      const settings = snap.exists ? snap.data() : {};
+      const memberLocked = settings.memberLocked === true;
+      const tenderLocked = settings.tenderLocked === true;
+      if (memberHint) memberHint.textContent = memberLocked
+        ? "সদস্য রেজিস্ট্রেশন বর্তমানে বন্ধ।"
+        : "সদস্য রেজিস্ট্রেশন চালু আছে।";
+      if (tenderHint) tenderHint.textContent = tenderLocked
+        ? "দরপত্র রেজিস্ট্রেশন বর্তমানে বন্ধ।"
+        : "দরপত্র রেজিস্ট্রেশন চালু আছে।";
+      return { memberLocked, tenderLocked };
+    } catch (error) {
+      if (memberHint) memberHint.textContent = "রেজিস্ট্রেশনের অবস্থা যাচাই করা যায়নি।";
+      if (tenderHint) tenderHint.textContent = "রেজিস্ট্রেশনের অবস্থা যাচাই করা যায়নি।";
+      return { memberLocked: false, tenderLocked: false };
+    }
+  }
+
+  choices.forEach(button => {
+    button.addEventListener("click", async () => {
+      const selected = button.dataset.form;
+      choices.forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+      memberForm.classList.remove("active");
+      tenderForm.classList.remove("active");
+      const settings = await readRegistrationSettings();
+      if (selected === "member") {
+        if (settings.memberLocked) {
+          if (memberHint) memberHint.textContent = "সদস্য রেজিস্ট্রেশন বর্তমানে বন্ধ।";
+          return;
+        }
+        memberForm.classList.add("active");
+      } else {
+        if (settings.tenderLocked) {
+          if (tenderHint) tenderHint.textContent = "দরপত্র রেজিস্ট্রেশন বর্তমানে বন্ধ।";
+          return;
+        }
+        tenderForm.classList.add("active");
+      }
+    });
+  });
+
+  readRegistrationSettings();
+})();
