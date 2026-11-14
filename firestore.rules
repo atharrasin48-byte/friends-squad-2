@@ -32,6 +32,7 @@ service cloud.firestore {
       allow create: if request.auth != null
         && memberKey.matches('^[a-f0-9]{64}$')
         && request.resource.data.uid == request.auth.uid
+        && !exists(/databases/$(database)/documents/approvedMemberKeys/$(memberKey))
         && request.resource.data.keys().hasAll(['uid','email','name','age','className','birthDate','address','teamName','phone','imageUrl','status','createdAt'])
         && request.resource.data.keys().hasOnly(['uid','email','name','age','className','birthDate','address','teamName','phone','imageUrl','status','createdAt'])
         && request.resource.data.email is string
