@@ -45,15 +45,15 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
 
 
 .nav-right{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;padding-right:66px}
-.nav-links{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:2px}
-.nav-links a{margin:4px}
-.language-switch{display:flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid #93c5fd;border-radius:999px;background:#ffffff12;color:#dbeafe;font-size:12px;white-space:nowrap}
+.nav-links{width:100%;max-width:600px;margin-left:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,auto);align-items:stretch;gap:7px}
+.nav-links a{margin:0;text-align:center;padding:9px 8px;white-space:nowrap}
+.language-switch{display:flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid #93c5fd;border-radius:999px;background:#ffffff12;color:#dbeafe;font-size:12px;white-space:nowrap;margin-left:auto}
 .language-switch button{border:0;background:transparent;color:#dbeafe;font:700 12px Arial,sans-serif;padding:5px 7px;border-radius:999px;cursor:pointer}
 .language-switch button.active{background:#dbeafe;color:#123b70}
 .language-switch button:focus-visible{outline:2px solid #20d9c4;outline-offset:2px}
 .profile-icon{position:absolute!important;top:14px;right:7%;margin:0!important;z-index:5}
-@media(max-width:850px){nav{align-items:center;justify-content:flex-start;gap:8px}.logo{max-width:calc(100% - 66px)}.nav-right{width:100%;padding:0;justify-content:flex-start;align-items:flex-start;gap:6px}.nav-links{width:100%;justify-content:flex-start}.profile-icon{top:13px;right:5%;margin:0!important}}
-@media(max-width:480px){.nav-links a{padding:7px 10px;font-size:12px}.nav-right{gap:5px}.language-switch{margin:2px 4px 0}}
+@media(max-width:850px){nav{align-items:center;justify-content:flex-start;gap:8px}.logo{max-width:calc(100% - 66px)}.nav-right{width:100%;padding:0;justify-content:flex-start;align-items:flex-start;gap:6px}.nav-links{width:100%;max-width:600px;margin:0 auto;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.profile-icon{top:13px;right:5%;margin:0!important}}
+@media(max-width:480px){.nav-links a{padding:8px 3px;font-size:11px;letter-spacing:0}.nav-right{gap:5px}.language-switch{margin:2px 4px 0 auto}}
 
 
 .member-search-top{max-width:1150px;margin:0 auto;padding:16px 7% 0}.member-directory-search{max-width:900px;margin:0 auto 12px;padding:18px;border:1px solid #20d9c455;border-radius:18px;background:#ffffff0d;box-shadow:0 8px 24px #0002}.member-directory-search h3{margin:0 0 10px;color:var(--accent,#20d9c4);text-align:center}.member-directory-search .search-controls{display:flex;gap:9px}.member-directory-search input{flex:1;min-width:0;padding:13px 15px;border:1px solid #ffffff40;border-radius:12px;background:#0b1428;color:#fff;font-size:15px;outline:none}.member-directory-search input:focus{border-color:#20d9c4;box-shadow:0 0 0 3px #20d9c422}.member-directory-search button{padding:12px 20px;border:0;border-radius:12px;background:var(--primary,#7c5cff);color:var(--button-text,#fff);font-weight:700;cursor:pointer}.member-search-hint{text-align:center;color:#b9c2dd;font-size:13px;margin:9px 0 0}.member-search-message{margin:10px 0 0;padding:11px 12px;text-align:center;border:1px solid #f2b4c2;border-radius:10px;background:#fff3f5;color:#c94360;box-shadow:0 0 12px #f3a9bc33;text-shadow:0 0 7px #f6b7c866}.member-search-message[hidden]{display:none}.member-search-alert-title{display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:700}.member-search-alert-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid #d94b68;border-radius:50%;color:#d94b68;font-size:12px;font-weight:800;line-height:1}.member-search-alert-detail{margin-top:4px;font-size:12px;font-weight:500}.member-search-empty{display:none}@media(max-width:480px){.member-search-top{padding:12px 5% 0}.member-directory-search{padding:14px}.member-directory-search .search-controls{flex-direction:column}.member-directory-search button{width:100%}}
