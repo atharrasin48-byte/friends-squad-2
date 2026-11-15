@@ -38,7 +38,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(['name','age','className','birthDate','address','teamName','phone','imageUrl','status','createdAt'])
         && request.resource.data.keys().hasOnly(['name','age','className','birthDate','address','teamName','phone','imageUrl','notificationToken','status','createdAt','accessToken'])
         && request.resource.data.accessToken is string
-        && request.resource.data.accessToken.matches('^[a-f0-9]{32}
+        && request.resource.data.accessToken.matches('^[a-f0-9]{32}$')
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
         && request.resource.data.name.size() <= 100
