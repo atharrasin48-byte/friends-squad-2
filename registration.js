@@ -70,6 +70,7 @@ td:first-child{width:38%;font-weight:600}
 .photo{width:130px;height:155px;border:1px solid #777;display:flex;align-items:center;justify-content:center;color:#555;font-size:12px;text-align:center;overflow:hidden}
 .photo img{width:100%;height:100%;object-fit:cover}
 .reference{margin-top:16px;font-size:13px}
+.registration-badge{display:inline-block;margin-left:6px;padding:3px 9px;border-radius:5px;background:#e5f5e9;color:#18733b;border:1px solid #b9dfc4;font-family:monospace;font-weight:700;letter-spacing:.3px;overflow-wrap:anywhere}
 .reference strong{font-family:monospace;overflow-wrap:anywhere}
 .note{font-size:12px;margin-top:16px;line-height:1.5}
 .footer{border-top:1px solid #777;margin-top:20px;padding-top:9px;text-align:center;font-size:11px}
@@ -88,8 +89,8 @@ button{display:block;margin:18px auto 0;padding:10px 18px;border:1px solid #333;
 <tr><td>দলের নাম</td><td>${e(data.teamName)}</td></tr>
 <tr><td>মোবাইল নম্বর</td><td>${e(data.phone)}</td></tr>
 </table><div class="photo">${data.imageUrl ? `<img src="${e(data.imageUrl)}" alt="আবেদনকারীর ছবি">` : "আবেদনকারীর ছবি"}</div></section>
-<div class="reference">রেজিস্ট্রেশন রেফারেন্স নম্বর: <strong>${e(data.reference)}</strong></div>
-<p class="note">আবেদনের অবস্থা: Admin-এর অনুমোদনের অপেক্ষায়। এই রসিদটি সংরক্ষণ করুন। অনুমোদন না পাওয়া পর্যন্ত সদস্যপদ চূড়ান্ত বলে গণ্য হবে না।</p>
+<div class="reference">Registration Number: <span class="registration-badge">${e(data.reference)}</span></div>
+<p class="note">আপনার সদস্য রেজিস্ট্রেশন অনুমোদিত হয়েছে। ভবিষ্যতের প্রয়োজনে রসিদটি সংরক্ষণ করুন।</p>
 <footer class="footer">Friends Squad 2.0 · Member Registration</footer>
 </main><button onclick="window.print()">প্রিন্ট / PDF হিসেবে সংরক্ষণ</button></body></html>`;
   downloadReceipt(html, "friends-squad-member-receipt.html", form, "সদস্য রসিদ ডাউনলোড করুন");
@@ -195,11 +196,18 @@ $("memberEntry").addEventListener("submit", async event => {
     const ref = db.collection("memberApplications").doc(key);
     const imageFile = values.get("image");
     data.imageUrl = imageFile && imageFile.size ? await uploadImage(imageFile) : "";
+    const accessToken = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b=>b.toString(16).padStart(2,"0")).join("");
+    data.accessToken = accessToken;
     data.status = "pending";
     data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-    await ref.set(data);
-    showStatus(form, "সদস্য রেজিস্ট্রেশন জমা হয়েছে। Admin অনুমোদনের অপেক্ষায় থাকুন।", true);
-    addMemberReceiptDownload(form, {...data, reference:key});
+    const batch = db.batch();
+    batch.set(ref, data);
+    batch.set(db.collection("memberRegistrationStatus").doc(accessToken), {
+      status:"pending",
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await batch.commit();
+    showStatus(form, "সদস্য রেজিস্ট্রেশন জমা হয়েছে। Admin অনুমোদনের অপেক্ষায় থাকুন।\nআপনার Tracking Code: "+accessToken+"\nএই কোডটি সংরক্ষণ করুন; অনুমোদনের পর এটি দিয়ে রসিদ ডাউনলোড করতে পারবেন।", true);
     form.reset();
   } catch (error) {
     showStatus(form, error.message || "রেজিস্ট্রেশন সম্পন্ন হয়নি।");
@@ -207,6 +215,31 @@ $("memberEntry").addEventListener("submit", async event => {
     submit.disabled = false;
   }
 });
+
+
+const statusForm=$("memberStatusEntry");
+if(statusForm){
+ statusForm.addEventListener("submit",async event=>{
+  event.preventDefault();
+  const form=event.currentTarget,btn=form.querySelector('[type="submit"]');
+  const box=form.querySelector(".status");btn.disabled=true;box.style.display="block";box.className="status";box.textContent="স্ট্যাটাস যাচাই করা হচ্ছে…";
+  try{
+   const token=String(new FormData(form).get("accessToken")||"").trim().toLowerCase();
+   if(!/^[a-f0-9]{32}$/.test(token))throw new Error("সঠিক Tracking Code লিখুন।");
+   const snap=await db.collection("memberRegistrationStatus").doc(token).get();
+   if(!snap.exists)throw new Error("এই Tracking Code পাওয়া যায়নি। আবার যাচাই করুন।");
+   const record=snap.data()||{};
+   if(record.status!=="approved"){
+    box.className="status success";box.textContent="আপনার আবেদন এখনো অনুমোদনের অপেক্ষায় আছে।";
+    return;
+   }
+   if(!record.receiptData||!record.registrationNo)throw new Error("রসিদের তথ্য পাওয়া যায়নি। Admin-এর সঙ্গে যোগাযোগ করুন।");
+   box.className="status success";box.textContent="আপনার রেজিস্ট্রেশন অনুমোদিত হয়েছে। নিচের লিংক থেকে রসিদ ডাউনলোড করুন।";
+   addMemberReceiptDownload(form,{...record.receiptData,reference:record.registrationNo});
+  }catch(error){box.className="status error";box.textContent=error.message||"স্ট্যাটাস যাচাই করা যায়নি।"}
+  finally{btn.disabled=false}
+ });
+}
 
 // Tender registration
 $("tenderEntry").addEventListener("submit", async event => {
