@@ -240,7 +240,11 @@ $("memberEntry").addEventListener("submit", async event => {
     showStatus(form, "সদস্য রেজিস্ট্রেশন জমা হয়েছে। Admin অনুমোদনের অপেক্ষায় থাকুন।\nআপনার Tracking Code: "+accessToken+"\nএই কোডটি সংরক্ষণ করুন; অনুমোদনের পর এটি দিয়ে রসিদ ডাউনলোড করতে পারবেন।", true);
     form.reset();
   } catch (error) {
-    showStatus(form, error.message || "রেজিস্ট্রেশন সম্পন্ন হয়নি।");
+    const code = error && error.code ? String(error.code) : "";
+    const message = code === "permission-denied"
+      ? "Firebase অনুমতি দেয়নি। একই নাম ও জন্মতারিখ দিয়ে আগে আবেদন জমা হয়ে থাকলে Admin-কে আগের আবেদনটি Remove করতে হবে। অন্যথায় Firebase Firestore Rules প্রকাশিত আছে কি না যাচাই করতে হবে।"
+      : (error.message || "রেজিস্ট্রেশন সম্পন্ন হয়নি।");
+    showStatus(form, message);
   } finally {
     submit.disabled = false;
   }
