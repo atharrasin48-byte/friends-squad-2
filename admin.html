@@ -259,13 +259,17 @@ async function loadMemberApplications(){
     for(const oldMemberId of olderMatchingMemberIds){
      await db.collection("members").doc(oldMemberId).set({deleted:true,replacedBy:memberId,replacedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     }
+    if(!a.accessToken)await downloadApprovedReceipt(a,"member",registrationNo);
     await loadMembers();await loadMemberApplications();
     alert("সদস্য অনুমোদিত হয়েছে। একই নামের পুরোনো এন্ট্রি থাকলে সেটি বাদ দিয়ে নতুন রেজিস্ট্রেশন রাখা হয়েছে। রেজিস্ট্রেশন নম্বর "+registrationNo+"।");
    }catch(error){alert("অনুমোদন করা যায়নি: "+error.message);approveBtn.disabled=false;}
   };
   el.querySelector("[data-remove]").onclick=async()=>{
    if(!confirm("আবেদনটি স্থায়ীভাবে মুছে ফেলবেন?"))return;
-   await db.collection("memberApplications").doc(d.id).delete();
+   const batch=db.batch();
+   batch.delete(db.collection("memberApplications").doc(d.id));
+   if(a.accessToken)batch.delete(db.collection("memberRegistrationStatus").doc(a.accessToken));
+   await batch.commit();
    await loadMemberApplications();alert("আবেদন মুছে ফেলা হয়েছে।");
   };
   list.appendChild(el);
