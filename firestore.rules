@@ -58,9 +58,15 @@ service cloud.firestore {
     }
     match /approvedMemberKeys/{memberKey} { allow read, write: if isAdmin(); }
     match /memberRegistrationStatus/{accessToken} {
-      allow get: if true;
+      allow get: if accessToken.matches('^[a-f0-9]{32}$');
       allow list: if false;
-      allow create: if accessToken.matches('^[a-f0-9]{32}
+      allow create: if accessToken.matches('^[a-f0-9]{32}$')
+        && request.resource.data.keys().hasOnly(['status','createdAt'])
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
     match /memberRegistrationNumbers/{registrationNo} { allow read, write: if isAdmin(); }
 
     match /tenderApplications/{applicationId} {
