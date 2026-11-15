@@ -54,32 +54,35 @@ function addMemberReceiptDownload(form, data) {
   const e = escapeReceipt;
   const html = `<!doctype html>
 <html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Member Registration Receipt</title>
+<title>সদস্য রেজিস্ট্রেশন রসিদ</title>
 <style>
-*{box-sizing:border-box}body{margin:0;padding:22px;background:#fff;color:#111;font-family:Arial,"Noto Sans Bengali",sans-serif}
-.paper{max-width:760px;margin:0 auto;padding:28px;border:1px solid #999;background:#fff}
-.heading{text-align:center;border-bottom:1px solid #222;padding-bottom:14px}
-.heading h1{font-size:21px;margin:0 0 5px;font-weight:700;letter-spacing:.3px}
-.heading p{font-size:14px;margin:0}
-.heading h2{font-size:18px;margin:12px 0 0;font-weight:600}
-.intro{font-size:13px;margin:16px 0}
-.details{display:grid;grid-template-columns:minmax(0,1fr) 130px;gap:18px;align-items:start}
-table{width:100%;border-collapse:collapse;font-size:14px}
-td{border:1px solid #777;padding:9px 10px;vertical-align:top;overflow-wrap:anywhere}
-td:first-child{width:38%;font-weight:600}
-.photo{width:130px;height:155px;border:1px solid #777;display:flex;align-items:center;justify-content:center;color:#555;font-size:12px;text-align:center;overflow:hidden}
+*{box-sizing:border-box}
+@page{size:A4;margin:12mm}
+body{margin:0;padding:18px;background:#fff;color:#171717;font-family:Arial,"Noto Sans Bengali",sans-serif}
+.paper{width:100%;max-width:760px;min-height:250mm;margin:0 auto;padding:25px 28px;background:#fff;border:1px solid #dedede}
+.heading{text-align:center;padding:0 0 13px;border-bottom:1px solid #bdbdbd}
+.heading h1{font-size:20px;font-weight:600;margin:0 0 8px}
+.heading h2{font-size:18px;font-weight:600;margin:0}
+.intro{font-size:13px;margin:16px 0 14px;text-align:center;color:#444}
+.details{display:grid;grid-template-columns:minmax(0,1fr) 122px;gap:16px;align-items:start}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td{border:1px solid #d4d4d4;padding:9px 10px;vertical-align:middle;overflow-wrap:anywhere}
+td:first-child{width:38%;font-weight:600;background:#fafafa}
+.photo{width:122px;height:148px;border:1px solid #d4d4d4;display:flex;align-items:center;justify-content:center;color:#777;font-size:11px;text-align:center;overflow:hidden}
 .photo img{width:100%;height:100%;object-fit:cover}
-.reference{margin-top:16px;font-size:13px}
-.registration-badge{display:inline-block;margin-left:6px;padding:3px 9px;border-radius:5px;background:#e5f5e9;color:#18733b;border:1px solid #b9dfc4;font-family:monospace;font-weight:700;letter-spacing:.3px;overflow-wrap:anywhere}
-.reference strong{font-family:monospace;overflow-wrap:anywhere}
-.note{font-size:12px;margin-top:16px;line-height:1.5}
-.footer{border-top:1px solid #777;margin-top:20px;padding-top:9px;text-align:center;font-size:11px}
-button{display:block;margin:18px auto 0;padding:10px 18px;border:1px solid #333;background:#fff;color:#111;font-weight:600}
-@media(max-width:520px){body{padding:8px}.paper{padding:12px}.details{grid-template-columns:minmax(0,1fr) 95px;gap:8px}.photo{width:95px;height:120px}td{padding:7px 6px;font-size:12px}.heading h1{font-size:18px}}
-@media print{body{padding:0}.paper{max-width:none;border:0;padding:12mm}button{display:none}}
+.reference{margin-top:17px;font-size:13px}
+.registration-badge{display:inline-block;margin-left:6px;padding:3px 9px;border-radius:4px;background:#e5f5e9;color:#18733b;border:1px solid #b9dfc4;font-family:monospace;font-weight:700;letter-spacing:.3px;overflow-wrap:anywhere}
+.note{font-size:12px;margin-top:14px;line-height:1.6;color:#444}
+.signature{width:190px;margin:38px 0 0 auto;text-align:center;font-size:12px}
+.signature-name{font-family:Georgia,serif;font-size:20px;font-style:italic;color:#222;margin:0 0 5px}
+.signature-line{border-top:1px solid #777;padding-top:7px}
+.footer{border-top:1px solid #ddd;margin-top:24px;padding-top:9px;text-align:center;font-size:10px;color:#666}
+button{display:block;margin:18px auto 0;padding:10px 18px;border:1px solid #555;border-radius:3px;background:#fff;color:#111;font-weight:600}
+@media(max-width:520px){body{padding:8px}.paper{min-height:0;padding:14px 12px}.details{grid-template-columns:minmax(0,1fr) 92px;gap:8px}.photo{width:92px;height:116px}td{padding:7px 6px;font-size:11px}.heading h1{font-size:18px}.heading h2{font-size:16px}}
+@media print{body{padding:0}.paper{max-width:none;min-height:0;border:0;padding:0}button{display:none}}
 </style></head><body><main class="paper">
-<header class="heading"><h1>FRIENDS SQUAD 2.0</h1><p>THE PRO BOYS CYCLING GANG</p><h2>সদস্য রেজিস্ট্রেশন রসিদ</h2></header>
-<p class="intro">সদস্য রেজিস্ট্রেশনের জন্য আপনার জমা দেওয়া তথ্যসমূহ নিচে উল্লেখ করা হলো।</p>
+<header class="heading"><h1>FRIENDS SQUAD 2.0</h1><h2>সদস্য রেজিস্ট্রেশন রসিদ</h2></header>
+<p class="intro">সদস্য রেজিস্ট্রেশনের অনুমোদিত তথ্যসমূহ</p>
 <section class="details"><table>
 <tr><td>আবেদনকারীর নাম</td><td>${e(data.name)}</td></tr>
 <tr><td>বয়স</td><td>${e(data.age)}</td></tr>
@@ -91,6 +94,7 @@ button{display:block;margin:18px auto 0;padding:10px 18px;border:1px solid #333;
 </table><div class="photo">${data.imageUrl ? `<img src="${e(data.imageUrl)}" alt="আবেদনকারীর ছবি">` : "আবেদনকারীর ছবি"}</div></section>
 <div class="reference">Registration Number: <span class="registration-badge">${e(data.reference)}</span></div>
 <p class="note">আপনার সদস্য রেজিস্ট্রেশন অনুমোদিত হয়েছে। ভবিষ্যতের প্রয়োজনে রসিদটি সংরক্ষণ করুন।</p>
+<section class="signature"><div class="signature-name">Athar Rasin</div><div class="signature-line">অনুমোদিত স্বাক্ষর</div></section>
 <footer class="footer">Friends Squad 2.0 · Member Registration</footer>
 </main><button onclick="window.print()">প্রিন্ট / PDF হিসেবে সংরক্ষণ</button></body></html>`;
   downloadReceipt(html, "friends-squad-member-receipt.html", form, "সদস্য রসিদ ডাউনলোড করুন");
