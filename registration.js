@@ -188,7 +188,7 @@ $("memberEntry").addEventListener("submit", async event => {
     };
     if (Object.values(data).some(value => !value)) throw new Error("সব তথ্য পূরণ করুন।");
     const age = Number(data.age);
-    if (!Number.isInteger(age) || age < 13 || age > 99) throw new Error("বয়স ১৩ থেকে ৯৯-এর মধ্যে লিখুন।");
+    if (!Number.isInteger(age) || age < 5 || age > 100) throw new Error("বয়স ৫ থেকে ১০০-এর মধ্যে লিখুন।");
     const setting = await db.collection("registrationSettings").doc("main").get();
     if (setting.exists && setting.data().memberLocked === true) throw new Error("সদস্য রেজিস্ট্রেশন বর্তমানে বন্ধ।");
     const key = await makeKey(data.name, data.birthDate);
