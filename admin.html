@@ -219,6 +219,7 @@ async function loadMemberApplications(){
     const memberId="member-"+d.id.slice(0,16);
     const applicationRef=db.collection("memberApplications").doc(d.id);
     const approvedRef=db.collection("approvedMemberKeys").doc(d.id);
+    const statusRef=a.accessToken?db.collection("memberRegistrationStatus").doc(a.accessToken):null;
     const memberRef=db.collection("members").doc(memberId);
     // Find an older member record for this same person before approving the new registration.
     const normalizeMemberName=value=>String(value||"").trim().toLocaleLowerCase().replace(/\\s+/g," ");
@@ -246,6 +247,7 @@ async function loadMemberApplications(){
        transaction.set(numberRef,{registrationNo:numberText,applicationId:d.id,memberId,assignedAt:approvedAt});
        transaction.set(memberRef,{id:memberId,name:a.name,image:a.imageUrl||"",role:"Member",bio:"",registrationNo:numberText,approvedAt},{merge:true});
        transaction.set(approvedRef,{approved:true,memberId,registrationNo:numberText,receiptData:a,approvedAt});
+       if(statusRef)transaction.set(statusRef,{status:"approved",registrationNo:numberText,receiptData:a,approvedAt},{merge:true});
        if(a.uid){transaction.set(db.collection("memberAccounts").doc(a.uid),{uid:a.uid,email:a.email||"",name:a.name,memberId,registrationNo:numberText,approved:true,approvedAt});}
        transaction.delete(applicationRef);
       });
@@ -257,7 +259,6 @@ async function loadMemberApplications(){
     for(const oldMemberId of olderMatchingMemberIds){
      await db.collection("members").doc(oldMemberId).set({deleted:true,replacedBy:memberId,replacedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     }
-    await downloadApprovedReceipt(a,"member",registrationNo);
     await loadMembers();await loadMemberApplications();
     alert("সদস্য অনুমোদিত হয়েছে। একই নামের পুরোনো এন্ট্রি থাকলে সেটি বাদ দিয়ে নতুন রেজিস্ট্রেশন রাখা হয়েছে। রেজিস্ট্রেশন নম্বর "+registrationNo+"।");
    }catch(error){alert("অনুমোদন করা যায়নি: "+error.message);approveBtn.disabled=false;}
