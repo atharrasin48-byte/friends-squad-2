@@ -179,7 +179,7 @@ $("memberEntry").addEventListener("submit", async event => {
     if (String(values.get("code") || "").trim() !== ADMIN_CODE) throw new Error("Error! Please Correct Code.");
     const data = {
       name: String(values.get("name") || "").trim(),
-      age: String(values.get("age") || "").trim(),
+      age: Number(values.get("age") || 0),
       className: String(values.get("className") || "").trim(),
       birthDate: String(values.get("birthDate") || ""),
       address: String(values.get("address") || "").trim(),
