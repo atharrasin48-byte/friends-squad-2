@@ -52,51 +52,73 @@ function downloadReceipt(html, filename, form, label) {
 
 function addMemberReceiptDownload(form, data) {
   const e = escapeReceipt;
+  const rawDate = data.registrationDate || data.approvedAt || data.createdAt;
+  let registrationDate = "—";
+  try {
+    const date = rawDate && typeof rawDate.toDate === "function" ? rawDate.toDate() : new Date(rawDate);
+    if (!Number.isNaN(date.getTime())) registrationDate = [date.getDate(), date.getMonth()+1, date.getFullYear()].map(n=>String(n).padStart(2,"0")).join("-");
+  } catch (_) {}
   const html = `<!doctype html>
-<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>সদস্য রেজিস্ট্রেশন রসিদ</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Friends Squad 2.0 - Membership Registration Receipt</title>
 <style>
 *{box-sizing:border-box}
-@page{size:A4;margin:12mm}
-body{margin:0;padding:18px;background:#fff;color:#171717;font-family:Arial,"Noto Sans Bengali",sans-serif}
-.paper{width:100%;max-width:760px;min-height:250mm;margin:0 auto;padding:25px 28px;background:#fff;border:1px solid #dedede}
-.heading{text-align:center;padding:0 0 13px;border-bottom:1px solid #bdbdbd}
-.heading h1{font-size:20px;font-weight:600;margin:0 0 8px}
-.heading h2{font-size:18px;font-weight:600;margin:0}
-.intro{font-size:13px;margin:16px 0 14px;text-align:center;color:#444}
-.details{display:grid;grid-template-columns:minmax(0,1fr) 122px;gap:16px;align-items:start}
-table{width:100%;border-collapse:collapse;font-size:13px}
-td{border:1px solid #d4d4d4;padding:9px 10px;vertical-align:middle;overflow-wrap:anywhere}
-td:first-child{width:38%;font-weight:600;background:#fafafa}
-.photo{width:122px;height:148px;border:1px solid #d4d4d4;display:flex;align-items:center;justify-content:center;color:#777;font-size:11px;text-align:center;overflow:hidden}
-.photo img{width:100%;height:100%;object-fit:cover}
-.reference{margin-top:17px;font-size:13px}
-.registration-badge{display:inline-block;margin-left:6px;padding:3px 9px;border-radius:4px;background:#e5f5e9;color:#18733b;border:1px solid #b9dfc4;font-family:monospace;font-weight:700;letter-spacing:.3px;overflow-wrap:anywhere}
-.note{font-size:12px;margin-top:14px;line-height:1.6;color:#444}
-.signature{width:190px;margin:38px 0 0 auto;text-align:center;font-size:12px}
-.signature-name{font-family:Georgia,serif;font-size:20px;font-style:italic;color:#222;margin:0 0 5px}
-.signature-line{border-top:1px solid #777;padding-top:7px}
-.footer{border-top:1px solid #ddd;margin-top:24px;padding-top:9px;text-align:center;font-size:10px;color:#666}
-button{display:block;margin:18px auto 0;padding:10px 18px;border:1px solid #555;border-radius:3px;background:#fff;color:#111;font-weight:600}
-@media(max-width:520px){body{padding:8px}.paper{min-height:0;padding:14px 12px}.details{grid-template-columns:minmax(0,1fr) 92px;gap:8px}.photo{width:92px;height:116px}td{padding:7px 6px;font-size:11px}.heading h1{font-size:18px}.heading h2{font-size:16px}}
-@media print{body{padding:0}.paper{max-width:none;min-height:0;border:0;padding:0}button{display:none}}
+@page{size:A4;margin:8mm}
+body{margin:0;padding:14px;background:#fff;color:#101a35;font-family:Georgia,"Times New Roman",serif}
+.paper{position:relative;width:100%;max-width:820px;min-height:275mm;margin:0 auto;padding:34px 28px 24px;border:2px solid #4b9fe0;border-radius:14px;background:#fff;overflow:hidden}
+.corner{position:absolute;width:95px;height:95px;pointer-events:none}
+.corner:before,.corner:after{content:"";position:absolute;background:#62b4ee}
+.corner:before{width:100%;height:15px;top:0;left:0;transform:skewY(-42deg);transform-origin:left top}
+.corner:after{height:100%;width:15px;top:0;left:0;transform:skewX(-42deg);transform-origin:left top}
+.tl{top:0;left:0}.tr{top:0;right:0;transform:scaleX(-1)}
+.bl{bottom:0;left:0;transform:scaleY(-1)}.br{bottom:0;right:0;transform:scale(-1)}
+.heading{text-align:center;padding:4px 0 20px;border-bottom:2px solid #1b4e9b}
+.heading h1{font-size:clamp(28px,6vw,48px);line-height:1.05;margin:0 0 10px;font-weight:700;color:#101b3e}
+.heading h2{display:inline-block;margin:0;padding:5px 24px;border-radius:40px;background:#cfe5ff;color:#101b3e;font-size:clamp(19px,4vw,30px);font-weight:700}
+.main-table,.info-table{width:100%;border-collapse:collapse;font-size:clamp(15px,2.7vw,22px);color:#101827}
+.main-table{margin-top:18px}
+.main-table td,.info-table td{border:1.5px solid #6483a4;padding:7px 12px;vertical-align:middle}
+.main-table td:first-child{width:32%}
+.lower{display:grid;grid-template-columns:30% 1fr;gap:20px;margin-top:18px;align-items:stretch}
+.photo{height:100%;min-height:220px;padding:6px;border:2px solid #1b4e9b;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#64748b;font:13px Arial,sans-serif}
+.photo img{width:100%;height:100%;max-height:280px;object-fit:cover}
+.info-table td:first-child{width:48%}
+.approved{display:inline-block;padding:3px 17px;border-radius:30px;background:#c9f3b8;color:#103d19;font-weight:700;white-space:nowrap}
+.registration-badge{display:inline-block;padding:2px 10px;border-radius:24px;background:#c9f3b8;color:#103d19;font-weight:700;white-space:nowrap}
+.success{margin-top:18px;padding:8px 12px;text-align:center;border:1.5px solid #21b94a;border-radius:18px;background:#eaffeb;color:#10531e}
+.success strong{display:block;font-size:clamp(21px,3.7vw,32px)}
+.success span{display:block;font-size:clamp(14px,2.5vw,21px);color:#111}
+.bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-top:18px;padding:13px 8px 0;border-top:2px solid #1b4e9b}
+.issued{font-size:17px;line-height:1.4}.issued strong{display:block;font-size:19px}
+.signature{width:245px;max-width:45%;text-align:center;color:#101b3e}
+.signature-name{font-family:"Brush Script MT","Segoe Script",cursive;font-style:italic;font-size:35px;line-height:1.1;color:#111}
+.signature-line{border-bottom:2px solid #1b4e9b;margin-bottom:6px}
+.signature-label{font-size:15px}
+button{display:block;margin:16px auto 0;padding:10px 18px;border:1px solid #315b91;border-radius:5px;background:#fff;color:#14264b;font-weight:700}
+@media(max-width:560px){body{padding:5px}.paper{padding:22px 10px 16px;min-height:0}.lower{grid-template-columns:29% 1fr;gap:8px}.photo{min-height:150px}.main-table td,.info-table td{padding:6px 5px}.approved{padding:2px 8px}.bottom{gap:8px}.issued{font-size:13px}.issued strong{font-size:14px}.signature-name{font-size:27px}.signature-label{font-size:11px}}
+@media print{body{padding:0}.paper{max-width:none;min-height:0;border-radius:0;padding:9mm 7mm 6mm;break-inside:avoid}button{display:none}}
 </style></head><body><main class="paper">
-<header class="heading"><h1>FRIENDS SQUAD 2.0</h1><h2>সদস্য রেজিস্ট্রেশন রসিদ</h2></header>
-<p class="intro">সদস্য রেজিস্ট্রেশনের অনুমোদিত তথ্যসমূহ</p>
-<section class="details"><table>
-<tr><td>আবেদনকারীর নাম</td><td>${e(data.name)}</td></tr>
-<tr><td>বয়স</td><td>${e(data.age)}</td></tr>
-<tr><td>শ্রেণি</td><td>${e(data.className)}</td></tr>
-<tr><td>জন্মতারিখ</td><td>${e(data.birthDate)}</td></tr>
-<tr><td>ঠিকানা</td><td>${e(data.address)}</td></tr>
-<tr><td>দলের নাম</td><td>${e(data.teamName)}</td></tr>
-<tr><td>মোবাইল নম্বর</td><td>${e(data.phone)}</td></tr>
-</table><div class="photo">${data.imageUrl ? `<img src="${e(data.imageUrl)}" alt="আবেদনকারীর ছবি">` : "আবেদনকারীর ছবি"}</div></section>
-<div class="reference">Registration Number: <span class="registration-badge">${e(data.reference)}</span></div>
-<p class="note">আপনার সদস্য রেজিস্ট্রেশন অনুমোদিত হয়েছে। ভবিষ্যতের প্রয়োজনে রসিদটি সংরক্ষণ করুন।</p>
-<section class="signature"><div class="signature-name">Athar Rasin</div><div class="signature-line">অনুমোদিত স্বাক্ষর</div></section>
-<footer class="footer">Friends Squad 2.0 · Member Registration</footer>
-</main><button onclick="window.print()">প্রিন্ট / PDF হিসেবে সংরক্ষণ</button></body></html>`;
+<i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+<header class="heading"><h1>Friends Squad 2.0</h1><h2>Membership Registration Receipt</h2></header>
+<table class="main-table">
+<tr><td>Name</td><td>${e(data.name)}</td></tr>
+<tr><td>Age</td><td>${e(data.age)}</td></tr>
+<tr><td>Class</td><td>${e(data.className)}</td></tr>
+<tr><td>Birth Date</td><td>${e(data.birthDate)}</td></tr>
+<tr><td>Address</td><td>${e(data.address)}</td></tr>
+</table>
+<section class="lower"><div class="photo">${data.imageUrl ? `<img src="${e(data.imageUrl)}" alt="Member photo">` : "Member photo"}</div>
+<table class="info-table">
+<tr><td>Team Name</td><td>${e(data.teamName)}</td></tr>
+<tr><td>Phone</td><td>${e(data.phone)}</td></tr>
+<tr><td>Status</td><td><span class="approved">Approved</span></td></tr>
+<tr><td>Registration Date</td><td>${e(registrationDate)}</td></tr>
+<tr><td>Registration Number</td><td><span class="registration-badge">${e(data.reference)}</span></td></tr>
+</table></section>
+<section class="success"><strong>Registration Successful!</strong><span>You are now a verified member of Friends Squad 2.0.</span></section>
+<footer class="bottom"><div class="issued">Issued By:<strong>Friends Squad 2.0 Team</strong></div>
+<div class="signature"><div class="signature-name">Athar Rasin</div><div class="signature-line"></div><div class="signature-label">Authorized Signature</div></div></footer>
+</main><button onclick="window.print()">Print / Save as PDF</button></body></html>`;
   downloadReceipt(html, "friends-squad-member-receipt.html", form, "সদস্য রসিদ ডাউনলোড করুন");
 }
 
