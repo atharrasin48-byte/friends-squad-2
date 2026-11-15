@@ -172,27 +172,31 @@ button{display:block;margin:18px auto 0;padding:10px 18px;border:1px solid #333;
 }
 
 async function uploadImage(file) {
-  if (!file || !file.type.startsWith("image/")) {
+  if (!file || !file.type || !file.type.startsWith("image/")) {
     throw new Error("একটি সঠিক ছবি নির্বাচন করুন।");
   }
   if (file.size > 5 * 1024 * 1024) {
     throw new Error("ছবির সাইজ ৫ MB-এর কম হতে হবে।");
   }
-
-  const data = new FormData();
-  data.append("file", file);
-  data.append("upload_preset", UPLOAD_PRESET);
-
-  const response = await fetch(
+  const endpoints = [
     `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-    { method: "POST", body: data }
-  );
-
-  const result = await response.json();
-  if (!response.ok || !result.secure_url) {
-    throw new Error("ছবি আপলোড হয়নি। আবার চেষ্টা করুন।");
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`
+  ];
+  let lastError = null;
+  for (const endpoint of endpoints) {
+    try {
+      const data = new FormData();
+      data.append("file", file);
+      data.append("upload_preset", UPLOAD_PRESET);
+      const response = await fetch(endpoint, {method:"POST",body:data,cache:"no-store"});
+      const result = await response.json().catch(() => ({}));
+      if (response.ok && result.secure_url) return result.secure_url;
+      lastError = new Error(result.error?.message || "Cloudinary upload failed");
+    } catch (error) {
+      lastError = error;
+    }
   }
-  return result.secure_url;
+  throw new Error("ছবি আপলোড করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।");
 }
 
 // Standalone member registration; this is separate from the personal Profile account.
