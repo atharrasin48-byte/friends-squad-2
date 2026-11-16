@@ -121,16 +121,21 @@ async function loadMembers(){
  const list=$("memberList");list.innerHTML="";
  const snap=await db.collection("members").get(),cloud={};
  snap.forEach(d=>cloud[d.id]=d.data());
- // Remove only Safwan's older, unregistered duplicate; preserve the registered entry.
- const safwanName="সাফওয়ান ইবনে শিহাব";
- const safwanMatches=snap.docs.filter(d=>String((d.data()||{}).name||"").trim().replace(/\s+/g," ")===safwanName);
- const safwanRegistered=safwanMatches.find(d=>String((d.data()||{}).registrationNo||"").trim()!=="");
- if(safwanRegistered){
-  for(const d of safwanMatches){
-   const oldData=d.data()||{};
-   if(!String(oldData.registrationNo||"").trim() && oldData.deleted!==true){
-    await db.collection("members").doc(d.id).set({deleted:true,replacedBy:safwanRegistered.id,replacedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-    oldData.deleted=true;
+ // Prefer the approved registration over an older unregistered entry with the same name.
+ const normName=v=>String(v||"").trim().toLowerCase().replace(/\s+/g," ");
+ const groups={};
+ snap.docs.forEach(doc=>{
+  const x=doc.data()||{},n=normName(x.name);
+  if(n&&x.deleted!==true)(groups[n]||(groups[n]=[])).push(doc);
+ });
+ for(const group of Object.values(groups)){
+  const approved=group.filter(doc=>String((doc.data()||{}).registrationNo||"").trim());
+  if(!approved.length)continue;
+  for(const doc of group){
+   const x=doc.data()||{};
+   if(!String(x.registrationNo||"").trim()){
+    await db.collection("members").doc(doc.id).set({deleted:true,replacedBy:approved[0].id,replacedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    x.deleted=true;cloud[doc.id]=x;
    }
   }
  }
