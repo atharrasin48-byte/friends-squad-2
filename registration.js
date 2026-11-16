@@ -205,6 +205,7 @@ $("memberEntry").addEventListener("submit", async event => {
   const form = event.currentTarget;
   const submit = form.querySelector('[type="submit"]');
   submit.disabled = true;
+  let submitStage = "তথ্য যাচাই";
   try {
     const values = new FormData(form);
     if (String(values.get("code") || "").trim() !== ADMIN_CODE) throw new Error("কোডটি সঠিক নয়। আবার চেষ্টা করুন।");
@@ -220,16 +221,19 @@ $("memberEntry").addEventListener("submit", async event => {
     if (Object.values(data).some(value => !value)) throw new Error("সব তথ্য পূরণ করুন।");
     const age = Number(data.age);
     if (!Number.isInteger(age) || age < 5 || age > 100) throw new Error("বয়স ৫ থেকে ১০০-এর মধ্যে লিখুন।");
+    submitStage = "রেজিস্ট্রেশন সেটিংস পড়া";
     const setting = await db.collection("registrationSettings").doc("main").get();
     if (setting.exists && setting.data().memberLocked === true) throw new Error("সদস্য রেজিস্ট্রেশন বর্তমানে বন্ধ।");
     const key = await makeKey(data.name, data.birthDate);
     const ref = db.collection("memberApplications").doc(key);
     const imageFile = values.get("image");
+    submitStage = "ছবি আপলোড";
     data.imageUrl = imageFile && imageFile.size ? await uploadImage(imageFile) : "";
     const accessToken = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b=>b.toString(16).padStart(2,"0")).join("");
     data.accessToken = accessToken;
     data.status = "pending";
     data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    submitStage = "Firestore-এ আবেদন ও Tracking Code সংরক্ষণ";
     const batch = db.batch();
     batch.set(ref, data);
     batch.set(db.collection("memberRegistrationStatus").doc(accessToken), {
@@ -241,9 +245,11 @@ $("memberEntry").addEventListener("submit", async event => {
     form.reset();
   } catch (error) {
     const code = error && error.code ? String(error.code) : "";
+    const detail = error && error.message ? String(error.message) : "অজানা সমস্যা";
     const message = code === "permission-denied"
-      ? "Firebase অনুমতি দেয়নি। একই নাম ও জন্মতারিখ দিয়ে আগে আবেদন জমা হয়ে থাকলে Admin-কে আগের আবেদনটি Remove করতে হবে। অন্যথায় Firebase Firestore Rules প্রকাশিত আছে কি না যাচাই করতে হবে।"
-      : (error.message || "রেজিস্ট্রেশন সম্পন্ন হয়নি।");
+      ? "সমস্যার ধাপ: " + submitStage + "\\nFirebase অনুমতি দেয়নি (permission-denied)। এই ধাপের Firestore Rules বা আগে থেকে থাকা একই আবেদন পরীক্ষা করতে হবে।"
+      : "সমস্যার ধাপ: " + submitStage + "\\n" + detail;
+    console.error("Member registration failed at:", submitStage, error);
     showStatus(form, message);
   } finally {
     submit.disabled = false;
