@@ -166,7 +166,17 @@ async function loadMembers(){
  }
  const raw=(window.DEFAULT_MEMBERS||[]).map(m=>Object.assign({},m,cloud[m.id]||{})).filter(m=>!m.deleted).concat(Object.keys(cloud).filter(id=>!(window.DEFAULT_MEMBERS||[]).some(m=>m.id===id)).map(id=>Object.assign({id},cloud[id])).filter(m=>!m.deleted));
  const unique=new Map();
- raw.forEach(m=>{const key=String(m.name||"").trim().toLocaleLowerCase().replace(/\s+/g," ")||m.id;if(key)unique.set(key,Object.assign({},unique.get(key)||{},m))});
+ raw.forEach(m=>{
+  const key=String(m.name||"").trim().toLocaleLowerCase().replace(/\s+/g," ")||m.id;
+  if(!key)return;
+  const previous=unique.get(key);
+  const currentRegistered=String(m.registrationNo||"").trim()!=="";
+  const previousRegistered=previous&&String(previous.registrationNo||"").trim()!=="";
+  // Prefer an approved registration over an older unregistered entry with the same name.
+  if(!previous||(currentRegistered&&!previousRegistered)||currentRegistered===previousRegistered){
+   unique.set(key,Object.assign({},previous||{},m));
+  }
+ });
  Array.from(unique.values()).forEach(m=>{
   const el=document.createElement("div");el.className="member-row";
   const privateData=privateByMember[m.id];
