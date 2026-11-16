@@ -239,7 +239,7 @@ async function loadMemberApplications(){
     const statusRef=a.accessToken?db.collection("memberRegistrationStatus").doc(a.accessToken):null;
     const memberRef=db.collection("members").doc(memberId);
     // Find an older member record for this same person before approving the new registration.
-    const normalizeMemberName=value=>String(value||"").trim().toLocaleLowerCase().replace(/\\s+/g," ");
+    const normalizeMemberName=value=>String(value||"").trim().toLocaleLowerCase().replace(/\s+/g," ");
     const existingMembersSnap=await db.collection("members").get();
     const olderMatchingMemberIds=[];
     existingMembersSnap.forEach(doc=>{
