@@ -231,9 +231,13 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
       const cloud={}; snap.forEach(d=>cloud[d.id]=d.data());
       const merged=defaults.map(m=>Object.assign({},m,cloud[m.id]||{})).filter(m=>!m.deleted);
       const extras=Object.keys(cloud).filter(id=>!defaults.some(m=>m.id===id)).map(id=>Object.assign({id},cloud[id])).filter(m=>!m.deleted);
+      // A member with an assigned registration number is a distinct approved record.
+      // Do not collapse approved registrations merely because their names match.
       const unique=new Map();
       merged.concat(extras).forEach(m=>{
-        const key=String(m.name||"").trim().toLocaleLowerCase().replace(/\s+/g," ")||m.id;
+        const registrationNo=String(m.registrationNo||"").trim();
+        const nameKey=String(m.name||"").trim().toLocaleLowerCase().replace(/\s+/g," ");
+        const key=registrationNo ? "registration:"+registrationNo : ("name:"+nameKey || "id:"+m.id);
         if(key)unique.set(key,Object.assign({},unique.get(key)||{},m));
       });
       renderMembers(Array.from(unique.values()));
