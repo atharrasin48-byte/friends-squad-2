@@ -162,7 +162,7 @@ async function loadMembers(){
   }
   list.appendChild(el);
   el.querySelector("[data-edit]").onclick=()=>{$("mId").value=m.id;$("mName").value=m.name||"";$("mRole").value=m.role||"";$("mBio").value=m.bio||""};
-  el.querySelector("[data-del]").onclick=async()=>{if(confirm("Delete this member?")){await db.collection("members").doc(m.id).set({deleted:true},{merge:true});await loadMembers()}};
+  el.querySelector("[data-del]").onclick=async()=>{if(confirm("Delete this member?\nএতে এই সদস্যের পুরোনো অনুমোদিত রেজিস্ট্রেশন Key-ও মুছে যাবে, ফলে পরে নতুন করে আবেদন করা যাবে।")){try{const batch=db.batch();batch.set(db.collection("members").doc(m.id),{deleted:true,deletedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});approvedSnap.docs.filter(ad=>((ad.data()||{}).memberId===m.id)).forEach(ad=>batch.delete(ad.ref));await batch.commit();await loadMembers();alert("সদস্যটি মুছে ফেলা হয়েছে। পুরোনো রেজিস্ট্রেশন Key-ও পরিষ্কার করা হয়েছে।");}catch(error){alert("মুছে ফেলা যায়নি: "+error.message)}}};
  });
 }
 $("saveMember").onclick=async()=>{try{let id=$("mId").value.trim()||("member-"+Date.now());const old=await db.collection("members").doc(id).get();let data=old.exists?old.data():((window.DEFAULT_MEMBERS||[]).find(x=>x.id===id)||{});data={...data,id,name:$("mName").value.trim(),role:$("mRole").value.trim(),bio:$("mBio").value};const f=$("mPhoto").files[0];if(f)data.image=await upload(f,"members/"+id+"-"+Date.now()+"-"+f.name);await db.collection("members").doc(id).set(data,{merge:true});clearForm();await loadMembers();alert("Member saved.")}catch(e){alert(e.message)}};
