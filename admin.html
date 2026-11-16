@@ -135,6 +135,18 @@ async function loadMembers(){
   }
  }
  const approvedSnap=await db.collection("approvedMemberKeys").get();
+ // Remove legacy approval locks whose linked member is already deleted or missing.
+ const staleApprovedKeys=approvedSnap.docs.filter(ad=>{
+  const rec=ad.data()||{};
+  if(!rec.memberId)return false;
+  const linked=cloud[rec.memberId];
+  return !linked || linked.deleted===true;
+ });
+ if(staleApprovedKeys.length){
+  const cleanup=db.batch();
+  staleApprovedKeys.forEach(ad=>cleanup.delete(ad.ref));
+  await cleanup.commit();
+ }
  const privateByMember={};
  for(const approvedDoc of approvedSnap.docs){
   const record=approvedDoc.data(),receipt=record.receiptData||{};
