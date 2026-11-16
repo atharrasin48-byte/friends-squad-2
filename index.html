@@ -145,6 +145,27 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
     document.getElementById("modalBio").innerHTML=details?esc(details).replace(/\n/g,"<br>"):translations[currentLanguage].noDetails;
     modal.classList.add("open"); modal.setAttribute("aria-hidden","false");
   }
+  function dedupePublicMembers(list){
+    const active=(list||[]).filter(m=>m&&!m.deleted);
+    const groups=new Map();
+    active.forEach(m=>{
+      const nameKey=String(m.name||"").trim().toLocaleLowerCase().replace(/\s+/g," ");
+      const key=nameKey||("id:"+m.id);
+      if(!groups.has(key))groups.set(key,[]);
+      groups.get(key).push(m);
+    });
+    const result=[];
+    groups.forEach(group=>{
+      const registered=group.filter(m=>String(m.registrationNo||"").trim()!=="");
+      if(registered.length){
+        // Keep every separately numbered approved registration; hide only legacy unregistered duplicates.
+        result.push(...registered);
+      }else{
+        result.push(group[group.length-1]);
+      }
+    });
+    return result;
+  }
   function renderMembers(list,saveList=true){
     if(saveList)allMembers=list.slice();
     grid.innerHTML="";
@@ -191,13 +212,7 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
           .concat(Object.keys(cloud).filter(id=>!defaults.some(m=>m.id===id)).map(id=>cloud[id]));
         directory=directory.concat(combined);
       }
-      const unique=new Map();
-      directory.filter(m=>m&&!m.deleted).forEach(m=>{
-        const nameKey=String(m.name||"").trim().toLocaleLowerCase().replace(/\s+/g," ");
-        const key=nameKey||m.id;
-        if(key)unique.set(key,Object.assign({},unique.get(key)||{},m));
-      });
-      directory=Array.from(unique.values());
+      directory=dedupePublicMembers(directory);
       if(requestId!==memberSearchRequest)return;
       allMembers=directory;
       const isNumber=/^\\d{2}$/.test(query);
@@ -231,16 +246,8 @@ section{max-width:1150px;margin:auto;padding:65px 7%}.section-title{text-align:c
       const cloud={}; snap.forEach(d=>cloud[d.id]=d.data());
       const merged=defaults.map(m=>Object.assign({},m,cloud[m.id]||{})).filter(m=>!m.deleted);
       const extras=Object.keys(cloud).filter(id=>!defaults.some(m=>m.id===id)).map(id=>Object.assign({id},cloud[id])).filter(m=>!m.deleted);
-      // A member with an assigned registration number is a distinct approved record.
-      // Do not collapse approved registrations merely because their names match.
-      const unique=new Map();
-      merged.concat(extras).forEach(m=>{
-        const registrationNo=String(m.registrationNo||"").trim();
-        const nameKey=String(m.name||"").trim().toLocaleLowerCase().replace(/\s+/g," ");
-        const key=registrationNo ? "registration:"+registrationNo : ("name:"+nameKey || "id:"+m.id);
-        if(key)unique.set(key,Object.assign({},unique.get(key)||{},m));
-      });
-      renderMembers(Array.from(unique.values()));
+      // Approved registrations replace legacy unregistered duplicates with the same name.
+      renderMembers(dedupePublicMembers(merged.concat(extras)));
     }catch(e){console.warn(e)}
     try{
       const s=await db.collection("siteSettings").doc("main").get();
